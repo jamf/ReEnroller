@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>newJSSHostname</key>
+	<string></string>
+	<key>newJSSPort</key>
+	<string></string>
+	<key>createConfSwitches</key>
+	<string></string>
+	<key>theNewInvite</key>
+	<string></string>
+	<key>profileUUID</key>
+	<string></string>
+	<key>removeProfile</key>
+	<string></string>
+	<key>removeAllProfiles</key>
+	<string></string>
+	<key>removeReEnroller</key>
+	<string></string>
+	<key>retainSite</key>
+	<string></string>
+	<key>skipMdmCheck</key>
+	<string></string>
+</dict>
+</plist>

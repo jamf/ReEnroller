@@ -1,0 +1,267 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>ReEnroller Help</title>
+<meta name="generator" content="lnh">
+<style>
+body
+{
+   background-color: #D6DBDB;
+   color: #000000;
+   font-family: Arial;
+   font-weight: normal;
+   font-size: 13px;
+   line-height: 1.1875;
+   margin: 0;
+   padding: 0;
+}
+a
+{
+   color: #0000FF;
+   text-decoration: underline;
+}
+a:visited
+{
+   color: #800080;
+}
+a:active
+{
+   color: #FF0000;
+}
+a:hover
+{
+   color: #0000FF;
+   text-decoration: underline;
+}
+#wb_Heading1
+{
+   background-color: #FFFFFF;
+   background-image: none;
+   border: 0px #000000 solid;
+   padding: 0px 0px 0px 0px;
+}
+#Heading1
+{
+   color: #000000;
+   font-family: Arial;
+   font-weight: normal;
+   font-size: 32px;
+   margin: 0;
+   text-align: center;
+}
+#wb_Text1
+{
+   background-color: transparent;
+   background-image: none;
+   border: 0px #C0C0C0 solid;
+   padding: 0;
+   margin: 0;
+   text-align: left;
+}
+#main_body div
+{
+    text-align: left;
+    padding: 10px 20px 10px 20px;
+}
+#wb_Text1 div
+{
+   text-align: left;
+}
+#wb_Text2
+{
+   background-color: transparent;
+   background-image: none;
+   border: 0px #C0C0C0 solid;
+   padding: 0;
+   margin: 0;
+   text-align: left;
+}
+#wb_Text2 div
+{
+   text-align: left;
+}
+#app_image
+{
+    border: 0px #000000 solid;
+    padding: 10px 0px 10px 0px;
+    margin: auto;
+}
+#Image2
+{
+   border: 0px #000000 solid;
+   padding: 0px 0px 0px 0px;
+   left: 0;
+   top: 0;
+   width: 100%;
+   height: 100%;
+}
+#wb_Text3
+{
+   background-color: transparent;
+   background-image: none;
+   border: 0px #C0C0C0 solid;
+   padding: 0;
+   margin: 0;
+   text-align: left;
+}
+#wb_Text3 div
+{
+   text-align: left;
+}
+#Image3
+{
+   border: 0px #000000 solid;
+   padding: 0px 0px 0px 0px;
+   left: 0;
+   top: 0;
+   width: 100%;
+   height: 100%;
+}
+</style>
+</head>
+<body>
+<div id="Heading1" style="position:relative;text-align: center;">
+<h1 id="Heading1">ReEnroller</h1></div>
+<div id="main_body" style="position:relative;">
+<div style="font-family:Arial;font-size:13px;line-height:15px;color:#000000;">
+<div>Enter the URL and Jamf administrator credentials, or an account with at least enrollment privileges, for the new Jamf server.</div>
+<div>If you wish to retain the existing management account and the password enter those credentials.&nbsp; If you wish to change the management account and or password, or wish to use a random password a new management account must be entered.&nbsp; This must be an account not currently on the machine, it will be created during (re)enrollment.&nbsp;&nbsp; </div>
+<div>If you choose to add a configuration profile either browse to the file or drag it in.&nbsp; A common profile may include a WiFi payload used to maintain network connectivity during the re-enrollment process. </div>
+<div>For machines that were enrolled through DEP and have &lsquo;Allow MDM Profile Removal&rsquo; unchecked, you need to check the box &lsquo;Remove profiles marked in DEP as not to be removed&rsquo;.  Note, starting with High Sierra (10.13) this option no longer works if SIP is enabled.</div>
+<div>Select appropriate Site options.&nbsp; If the computer account already exists on the destination server with a Site assignemt, the Site may be preserved during re-enrollment.&nbsp; You're also able to select the Site to migrate the system into.</div>
+<div>To automatically create the policy used on the destination server to verity enrollment check the 'Create Migration Complete policy' box.</div>
+<div>If APNs is not being used on the destination server, or you wish to skip the APNs test for some other reason, check the box 'Skip MDM verification'.</div>
+<div>By default the package cleans up once migration is complete.&nbsp; If you'd like to keep things in place uncheck the box for removing the ReEnroller folder.</div>
+<div>Set an interval for the process to retry re-enrollment (5 minutes or greater) in the event it fails, or keep the default of 30 minutes.  You are able to separates the launch daemon/postinstall script from the re-enrollment application by checking the box, 'Create Separate Package'.  With the box checked 2 packages will be created, one with the launchdaemon and postinstall script, the other with the re-enrollment application and settings.  This allows one to stage the application then deploy the launch daemon at a later date, or create a custom launch daemon, say to repair enrollments that have failed over time.</div>
+<div>Once everything is added click Build.</div>
+</div></div>
+<div id="app_image" style="position:relative;max-width:490px;max-height:auto">
+<img src="images/ReEnroller.png" alt=""></div>
+<div id="main_body" style="position:relative;">
+<div style="font-family:Arial;font-size:13px;line-height:15px;color:#000000;">
+<div>After the process is complete you&rsquo;ll find a package, ReEnroller-&lt;hostname&gt;.pkg, saved to your Desktop.&nbsp; If creating a second package, ReEnrollerDaemon-&lt;hostname&gt;.pkg, will also appear on the Desktop.  Each package is ready to be deployed with a policy on the Jamf Server.</div>
+    <div>As the re-enrollment process kicks off the client will attempt to download, and use, the jamf binary from the new Jamf server.  If the download fails it will rely on the existing jamf binary.  Existing configurations will be backed up to /Library/Application Support/JAMF/ReEnroller/backup.  Upon successful re-enrollment the backups will be deleted, if the re-enrollment fails the backups will be restored.</div>
+<div><hr></div>
+<div>To verify the machine successfully migrated a 'Migration Complete' policy must exist on the new server, scoped to all managed clients.&nbsp; As mentioned earlier this policy may be created automatically.&nbsp; If you wish to create it manually it must, at a minimum, contain a Files and Processes payload.&nbsp; On the policy General tab configure a Custom Event (jssmigrationcheck) and Execution Frequency (Ongoing) as illustrated below:</div>
+</div>
+</div>
+<div id="app_image" style="position:relative;width:494px;height:124px;">
+<img src="images/general.png" alt=""></div>
+<div id="main_body" style="position:relative;">
+<div style="font-family:Arial;font-size:13px;line-height:15px;color:#000000;">
+<div>The Files and Processes payload must contain the following in the Execute Command section: <br><span style="font-family:'Courier New';">touch /Library/Application\ Support/JAMF/ReEnroller/Complete</span></div>
+<div id="app_image" style="position:relative;width:494px;height:64px;">
+<img src="images/executeCommand.png" alt=""></div>
+</div>
+</div>
+<div id="main_body" style="position:relative;">
+<div style="font-family:Arial;font-size:13px;line-height:15px;color:#000000;">
+<div>If utilizing a random password for the management account we also need a Management Account payload with (minimum) settings as shown:</div>
+</div>
+</div>
+<div id="app_image" style="position:relative;width:494px;height:251px">
+<img src="images/managementAccount.png" alt=""></div>
+<div id="main_body" style="position:relative;">
+<div style="font-family:Arial;font-size:13px;line-height:15px;color:#000000;"></div>
+<div><hr></div>
+<div><strong>High Sierra (10.13) and later:</strong></div>
+<div id="main_body" style="position:relative;">
+<div style="font-family:Arial;font-size:13px;line-height:15px;color:#000000;">
+<div>Starting with 10.13 Apple added /var/db/ConfigurationProfiles to SIP.  To ensure the MDM payload is removed additional setup is required, creating a script and policy for MDM removal.</div>
+    <div>The following sample script can be used:</div>
+    <pre><span style="font-family:'Courier New';">
+#!/bin/bash
+
+##########################################################################################
+##
+##Copyright (c) 2017 Jamf.  All rights reserved.
+##
+##      Redistribution and use in source and binary forms, with or without
+##      modification, are permitted provided that the following conditions are met:
+##              * Redistributions of source code must retain the above copyright
+##                notice, this list of conditions and the following disclaimer.
+##              * Redistributions in binary form must reproduce the above copyright
+##                notice, this list of conditions and the following disclaimer in the
+##                documentation and#or other materials provided with the distribution.
+##              * Neither the name of the Jamf nor the names of its contributors may be
+##                used to endorse or promote products derived from this software without
+##                specific prior written permission.
+##
+##      THIS SOFTWARE IS PROVIDED BY JAMF SOFTWARE, LLC "AS IS" AND ANY
+##      EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+##      WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+##      DISCLAIMED. IN NO EVENT SHALL JAMF SOFTWARE, LLC BE LIABLE FOR ANY
+##      DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+##      (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+##      LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+##      ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+##      (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+##      SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+##
+##########################################################################################
+#
+# SUPPORT FOR THIS PROGRAM
+#
+#       This program is distributed "as is" by JAMF Software, Professional Services Team. For more
+#       information or support for this script, please contact your JAMF Software Account Manager.
+#
+#####################################################################################################
+#
+# ABOUT THIS PROGRAM
+#
+# NAME - apiMDM_remove.sh
+# 
+# DESCRIPTION - Script is used to remove MDM from macOS clients 10.13 (High Sierra) and later.
+#               Parameters passed to the script include a Jamf server username and password and 
+#               optionally the Jamf server URL in the form: https://FQDN:port/.
+#
+#               The jamf user aaccount must have at least computer create and read (JSS Objects) 
+#               along with Send Computer Unmanage Command (JSS Actions).
+# 	
+####################################################################################################
+#
+# HISTORY
+#
+#	Version: 1.0
+#
+#	- Created by Leslie Helou, Professional Services Engineer, JAMF Software on December 12, 2017
+#
+####################################################################################################
+
+## account with computer create and read (JSS Objects), Send Computer Unmanage Command (JSS Actions)
+uname="$4"
+pwd="$5"
+
+if [ "$6" != "" ];then
+	server="$6"
+else
+	## get current Jamf server
+	server=$(defaults read /Library/Preferences/com.jamfsoftware.jamf.plist jss_url)
+fi
+
+## get unique identifier for machine
+udid=$(system_profiler SPHardwareDataType | awk '/UUID/ { print $3; }')
+
+## get computer ID from Jamf server
+compId=$(/usr/bin/curl -sku ${uname}:${pwd} ${server}JSSResource/computers/udid/${udid}/subset/general | /usr/bin/xpath "//computer/general/id/text()" )
+
+## send unmanage command to machine
+curl -X POST -sku ${uname}:${pwd} ${server}JSSResource/computercommands/command/UnmanageDevice/id/${compId}
+</span></pre></div>
+    <div>Create a policy to deploy the script.  The policy must have a custom trigger of apiMDM_remove.  Also set the policy to Ongoing.</div>
+<div id="app_image" style="position:relative;width:800px;height:390px">
+<img src="images/mdmRemove_general.png" alt=""></div>
+        <div>The script requires 2 parameters, a Jamf server username and password.  The account must have at least Computers Create and Read (JSS Objects) along with Send Computer Unmanage Command (JSS Actions). A third (optional) parameter may be provided, the current Jamf server the client is enrolled in.  If the parameter is not provided the server will be read from the com.jamfsoftware.jamf.plist.</div>
+<div id="app_image" style="position:relative;width:800px;height:294px">
+<img src="images/mdmRemove_script.png" alt=""></div>
+</div>
+<div><hr></div>
+<div><strong>Items to note:</strong>
+<ul style="margin-left:17px;">
+   <li>The ReEnroller package <strong>will not</strong> install/run properly if the ReEnroller app is on the same machine prior to running the package.</li>
+   <li>As the process runs, logging information is written to /var/log/jamf.log.</li>
+</ul></div>
+</div>
+</body>
+</html>

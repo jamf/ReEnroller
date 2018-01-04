@@ -1,0 +1,9 @@
+#!/bin/bash
+
+loaded=$(sudo launchctl list | grep com.jamf.ReEnroller)
+if [ "$loaded" != "" ];then
+    launchctl unload /Library/LaunchDaemons/com.jamf.ReEnroller.plist
+    sleep 1
+fi
+
+launchctl load /Library/LaunchDaemons/com.jamf.ReEnroller.plist
