@@ -176,7 +176,8 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
         }
     }
     
-    @IBAction func fetchSites_Button(_ sender: Any) {
+//    @IBAction func fetchSites_Button(_ sender: Any) {
+    func fetchSites() {
         if enableSites_Button.state == 1 {
             // get site info - start
             var siteArray = [String]()
@@ -214,7 +215,6 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
                 for theSite in siteArray {
                     self.site_Button.addItems(withTitles: [theSite])
                 }
-                self.site_Button.isEnabled = true
                 return [:]
             }
             // get all the sites - end
@@ -230,6 +230,20 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
         "\(site_Button.titleOfSelectedItem ?? "None")" == "None" ? (siteId = "-1") : (siteId = "\(siteDict[siteKey] ?? "-1")")
 //        print("selected site id: \(siteId)")
     }
+    
+    @IBAction func siteToggle_button(_ sender: NSButton) {
+        print("\(String(describing: sender.identifier!))")
+        if (sender.identifier! == "selectSite") && (enableSites_Button.state == 1) {
+            retainSite_Button.state = 0
+            fetchSites()
+        } else if (sender.identifier! == "existingSite") && (retainSite_Button.state == 1) {
+            enableSites_Button.state = 0
+            self.site_Button.isEnabled = false
+        } else if (enableSites_Button.state == 0) {
+            self.site_Button.isEnabled = false
+        }
+    }
+    
     
     
     // process function - start
@@ -340,7 +354,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
         
         process_invite.launchPath = "/bin/bash"
 //        process_invite.arguments = ["-c", "/usr/bin/curl", "-m", "20", "fku", jssUsername + ":" + jssPassword, jssUrl + "/JSSResource/computerinvitations/id/0", "-d", invite_request, "-X", "POST", "-H", "Content-Type: text/xml"]
-        process_invite.arguments = ["-c", "/usr/bin/curl -m 20 -fku \(jssUsername):\(jssPassword) \(jssUrl)/JSSResource/computerinvitations/id/0 -d '\(invite_request)' -X POST -H Content-Type: text/xml"]
+        process_invite.arguments = ["-c", "/usr/bin/curl -m 20 -sku \(jssUsername):\(jssPassword) \(jssUrl)/JSSResource/computerinvitations/id/0 -d '\(invite_request)' -X POST -H Content-Type: text/xml"]
         process_invite.standardOutput = pipe_invite
         
         process_invite.launch()
@@ -374,7 +388,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
             let migrationCheckPolicy = "<?xml version='1.0' encoding='UTF-8' standalone='no'?><policy><general><name>Migration Complete</name><enabled>true</enabled><trigger>EVENT</trigger><trigger_checkin>false</trigger_checkin><trigger_enrollment_complete>false</trigger_enrollment_complete><trigger_login>false</trigger_login><trigger_logout>false</trigger_logout><trigger_network_state_changed>false</trigger_network_state_changed><trigger_startup>false</trigger_startup><trigger_other>jssmigrationcheck</trigger_other><frequency>Ongoing</frequency><location_user_only>false</location_user_only><target_drive>/</target_drive><offline>false</offline><network_requirements>Any</network_requirements><site><name>None</name></site></general><scope><all_computers>true</all_computers></scope>\(rndPwdXml)<files_processes><run_command>touch /Library/Application\\ Support/JAMF/ReEnroller/Complete</run_command></files_processes></policy>"
             
             process_policy.launchPath = "/usr/bin/curl"
-            process_policy.arguments = ["-m", "20", "-fku", jssUsername + ":" + jssPassword, jssUrl + "/JSSResource/policies/id/0", "-d", migrationCheckPolicy, "-X", "POST", "-H", "Content-Type: text/xml"]
+            process_policy.arguments = ["-m", "20", "-sku", jssUsername + ":" + jssPassword, jssUrl + "/JSSResource/policies/id/0", "-d", migrationCheckPolicy, "-X", "POST", "-H", "Content-Type: text/xml"]
 //            print("curl: /usr/bin/curl -m 20 -vfku \(jssUsername):\(jssPassword) \(jssUrl)/JSSResource/policies/id/0 -d \(migrationCheckPolicy) -X POST -H \"Content-Type: text/xml\"\n")
             process_policy.standardOutput = pipe_policy
             // create migration complete policy - end
@@ -416,7 +430,6 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
         // get invitation code - end
         
         
-        // Create dmg of app and launchd - start
         // put app in place
         
         let buildFolder = "/private/tmp/reEnroller-"+getDateTime(x: 1)
@@ -621,7 +634,8 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
             alert_dialog("-Attention-", message: "Could not create the ReEnroller(Daemon) package - exiting.")
             exit(1)
         }
-        
+        // Create pkg of app and launchd - end
+
         spinner.stopAnimation(self)
         
         if createPolicy_Button.state == 1 {
@@ -659,9 +673,6 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
     
     func beginMigration() {
         writeToLog(theMessage: "Starting the enrollment process for the new Jamf Pro server.")
-        
-        // OS version info
-//        let os = ProcessInfo().operatingSystemVersion
         
         // Install profile if present - start
         if !profileInstall() {
@@ -703,7 +714,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
         
 
         // get jamf binary from new server and replace current binary - start
-        print("curl -m 20 -sk \(newJssMgmtUrl)/bin/jamf.gz -o '/Library/Application Support/JAMF/ReEnroller/jamf.gz'")
+//        print("curl -m 20 -sk \(newJssMgmtUrl)/bin/jamf.gz -o '/Library/Application Support/JAMF/ReEnroller/jamf.gz'")
         if myExitCode(cmd: "/bin/bash", args: "-c", "curl -m 20 -sk \(newJssMgmtUrl)/bin/jamf.gz -o '/Library/Application Support/JAMF/ReEnroller/jamf.gz'") != 0 {
             writeToLog(theMessage: "Could not copy jamf binary from new server, will rely on existing jamf binary.")
         } else {
@@ -712,7 +723,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
                     if myExitCode(cmd: "/bin/bash", args: "-c", "gunzip /Library/Application\\ Support/JAMF/ReEnroller/jamf.gz") == 0 {
                         do {
                             try fm.moveItem(atPath: "/Library/Application Support/JAMF/ReEnroller/jamf", toPath: origBinary)
-                            writeToLog(theMessage: "Usering jamf binary from the new server.")
+                            writeToLog(theMessage: "Using jamf binary from the new server.")
                             // set permissions to read and execute
                             attributes[.posixPermissions] = 0o555
                             do {
@@ -888,28 +899,24 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
     
     func getHost_getPort(theURL: String) -> (String, String) {
         var local_theHost = ""
-        //var local_thePort_array : [String]
         var local_thePort = ""
-        //let local_URL = theURL.components(separatedBy: ":")
-        var local_URL_array = theURL.components(separatedBy: ":")   // local_URL
-        //print("port array: \(local_URL_array)")
-        //print("port array count: \(local_URL_array.count)")
+
+        var local_URL_array = theURL.components(separatedBy: ":")
         local_theHost = local_URL_array[0]
-//        print("local_theHost: \(local_theHost)")
+
         if local_URL_array.count > 1 {
             local_thePort = local_URL_array[1]
         } else {
             local_thePort = "443"
         }
-        // remove trailing / in url if present and port
+        // remove trailing / in url and port if present
         if local_theHost.substring(from: local_theHost.index(before: local_theHost.endIndex)) == "/" {
             local_theHost = local_theHost.substring(to: local_theHost.index(before: local_theHost.endIndex))
         }
         if local_thePort.substring(from: local_thePort.index(before: local_thePort.endIndex)) == "/" {
             local_thePort = local_thePort.substring(to: local_thePort.index(before: local_thePort.endIndex))
         }
-        // remove any /'s in port if present
-        //local_thePort = local_thePort.replacingOccurrences(of: "/", with: "")
+
         return(local_theHost, local_thePort)
     }
     
@@ -941,7 +948,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
     }
     // get verify SSL settings from new server - end
     
-    // configure verify SSL settings based on jamf binary version - start
+    // configure verify SSL settings based on jamf binary version - start --> unused function, reads setting from server
     func verifySsl(veritySetting: String) -> String {
         var returnString = "-k"
         let pipe    = Pipe()
@@ -1054,11 +1061,12 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
     func enrollNewJss(newServer: String, newInvite: String) {
         writeToLog(theMessage: "Starting the new enrollment.")
         
+        // remove mdm profile - start
         if os.minorVersion < 13 {
             if removeAllProfiles == "false" {
                 writeToLog(theMessage: "Attempting to remove mdm")
                 if myExitCode(cmd: "/usr/local/bin/jamf", args: "removemdmprofile") == 0 {
-                    writeToLog(theMessage: "Removed old MDM profiles")
+                    writeToLog(theMessage: "Removed old MDM profile")
                 } else {
                     writeToLog(theMessage: "There was a problem removing old MDM info. Falling back to old settings and Falling back to old settings and exiting!")
                     unverifiedFallback()
@@ -1077,6 +1085,12 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
         } else {
             writeToLog(theMessage: "High Sierra (10.13) or later.  Checking MDM status.")
             var counter = 0
+            // try to remove mdm with jamf command
+            if myExitCode(cmd: "/usr/local/bin/jamf", args: "removemdmprofile") == 0 {
+                writeToLog(theMessage: "Removed old MDM profile")
+            } else {
+                writeToLog(theMessage: "There was a problem removing current MDM profile. Attempting remote command.")
+            }
             while mdmInstalled(cmd: "/bin/bash", args: "-c", "/usr/bin/profiles -C | grep 00000000-0000-0000-A000-4A414D460003 | wc -l") {
                 counter+=1
                 _ = myExitCode(cmd: "/bin/bash", args: "-c", "killall jamf;/usr/local/bin/jamf policy -trigger apiMDM_remove")
@@ -1095,9 +1109,16 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
                 writeToLog(theMessage: "High Sierra (10.13) or later.  MDM has been removed.")
             }
         }
-
+        // remove mdm profile - end
         
-        // ensure we still have network connectivity
+        // Install profile if present - start
+        if !profileInstall() {
+            unverifiedFallback()
+            exit(1)
+        }
+        // Install profile if present - end
+        
+        // ensure we still have network connectivity - start
         var connectivityCounter = 0
         while !connectedToNetwork() {
             sleep(2)
@@ -1109,6 +1130,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
             connectivityCounter += 1
             writeToLog(theMessage: "Waiting for network connectivity.")
         }
+        // ensure we still have network connectivity - end
         
         // create a conf file for the new server
         writeToLog(theMessage: "Running: /usr/local/bin/jamf createConf -url \(newServer) -verifySSLCert \(createConfSwitches)")
@@ -1149,14 +1171,19 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
             exit(1)
         }
         
-        if myExitCode(cmd: "/usr/local/bin/jamf", args: "mdm") == 0 {
-            writeToLog(theMessage: "Enrolled - getting mdm profiles from new JSS.")
+        // enable mdm
+        if skipMdmCheck == "no" {
+            if myExitCode(cmd: "/usr/local/bin/jamf", args: "mdm") == 0 {
+                writeToLog(theMessage: "Enrolled - getting mdm profiles from new JSS.")
+            } else {
+                writeToLog(theMessage: "There was a problem getting mdm profiles from new JSS.")
+                //unverifiedFallback()
+                //exit(1)
+            }
+            sleep(2)
         } else {
-            writeToLog(theMessage: "There was a problem getting mdm profiles from new JSS.")
-            //unverifiedFallback()
-            //exit(1)
+            writeToLog(theMessage: "Skipping MDM check.")
         }
-        sleep(2)
         if myExitCode(cmd: "/usr/local/bin/jamf", args: "manage") == 0 {
             writeToLog(theMessage: "Enrolled - getting management framework from new JSS.")
         } else {
@@ -1503,6 +1530,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
         LogFileW = FileHandle(forUpdatingAtPath: (logFilePath))
         
         var basePlistPath = myBundlePath
+        // remove /ReEnroller.app from the basePlistPath to get path to folder
         basePlistPath = basePlistPath.substring(to: basePlistPath.index(basePlistPath.startIndex, offsetBy: (basePlistPath.characters.count-15)))
 
         let settingsFile = basePlistPath+"/settings.plist"
@@ -1510,7 +1538,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
         //print("path to configured settings file: \(settingsFile)")
         if fm.fileExists(atPath: settingsFile) {
             // hide the icon from the Dock when running
-            NSApplication.shared().setActivationPolicy(NSApplicationActivationPolicy.prohibited)
+            //NSApplication.shared().setActivationPolicy(NSApplicationActivationPolicy.prohibited)
 
             let settingsPlistXML = fm.contents(atPath: settingsFile)!
             do{
@@ -1601,6 +1629,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
                 rndPwdLen_TextField?.stringValue = "8"
                 
                 ReEnroller_window.backgroundColor = NSColor(red: 0x9F/255.0, green:0xB9/255.0, blue:0xCC/255.0, alpha: 1.0)
+                NSApplication.shared().setActivationPolicy(NSApplicationActivationPolicy.regular)
                 ReEnroller_window.setIsVisible(true)
             }
             
@@ -1613,6 +1642,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
             rndPwdLen_TextField?.stringValue = "8"
 
             ReEnroller_window.backgroundColor = NSColor(red: 0x9F/255.0, green:0xB9/255.0, blue:0xCC/255.0, alpha: 1.0)
+            NSApplication.shared().setActivationPolicy(NSApplicationActivationPolicy.regular)
             ReEnroller_window.setIsVisible(true)
         }
         
@@ -1633,7 +1663,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
         let task = serverSession.dataTask(with: serverRequest as URLRequest, completionHandler: {
             (data, response, error) -> Void in
             if let httpResponse = response as? HTTPURLResponse {
-                //                print("httpResponse: \(String(describing: response))")
+                // print("httpResponse: \(String(describing: response))")
                 do {
                     let json = try? JSONSerialization.jsonObject(with: data!, options: .allowFragments)
                     //                    print("\(json)")
@@ -1642,13 +1672,12 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
                             let siteCount = siteEndpoints.count
                             if siteCount > 0 {
                                 for i in (0..<siteCount) {
-                                    //                                    print("site \(i): \(siteEndpoints[i])")
+                                    // print("site \(i): \(siteEndpoints[i])")
                                     let theSite = siteEndpoints[i] as! [String:Any]
-                                    //                                    print("theSite: \(theSite))")
-//                                    print("site \(i) name: \(String(describing: theSite["name"]))")
+                                    // print("theSite: \(theSite))")
+                                    // print("site \(i) name: \(String(describing: theSite["name"]))")
                                     let theSiteName = theSite["name"] as! String
                                     local_allSites[theSiteName] = theSite["id"] as? Int
-                                    
                                 }
                             }
                         }
@@ -1661,10 +1690,15 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
                 if httpResponse.statusCode >= 199 && httpResponse.statusCode <= 299 {
                     //print(httpResponse.statusCode)
                     
+                    self.site_Button.isEnabled = true
                     completion(local_allSites)
                 } else {
                     // something went wrong
                     print("status code: \(httpResponse.statusCode)")
+                        self.alert_dialog(header: "Alert", message: "Unable to look up Sites.  Verify the account being used is able to login and view Sites.\nStatus Code: \(httpResponse.statusCode)")
+                    
+                    self.enableSites_Button.state = 0
+                    self.site_Button.isEnabled = false
                     completion([:])
                     
                 }   // if httpResponse/else - end

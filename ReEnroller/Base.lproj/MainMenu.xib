@@ -380,15 +380,18 @@
                             <font key="font" metaFont="smallSystem"/>
                         </buttonCell>
                     </button>
-                    <button fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="ymu-Hr-1TG">
+                    <button identifier="existingSite" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="ymu-Hr-1TG">
                         <rect key="frame" x="48" y="134" width="177" height="20"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <buttonCell key="cell" type="check" title="Use existing site membership" bezelStyle="regularSquare" imagePosition="left" controlSize="small" state="on" inset="2" id="hz7-Yv-VtP">
                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                             <font key="font" metaFont="smallSystem"/>
                         </buttonCell>
+                        <connections>
+                            <action selector="siteToggle_button:" target="Voe-Tx-rLC" id="tGU-cb-6LY"/>
+                        </connections>
                     </button>
-                    <button fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="RZ1-wE-kt9">
+                    <button identifier="selectSite" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="RZ1-wE-kt9">
                         <rect key="frame" x="48" y="112" width="93" height="20"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <buttonCell key="cell" type="check" title="Enroll in Site:" bezelStyle="regularSquare" imagePosition="left" controlSize="small" inset="2" id="2pi-8i-xAV">
@@ -396,7 +399,7 @@
                             <font key="font" metaFont="smallSystem"/>
                         </buttonCell>
                         <connections>
-                            <action selector="fetchSites_Button:" target="Voe-Tx-rLC" id="STL-IM-68n"/>
+                            <action selector="siteToggle_button:" target="Voe-Tx-rLC" id="QIf-wT-SCU"/>
                         </connections>
                     </button>
                     <popUpButton verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="G4L-Vt-4tp">
@@ -444,12 +447,8 @@
                             <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                         </textFieldCell>
                     </textField>
-                    <box verticalHuggingPriority="750" fixedFrame="YES" boxType="separator" translatesAutoresizingMaskIntoConstraints="NO" id="qbt-7f-RJf">
-                        <rect key="frame" x="0.0" y="228" width="594" height="17"/>
-                        <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES"/>
-                    </box>
                     <box verticalHuggingPriority="750" fixedFrame="YES" boxType="separator" translatesAutoresizingMaskIntoConstraints="NO" id="tM8-em-yBV">
-                        <rect key="frame" x="-1" y="363" width="594" height="17"/>
+                        <rect key="frame" x="-1" y="363" width="594" height="21"/>
                         <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES"/>
                     </box>
                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" allowsCharacterPickerTouchBarItem="NO" textCompletion="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Bd7-Z3-9ZW">
@@ -491,6 +490,10 @@
                             <font key="font" metaFont="smallSystem"/>
                         </buttonCell>
                     </button>
+                    <box verticalHuggingPriority="750" fixedFrame="YES" boxType="separator" translatesAutoresizingMaskIntoConstraints="NO" id="LT8-Ai-u82">
+                        <rect key="frame" x="-1" y="225" width="594" height="21"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES"/>
+                    </box>
                 </subviews>
             </view>
             <point key="canvasLocation" x="130" y="-183"/>
