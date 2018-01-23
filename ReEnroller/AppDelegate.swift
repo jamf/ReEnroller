@@ -232,7 +232,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
     }
     
     @IBAction func siteToggle_button(_ sender: NSButton) {
-        print("\(String(describing: sender.identifier!))")
+//        print("\(String(describing: sender.identifier!))")
         if (sender.identifier! == "selectSite") && (enableSites_Button.state == 1) {
             retainSite_Button.state = 0
             fetchSites()
@@ -674,12 +674,12 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
     func beginMigration() {
         writeToLog(theMessage: "Starting the enrollment process for the new Jamf Pro server.")
         
-        // Install profile if present - start
-        if !profileInstall() {
-            unverifiedFallback()
-            exit(1)
-        }
-        // Install profile if present - end
+//        // Install profile if present - start
+//        if !profileInstall() {
+//            unverifiedFallback()
+//            exit(1)
+//        }
+//        // Install profile if present - end
         
         // ensure we still have network connectivity - start
         var connectivityCounter = 0
