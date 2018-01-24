@@ -998,9 +998,34 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
         let result = task_pkg.terminationStatus
         
         return(Int8(result))
-        
     }
     // function to return exit code of bash command - end
+    
+    // function to return value of bash command - start
+    func myExitValue(cmd: String, args: String...) -> String {
+        var status  = ""
+        let pipe    = Pipe()
+        let task    = Process()
+        
+        task.launchPath     = cmd
+        task.arguments      = args
+        task.standardOutput = pipe
+        let outputHandle    = pipe.fileHandleForReading
+        
+        outputHandle.readabilityHandler = { pipe in
+            if let testResult = String(data: pipe.availableData, encoding: String.Encoding.utf8) {
+                status = testResult.replacingOccurrences(of: "\n", with: "")
+            } else {
+                status = "unknown"
+            }
+        }
+        
+        task.launch()
+        task.waitUntilExit()
+        
+        return(status)
+    }
+    // function to return value of bash command - end
     
     // function to perform nslookup of server and log results - start
     func myNslookup(server: String...) {
@@ -1198,6 +1223,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
         if profileUuid != "" {
             if myExitCode(cmd: "/usr/bin/profiles", args: "-I", "-F", configProfilePath) == 0 {
                 writeToLog(theMessage: "Installed config profile")
+                toggleWiFi()
                 return true
             } else {
                 writeToLog(theMessage: "There was a problem installing the config profile. Falling back to old settings and exiting!")
@@ -1245,6 +1271,19 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
             }
         }
         return false
+    }
+    
+    func toggleWiFi() {
+        if myExitValue(cmd: "/usr/sbin/networksetup", args: "-getnetworkserviceenabled") == "Enabled" {
+            if myExitCode(cmd: "/usr/sbin/networksetup", args: "-setnetworkserviceenabled", "Wi-Fi", "off") == 0 {
+                writeToLog(theMessage: "WiFi has been turned off.")
+                if myExitCode(cmd: "/usr/sbin/networksetup", args: "-setnetworkserviceenabled", "Wi-Fi", "on") == 0 {
+                    writeToLog(theMessage: "WiFi has been turned on.")
+                }
+            }
+        } else {
+            writeToLog(theMessage: "Note: Wi-Fi is currently disabled, not changing the setting.")
+        }
     }
     
     func unverifiedFallback() {
