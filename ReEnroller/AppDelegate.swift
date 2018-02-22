@@ -129,10 +129,10 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
     
     var newJssMgmtUrl = ""
     var theNewInvite = ""
-    var removeReEnroller = "yes" // by default delete the ReEnroller folder after enrollment
-    var retainSite = "true" // by default retain site when re-enrolling
-    var skipMdmCheck = "no" // by default do not skip mdm check
-    var StartInterval = 1800    // default retry interval is 1800 seconds (30 minutes)
+    var removeReEnroller = "yes"    // by default delete the ReEnroller folder after enrollment
+    var retainSite = "true"         // by default retain site when re-enrolling
+    var skipMdmCheck = "no"         // by default do not skip mdm check
+    var StartInterval = 1800        // default retry interval is 1800 seconds (30 minutes)
     var includesMsg = "includes"
     var includesMsg2 = ""
     var policyMsg = ""
@@ -354,7 +354,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
         
         process_invite.launchPath = "/bin/bash"
 //        process_invite.arguments = ["-c", "/usr/bin/curl", "-m", "20", "fku", jssUsername + ":" + jssPassword, jssUrl + "/JSSResource/computerinvitations/id/0", "-d", invite_request, "-X", "POST", "-H", "Content-Type: text/xml"]
-        process_invite.arguments = ["-c", "/usr/bin/curl -m 20 -sku \(jssUsername):\(jssPassword) \(jssUrl)/JSSResource/computerinvitations/id/0 -d '\(invite_request)' -X POST -H Content-Type: text/xml"]
+        process_invite.arguments = ["-c", "/usr/bin/curl -m 30 -sku \(jssUsername):\(jssPassword) \(jssUrl)/JSSResource/computerinvitations/id/0 -d '\(invite_request)' -X POST -H Content-Type: text/xml"]
         process_invite.standardOutput = pipe_invite
         
         process_invite.launch()
@@ -389,7 +389,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
             
             process_policy.launchPath = "/usr/bin/curl"
             process_policy.arguments = ["-m", "20", "-sku", jssUsername + ":" + jssPassword, jssUrl + "/JSSResource/policies/id/0", "-d", migrationCheckPolicy, "-X", "POST", "-H", "Content-Type: text/xml"]
-//            print("curl: /usr/bin/curl -m 20 -vfku \(jssUsername):\(jssPassword) \(jssUrl)/JSSResource/policies/id/0 -d \(migrationCheckPolicy) -X POST -H \"Content-Type: text/xml\"\n")
+//            print("curl: /usr/bin/curl -m 30 -vfku \(jssUsername):\(jssPassword) \(jssUrl)/JSSResource/policies/id/0 -d \(migrationCheckPolicy) -X POST -H \"Content-Type: text/xml\"\n")
             process_policy.standardOutput = pipe_policy
             // create migration complete policy - end
             
@@ -714,8 +714,9 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
         
 
         // get jamf binary from new server and replace current binary - start
-//        print("curl -m 20 -sk \(newJssMgmtUrl)/bin/jamf.gz -o '/Library/Application Support/JAMF/ReEnroller/jamf.gz'")
-        if myExitCode(cmd: "/bin/bash", args: "-c", "curl -m 20 -sk \(newJssMgmtUrl)/bin/jamf.gz -o '/Library/Application Support/JAMF/ReEnroller/jamf.gz'") != 0 {
+//        print("curl -m 30 -sk \(newJssMgmtUrl)/bin/jamf.gz -o '/Library/Application Support/JAMF/ReEnroller/jamf.gz'")
+        if myExitCode(cmd: "/bin/bash", args: "-c", "curl -m 60 -sk \(newJssMgmtUrl)/bin/jamf.gz -o '/Library/Application Support/JAMF/ReEnroller/jamf.gz'") != 0 &&
+            myExitCode(cmd: "/bin/bash", args: "-c", "curl -m 60 -sk \(newJssMgmtUrl)/bin/level1/jamf.gz -o '/Library/Application Support/JAMF/ReEnroller/jamf.gz'") != 0 {
             writeToLog(theMessage: "Could not copy jamf binary from new server, will rely on existing jamf binary.")
         } else {
             if fm.fileExists(atPath: "/Library/Application Support/JAMF/ReEnroller/jamf.gz") {
@@ -929,7 +930,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
         let task    = Process()
         
         task.launchPath     = "/bin/bash"
-        task.arguments      = ["-c", "/usr/bin/curl -m 20 -sk \(node) -H 'Content-Type: application/x-www-form-urlencoded' -d 'source=ReEnroller&username=\(name)&password=\(password)' -X POST | xpath '//verifySSLCert/text()'"]
+        task.arguments      = ["-c", "/usr/bin/curl -m 60 -sk \(node) -H 'Content-Type: application/x-www-form-urlencoded' -d 'source=ReEnroller&username=\(name)&password=\(password)' -X POST | xpath '//verifySSLCert/text()'"]
         task.standardOutput = pipe
         let outputHandle    = pipe.fileHandleForReading
         
@@ -1002,8 +1003,8 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
     // function to return exit code of bash command - end
     
     // function to return value of bash command - start
-    func myExitValue(cmd: String, args: String...) -> String {
-        var status  = ""
+    func myExitValue(cmd: String, args: String...) -> [String] {
+        var status  = [String]()
         let pipe    = Pipe()
         let task    = Process()
         
@@ -1012,17 +1013,17 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
         task.standardOutput = pipe
         let outputHandle    = pipe.fileHandleForReading
         
-        outputHandle.readabilityHandler = { pipe in
-            if let testResult = String(data: pipe.availableData, encoding: String.Encoding.utf8) {
-                status = testResult.replacingOccurrences(of: "\n", with: "")
-            } else {
-                status = "unknown"
-            }
+        task.launch()
+        
+        let outdata = pipe.fileHandleForReading.readDataToEndOfFile()
+        if var string = String(data: outdata, encoding: .utf8) {
+            string = string.trimmingCharacters(in: .newlines)
+            status = string.components(separatedBy: "\n")
         }
         
-        task.launch()
         task.waitUntilExit()
         
+        print("status: \(status)")
         return(status)
     }
     // function to return value of bash command - end
@@ -1223,7 +1224,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
         if profileUuid != "" {
             if myExitCode(cmd: "/usr/bin/profiles", args: "-I", "-F", configProfilePath) == 0 {
                 writeToLog(theMessage: "Installed config profile")
-                toggleWiFi()
+//                toggleWiFi()
                 return true
             } else {
                 writeToLog(theMessage: "There was a problem installing the config profile. Falling back to old settings and exiting!")
@@ -1237,52 +1238,64 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
     
     func profileRemove() -> Bool {
         if profileUuid != "" {
-            for i in 1...3 {
-                if myExitCode(cmd: "/usr/bin/profiles", args: "-R", "-p", profileUuid) == 0 {
-                    writeToLog(theMessage: "Configuration Profile was removed.")
-                    sleep(2)
-                    // verify we have connectivity - if not, try to add manual profile back
-                    var connectivityCounter = 0
-                    while !connectedToNetwork() {
-                        sleep(2)
-                        if connectivityCounter > 20 {
-                            writeToLog(theMessage: "There was a problem after removing manually added MDM configuration, network connectivity could not be established without it. Will attempt to re-add and continue.")
-                            if profileInstall() {
-                              writeToLog(theMessage: "Manual profile has been re-installed.")
-                            }
-                            if i < 3 {
-                                sleep(10)
-                                if myExitCode(cmd: "/usr/bin/profiles", args: "-R", "-p", profileUuid) == 0 {
-                                    writeToLog(theMessage: "Manual profile has been removed.")
-                                }
-                            } else {
-                                return true
-                            }
-                        }
-                        connectivityCounter += 1
-                        writeToLog(theMessage: "Waiting for network connectivity.")
+            if myExitCode(cmd: "/usr/bin/profiles", args: "-R", "-p", profileUuid) == 0 {
+                writeToLog(theMessage: "Configuration Profile was removed.")
+                toggleWiFi()
+                sleep(2)
+                // verify we have connectivity - if not, try to add manual profile back
+                var connectivityCounter = 1
+                while !connectedToNetwork() && connectivityCounter < 56 {
+                    if (connectivityCounter % 15) == 0 {
+                        writeToLog(theMessage: "No connectivity for 30 seconds, power cycling WiFi.")
+                        toggleWiFi()
                     }
-                return true
-                } else {
-                    writeToLog(theMessage: "There was a problem removing the Configuration Profile.")
-                    return false
-                    //exit(1)
+                    sleep(2)
+                    connectivityCounter += 1
+                    writeToLog(theMessage: "Waiting for network connectivity.")
                 }
+                if !connectedToNetwork() && connectivityCounter > 55 {
+                    writeToLog(theMessage: "There was a problem after removing manually added MDM configuration, network connectivity could not be established without it. Will attempt to re-add and continue.")
+                    if profileInstall() {
+                        writeToLog(theMessage: "Manual profile has been re-installed.")
+                    }
+                    return false
+                }   // if connectivityCounter - end
+                return true
+            } else {
+                writeToLog(theMessage: "There was a problem removing the Configuration Profile.")
+                return false
+                //exit(1)
             }
         }
         return false
     }
     
     func toggleWiFi() {
-        if myExitValue(cmd: "/usr/sbin/networksetup", args: "-getnetworkserviceenabled") == "Enabled" {
-            if myExitCode(cmd: "/usr/sbin/networksetup", args: "-setnetworkserviceenabled", "Wi-Fi", "off") == 0 {
-                writeToLog(theMessage: "WiFi has been turned off.")
-                if myExitCode(cmd: "/usr/sbin/networksetup", args: "-setnetworkserviceenabled", "Wi-Fi", "on") == 0 {
-                    writeToLog(theMessage: "WiFi has been turned on.")
-                }
-            }
-        } else {
-            writeToLog(theMessage: "Note: Wi-Fi is currently disabled, not changing the setting.")
+        var interface = ""
+        var power = ""
+        
+        // get Wi-Fi interface
+        let interfaceArray = myExitValue(cmd: "/bin/bash", args: "-c", "/usr/sbin/networksetup -listallhardwareports | egrep -A 1 \"(Airport|Wi-Fi)\" | awk '/Device:/ { print $2 }'")
+        if interfaceArray.count > 0 {
+            interface = interfaceArray[0]
+            
+            // check airport power
+            let powerArray = myExitValue(cmd: "/bin/bash", args: "-c", "/usr/sbin/networksetup -getairportpower \(interface) | awk -F': ' '{ print $2 }'")
+            if powerArray.count > 0 {
+                power = powerArray[0]
+                
+                if power == "On" {
+                    if myExitCode(cmd: "/bin/bash", args: "-c", "/usr/sbin/networksetup -setairportpower \(interface) off") == 0 {
+                        writeToLog(theMessage: "WiFi (\(interface)) has been turned off.")
+                        usleep(100000)  // 0.1 seconds
+                        if myExitCode(cmd: "/bin/bash", args: "-c", "/usr/sbin/networksetup -setairportpower \(interface) on") == 0 {
+                            writeToLog(theMessage: "WiFi (\(interface)) has been turned on.")
+                        }
+                    }
+                } else {
+                    writeToLog(theMessage: "Note: Wi-Fi is currently disabled, not changing the setting.")
+                }   // power == "On" - end
+            }   // if powerArray.count - end
         }
     }
     
@@ -1326,6 +1339,12 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
                     }
                 } catch {
                     writeToLog(theMessage: "There was a problem removing original ConfigurationProfiles")
+                }
+            } else {
+                if myExitCode(cmd: "/usr/local/bin/jamf", args: "manage") == 0 {
+                    writeToLog(theMessage: "Restored the management framework/mdm from old JSS.")
+                } else {
+                    writeToLog(theMessage: "There was a problem restoring the management framework/mdm from old JSS.")
                 }
             }
             if fm.fileExists(atPath: bakProfilesDir) {

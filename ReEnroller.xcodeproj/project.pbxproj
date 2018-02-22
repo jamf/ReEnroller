@@ -13,6 +13,7 @@
 		B514454D1F7CB187000B4055 /* index.html in Resources */ = {isa = PBXBuildFile; fileRef = B514454C1F7CB187000B4055 /* index.html */; };
 		B5319B211E5F3E9200268E38 /* settings.plist in Resources */ = {isa = PBXBuildFile; fileRef = B5319B201E5F3E9200268E38 /* settings.plist */; };
 		B55A276A1EACE2DD00AF8398 /* build-reenroller.png in Resources */ = {isa = PBXBuildFile; fileRef = B55A27691EACE2DD00AF8398 /* build-reenroller.png */; };
+		B5A43ECF203E3D260012CB53 /* apiMDM_remove.txt in Resources */ = {isa = PBXBuildFile; fileRef = B5A43ECE203E3D260012CB53 /* apiMDM_remove.txt */; };
 		B5AC202B1F23108D00C16EAA /* ReEnrollerImage1.png in Resources */ = {isa = PBXBuildFile; fileRef = B5AC202A1F23108D00C16EAA /* ReEnrollerImage1.png */; };
 		B5D5CF471E74367500580AE7 /* postinstall in Resources */ = {isa = PBXBuildFile; fileRef = B5D5CF461E74367500580AE7 /* postinstall */; };
 		B5DBA04F1E5FCA2A00FA52CE /* com.jamf.ReEnroller.plist in Resources */ = {isa = PBXBuildFile; fileRef = B5DBA04E1E5FCA2A00FA52CE /* com.jamf.ReEnroller.plist */; };
@@ -28,6 +29,7 @@
 		B514454C1F7CB187000B4055 /* index.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = index.html; sourceTree = "<group>"; };
 		B5319B201E5F3E9200268E38 /* settings.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = settings.plist; sourceTree = "<group>"; };
 		B55A27691EACE2DD00AF8398 /* build-reenroller.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "build-reenroller.png"; sourceTree = "<group>"; };
+		B5A43ECE203E3D260012CB53 /* apiMDM_remove.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = apiMDM_remove.txt; sourceTree = "<group>"; };
 		B5AC202A1F23108D00C16EAA /* ReEnrollerImage1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = ReEnrollerImage1.png; sourceTree = "<group>"; };
 		B5D5CF461E74367500580AE7 /* postinstall */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = postinstall; sourceTree = "<group>"; };
 		B5DBA04E1E5FCA2A00FA52CE /* com.jamf.ReEnroller.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = com.jamf.ReEnroller.plist; path = ../com.jamf.ReEnroller.plist; sourceTree = "<group>"; };
@@ -90,6 +92,7 @@
 			isa = PBXGroup;
 			children = (
 				B514454C1F7CB187000B4055 /* index.html */,
+				B5A43ECE203E3D260012CB53 /* apiMDM_remove.txt */,
 				B5F1557E1F4BE303002241A3 /* images */,
 			);
 			name = help;
@@ -155,6 +158,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B5A43ECF203E3D260012CB53 /* apiMDM_remove.txt in Resources */,
 				B50831071E5A87F900133D1B /* Assets.xcassets in Resources */,
 				B5D5CF471E74367500580AE7 /* postinstall in Resources */,
 				B5AC202B1F23108D00C16EAA /* ReEnrollerImage1.png in Resources */,

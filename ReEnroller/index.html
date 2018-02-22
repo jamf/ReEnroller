@@ -171,6 +171,7 @@ a:hover
 <div>Starting with 10.13 Apple added /var/db/ConfigurationProfiles to SIP.  To ensure the MDM payload is removed additional setup is required, creating a script and policy for MDM removal.</div>
     <div>The following sample script can be used:</div>
     <pre><span style="font-family:'Courier New';">
+        <hr>
 #!/bin/bash
 
 ##########################################################################################
@@ -244,10 +245,11 @@ fi
 udid=$(system_profiler SPHardwareDataType | awk '/UUID/ { print $3; }')
 
 ## get computer ID from Jamf server
-compId=$(/usr/bin/curl -sku ${uname}:${pwd} ${server}JSSResource/computers/udid/${udid}/subset/general | /usr/bin/xpath "//computer/general/id/text()" )
+compId=$(/usr/bin/curl -sku ${uname}:${pwd} ${server}JSSResource/computers/udid/${udid}/subset/general -H "Accept: application/xml" | /usr/bin/xpath "//computer/general/id/text()" )
 
 ## send unmanage command to machine
 curl -X POST -sku ${uname}:${pwd} ${server}JSSResource/computercommands/command/UnmanageDevice/id/${compId}
+<br><hr>
 </span></pre></div>
     <div>Create a policy to deploy the script.  The policy must have a custom trigger of apiMDM_remove.  Also set the policy to Ongoing.</div>
 <div id="app_image" style="position:relative;width:800px;height:390px">
