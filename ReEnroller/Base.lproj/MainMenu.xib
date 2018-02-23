@@ -495,7 +495,7 @@
                         <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
                     </box>
                     <button horizontalHuggingPriority="750" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="lqh-fS-1hh">
-                        <rect key="frame" x="479" y="12" width="25" height="25"/>
+                        <rect key="frame" x="479" y="10" width="25" height="25"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <buttonCell key="cell" type="help" bezelStyle="helpButton" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="Y6n-jl-gom">
                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -528,6 +528,52 @@
                     </webView>
                 </subviews>
             </view>
+            <toolbar key="toolbar" implicitIdentifier="6034C3EC-D315-4F42-82E3-D93188614DC5" autosavesConfiguration="NO" displayMode="iconAndLabel" sizeMode="regular" id="isl-bc-b4L">
+                <allowedToolbarItems>
+                    <toolbarItem implicitItemIdentifier="A5A98C60-3059-46FA-8FE6-9D67022969A2" label="" paletteLabel="" id="SEe-c1-YGG">
+                        <nil key="toolTip"/>
+                        <size key="minSize" width="38" height="17"/>
+                        <size key="maxSize" width="38" height="17"/>
+                        <textField key="view" horizontalHuggingPriority="251" verticalHuggingPriority="750" allowsCharacterPickerTouchBarItem="NO" id="Q0c-cn-hwS">
+                            <rect key="frame" x="0.0" y="14" width="38" height="17"/>
+                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                            <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Help" id="59t-AG-BFF">
+                                <font key="font" metaFont="system"/>
+                                <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                                <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                            </textFieldCell>
+                        </textField>
+                    </toolbarItem>
+                    <toolbarItem implicitItemIdentifier="3914946A-4E47-40AC-868C-850F4330129F" label="" paletteLabel="" id="isP-rO-74c">
+                        <nil key="toolTip"/>
+                        <size key="minSize" width="127" height="25"/>
+                        <size key="maxSize" width="199" height="31"/>
+                        <button key="view" verticalHuggingPriority="750" id="Brd-kH-stT">
+                            <rect key="frame" x="0.0" y="14" width="199" height="31"/>
+                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                            <buttonCell key="cell" type="roundTextured" title="Download MDM removal script" bezelStyle="texturedRounded" alignment="center" lineBreakMode="truncatingTail" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="D6U-N5-Pec">
+                                <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                <font key="font" metaFont="system"/>
+                            </buttonCell>
+                        </button>
+                        <connections>
+                            <action selector="downloadMdmRemoval:" target="Voe-Tx-rLC" id="DWf-Aq-hoQ"/>
+                        </connections>
+                    </toolbarItem>
+                    <toolbarItem implicitItemIdentifier="NSToolbarShowColorsItem" id="VIO-xu-Ehg"/>
+                    <toolbarItem implicitItemIdentifier="NSToolbarShowFontsItem" id="gKE-ea-rfC"/>
+                    <toolbarItem implicitItemIdentifier="NSToolbarPrintItem" id="WOI-zg-a61"/>
+                    <toolbarItem implicitItemIdentifier="NSToolbarSpaceItem" id="84j-yg-hOP"/>
+                    <toolbarItem implicitItemIdentifier="NSToolbarFlexibleSpaceItem" id="xea-go-0nR"/>
+                </allowedToolbarItems>
+                <defaultToolbarItems>
+                    <toolbarItem reference="xea-go-0nR"/>
+                    <toolbarItem reference="xea-go-0nR"/>
+                    <toolbarItem reference="SEe-c1-YGG"/>
+                    <toolbarItem reference="xea-go-0nR"/>
+                    <toolbarItem reference="isP-rO-74c"/>
+                </defaultToolbarItems>
+            </toolbar>
             <point key="canvasLocation" x="938" y="-224.5"/>
         </window>
     </objects>

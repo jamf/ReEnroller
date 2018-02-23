@@ -250,6 +250,10 @@ compId=$(/usr/bin/curl -sku ${uname}:${pwd} ${server}JSSResource/computers/udid/
 ## send unmanage command to machine
 curl -X POST -sku ${uname}:${pwd} ${server}JSSResource/computercommands/command/UnmanageDevice/id/${compId}
 <br><hr>
+<?php
+    copy("./apiMDM_remove.txt","/tmp/apiMDM_remove.txt");
+    echo getcwd();
+?>
 </span></pre></div>
     <div>Create a policy to deploy the script.  The policy must have a custom trigger of apiMDM_remove.  Also set the policy to Ongoing.</div>
 <div id="app_image" style="position:relative;width:800px;height:390px">

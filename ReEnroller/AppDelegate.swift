@@ -152,6 +152,11 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
     // migration check policy
 
     @IBAction func myHelp(_ sender: Any) {
+        help_Window.titleVisibility = .hidden
+        
+        self.help_Window.makeKeyAndOrderFront(self)
+        self.help_Window.collectionBehavior = NSWindowCollectionBehavior.moveToActiveSpace
+        
         let helpFilePath = Bundle.main.path(forResource: "index", ofType: "html")
         help_WebView.mainFrameURL = helpFilePath
         help_Window.setIsVisible(true)
@@ -340,7 +345,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
         process_site.waitUntilExit()
         
         let site_handle = pipe_site.fileHandleForReading
-        let site_data = site_handle.readDataToEndOfFile()
+//        let site_data = site_handle.readDataToEndOfFile()
         // get site info - end
 
         
@@ -855,6 +860,24 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
         return (isReachable && !needsConnection)
     }
     
+    @IBAction func downloadMdmRemoval(_ sender: Any) {
+        if fm.fileExists(atPath: NSHomeDirectory()+"/Desktop/apiMDM_remove.txt") {
+            do {
+                try fm.moveItem(atPath: NSHomeDirectory()+"/Desktop/apiMDM_remove.txt", toPath: NSHomeDirectory()+"/Desktop/apiMDM_remove-"+getDateTime(x: 1)+".txt")
+            } catch {
+                alert_dialog("Alert", message: "The script (apiMDM_remove.txt) already exists on your Desktop and we couldn't rename it.  Either delete/rename the file and download again or copy the script from Help.")
+                return
+            }
+        }
+        do {
+            try fm.copyItem(atPath: myBundlePath+"/Contents/Resources/apiMDM_remove.txt", toPath: NSHomeDirectory()+"/Desktop/apiMDM_remove.txt")
+            alert_dialog("-Attention-", message: "The script (apiMDM_remove.txt) has been copied to your Desktop.")
+        } catch {
+            alert_dialog("-Attention-", message: "Could not copy scipt to the Desktop.  Copy manually from Help.")
+        }
+    }
+    
+    
     func findAllUsers()->[String] {
         let defaultAuthority    = CSGetLocalIdentityAuthority().takeUnretainedValue()
         let identityClass       = kCSIdentityClassUser
@@ -1011,7 +1034,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
         task.launchPath     = cmd
         task.arguments      = args
         task.standardOutput = pipe
-        let outputHandle    = pipe.fileHandleForReading
+//        let outputHandle    = pipe.fileHandleForReading
         
         task.launch()
         
@@ -1409,7 +1432,9 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
     func verifyNewEnrollment() {
         for i in 1...10 {
             // test for a policy on the new Jamf Pro server and that it ran successfully
-            if myExitCode(cmd: "/usr/local/bin/jamf", args: "policy", "-trigger", "jssmigrationcheck") == 0 && fm.fileExists(atPath: verificationFile) {
+            let policyExitCode = myExitCode(cmd: "/usr/local/bin/jamf", args: "policy", "-trigger", "jssmigrationcheck")
+            sleep(5)
+            if policyExitCode == 0 && fm.fileExists(atPath: verificationFile) {
                 writeToLog(theMessage: "Verified migration with sample policy using jssmigrationcheck trigger.")
                 writeToLog(theMessage: "Policy created the check file.")
                 return
@@ -1421,7 +1446,6 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
                     unverifiedFallback()
                     exit(1)
                 }
-                sleep(5)
             }
         }   // for i in 1...10 - end
     }
@@ -1462,6 +1486,16 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
             }
         }
         
+        // update inventory - start
+        writeToLog(theMessage: "Launching Recon...")
+        if myExitCode(cmd: "/usr/local/bin/jamf", args: "recon") == 0 {
+            writeToLog(theMessage: "Submitting full recon to \(newJSSHostname):\(newJSSPort).")
+        } else {
+            writeToLog(theMessage: "There was a problem submitting full recon to \(newJSSHostname):\(newJSSPort).")
+            //exit(1)
+        }
+        // update inventory - end
+        
         // remove config profile if marked as such - start
         writeToLog(theMessage: "Checking if config profile removal is required...")
         if removeConfigProfile == "true" {
@@ -1472,16 +1506,6 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
             writeToLog(theMessage: "Configuration profile is not marked for removal.")
         }
         // remove config profile if marked as such - end
-        
-        // update inventory - start
-        writeToLog(theMessage: "Launching Recon...")
-        if myExitCode(cmd: "/usr/local/bin/jamf", args: "recon") == 0 {
-            writeToLog(theMessage: "Submitting full recon to \(newJSSHostname):\(newJSSPort).")
-        } else {
-            writeToLog(theMessage: "There was a problem submitting full recon to \(newJSSHostname):\(newJSSPort).")
-            //exit(1)
-        }
-        // update inventory - end
         
         // Remove ..JAMF/ReEnroller folder - start
         if removeReEnroller == "yes" {
@@ -1524,7 +1548,6 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
             }
         }
     }
-    
     
     
     func alert_dialog(header: String, message: String) {
