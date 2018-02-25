@@ -37,6 +37,7 @@
 import Cocoa
 import Collaboration
 import Foundation
+import Security
 import SystemConfiguration
 import WebKit
 
@@ -85,6 +86,9 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
     
     let jamfPlistPath = "/Library/Preferences/com.jamfsoftware.jamf.plist"
     let bakjamfPlistPath = "/Library/Application Support/JAMF/ReEnroller/backup/com.jamfsoftware.jamf.plist.bak"
+    
+    let airportPrefs = "/Library/Preferences/SystemConfiguration/com.apple.airport.preferences.plist"
+    let bakAirportPrefs = "/Library/Application Support/JAMF/ReEnroller/backup/com.apple.airport.preferences.plist.bak"
     
     let configProfilePath = "/Library/Application Support/JAMF/ReEnroller/profile.mobileconfig"
     let verificationFile = "/Library/Application Support/JAMF/ReEnroller/Complete"
@@ -444,6 +448,16 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
         // create build location and place items
         do {
             try fm.createDirectory(atPath: buildFolder+"/Library/Application Support/JAMF/ReEnroller", withIntermediateDirectories: true, attributes: nil)
+            
+            // Need to be able to run the app with elevated privileges for this to work
+//            // set permissions and ownership
+//            attributes[.posixPermissions] = 0o750
+//            attributes[.ownerAccountID] = 0
+//            attributes[.groupOwnerAccountID] = 0
+//            do {
+//                try fm.setAttributes(attributes, ofItemAtPath: buildFolder+"/Library/Application Support/JAMF/ReEnroller")
+//            }
+            
             // copy the app into the pkg building location
             do {
                 try fm.copyItem(atPath: myBundlePath, toPath: buildFolder+"/Library/Application Support/JAMF/ReEnroller/ReEnroller.app")
@@ -596,10 +610,14 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
         (launchdPlistData as NSDictionary).write(toFile: launchdFile, atomically: false)
         // Write values to launchd plist - end
     
+
         do {
-            try fm.createDirectory(atPath: buildFolderd+"/Library/Application Support/JAMF/ReEnroller/scripts", withIntermediateDirectories: true, attributes: nil)
+//            try fm.createDirectory(atPath: buildFolderd+"/Library/Application Support/JAMF/ReEnroller/scripts", withIntermediateDirectories: true, attributes: nil)
             do {
-                try fm.copyItem(atPath: myBundlePath+"/Contents/Resources/postinstall", toPath: buildFolderd+"/Library/Application Support/JAMF/ReEnroller/scripts/postinstall")
+                if separatePackage_button.state == 0 {
+//                    try fm.copyItem(atPath: myBundlePath+"/Contents/Resources/1/postinstall", toPath: buildFolderd+"/Library/Application Support/JAMF/ReEnroller/scripts/postinstall")
+                }
+                
             } catch {
                 writeToLog(theMessage: "Could not copy postinstall script.")
                 alert_dialog("-Attention-", message: "Could not copy post install script to build location - exiting.")
@@ -630,10 +648,15 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
         
         // Create pkg of app and launchd - start
         if separatePackage_button.state == 0 {
-            pkgBuildResult = myExitCode(cmd: "/usr/bin/pkgbuild", args: "--identifier", "com.jamf.ReEnroller", "--root", buildFolder, "--scripts", buildFolder+"/Library/Application Support/JAMF/ReEnroller/scripts", NSHomeDirectory()+"/Desktop/ReEnroller-\(shortHostname).pkg")
+//            pkgBuildResult = myExitCode(cmd: "/usr/bin/pkgbuild", args: "--identifier", "com.jamf.ReEnroller", "--root", buildFolder, "--scripts", buildFolder+"/Library/Application Support/JAMF/ReEnroller/scripts", NSHomeDirectory()+"/Desktop/ReEnroller-\(shortHostname).pkg")
+            pkgBuildResult = myExitCode(cmd: "/usr/bin/pkgbuild", args: "--identifier", "com.jamf.ReEnroller", "--root", buildFolder, "--scripts", myBundlePath+"/Contents/Resources/1", NSHomeDirectory()+"/Desktop/ReEnroller-\(shortHostname).pkg")
+
         } else {
-            pkgBuildResult = myExitCode(cmd: "/usr/bin/pkgbuild", args: "--identifier", "com.jamf.ReEnroller", "--root", buildFolder, NSHomeDirectory()+"/Desktop/ReEnroller-\(shortHostname).pkg")
-            pkgBuildResult = myExitCode(cmd: "/usr/bin/pkgbuild", args: "--identifier", "com.jamf.ReEnrollerd", "--root", buildFolderd, "--scripts", buildFolderd+"/Library/Application Support/JAMF/ReEnroller/scripts", NSHomeDirectory()+"/Desktop/ReEnrollerDaemon-\(shortHostname).pkg")
+            pkgBuildResult = myExitCode(cmd: "/usr/bin/pkgbuild", args: "--identifier", "com.jamf.ReEnroller", "--root", buildFolder, "--scripts", myBundlePath+"/Contents/Resources/2", NSHomeDirectory()+"/Desktop/ReEnroller-\(shortHostname).pkg")
+            pkgBuildResult = myExitCode(cmd: "/usr/bin/pkgbuild", args: "--identifier", "com.jamf.ReEnrollerd", "--root", buildFolderd, "--scripts", myBundlePath+"/Contents/Resources/1", NSHomeDirectory()+"/Desktop/ReEnrollerDaemon-\(shortHostname).pkg")
+
+//            pkgBuildResult = myExitCode(cmd: "/usr/bin/pkgbuild", args: "--identifier", "com.jamf.ReEnroller", "--root", buildFolder, NSHomeDirectory()+"/Desktop/ReEnroller-\(shortHostname).pkg")
+//            pkgBuildResult = myExitCode(cmd: "/usr/bin/pkgbuild", args: "--identifier", "com.jamf.ReEnrollerd", "--root", buildFolderd, "--scripts", buildFolderd+"/Library/Application Support/JAMF/ReEnroller/scripts", NSHomeDirectory()+"/Desktop/ReEnrollerDaemon-\(shortHostname).pkg")
         }
         if pkgBuildResult != 0 {
             alert_dialog("-Attention-", message: "Could not create the ReEnroller(Daemon) package - exiting.")
@@ -722,7 +745,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
 //        print("curl -m 30 -sk \(newJssMgmtUrl)/bin/jamf.gz -o '/Library/Application Support/JAMF/ReEnroller/jamf.gz'")
         if myExitCode(cmd: "/bin/bash", args: "-c", "curl -m 60 -sk \(newJssMgmtUrl)/bin/jamf.gz -o '/Library/Application Support/JAMF/ReEnroller/jamf.gz'") != 0 &&
             myExitCode(cmd: "/bin/bash", args: "-c", "curl -m 60 -sk \(newJssMgmtUrl)/bin/level1/jamf.gz -o '/Library/Application Support/JAMF/ReEnroller/jamf.gz'") != 0 {
-            writeToLog(theMessage: "Could not copy jamf binary from new server, will rely on existing jamf binary.")
+            writeToLog(theMessage: "Could not copy jamf binary from new server(\(newJssMgmtUrl)/bin/<level1>/jamf.gz), will rely on existing jamf binary.")
         } else {
             if fm.fileExists(atPath: "/Library/Application Support/JAMF/ReEnroller/jamf.gz") {
                 if backup(operation: "copy", source: origBinary, destination: bakBinary) {
@@ -1261,6 +1284,17 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
     
     func profileRemove() -> Bool {
         if profileUuid != "" {
+            // backup existing airport preferences plist - start
+            if backup(operation: "copy", source: airportPrefs, destination: bakAirportPrefs) {
+                writeToLog(theMessage: "Successfully backed up airport preferences plist")
+            } else {
+                writeToLog(theMessage: "Failed to backup airport preferences plist.")
+                //            unverifiedFallback()
+                //            exit(1)
+            }
+            // backup existing airport preferences plist - end
+            
+            // remove the manually added profile
             if myExitCode(cmd: "/usr/bin/profiles", args: "-R", "-p", profileUuid) == 0 {
                 writeToLog(theMessage: "Configuration Profile was removed.")
                 toggleWiFi()
@@ -1268,6 +1302,41 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
                 // verify we have connectivity - if not, try to add manual profile back
                 var connectivityCounter = 1
                 while !connectedToNetwork() && connectivityCounter < 56 {
+                    if connectivityCounter == 2 {
+                        do {
+                            let plistURL = URL(string: "file:///Library/Application%20Support/JAMF/ReEnroller/profile.mobileconfig")
+                            let ssid = stringFromPlist(plistURL: plistURL!, startString: "<key>SSID_STR</key><string>", endString: "</string><key>Interface</key><string>")
+                            let ssidPwd = stringFromPlist(plistURL: plistURL!, startString: "<key>Password</key><string>", endString: "</string><key>EncryptionType</key>")
+                            let encrypt = stringFromPlist(plistURL: plistURL!, startString: "<key>EncryptionType</key><string>", endString: "</string><key>AutoJoin</key>")
+                            let en = myExitValue(cmd: "/bin/bash", args: "-c", "/usr/sbin/networksetup -listallhardwareports | grep -A1 Wi-Fi | grep Device | awk '{ print $2 }'")[0]
+
+                            let _ = myExitCode(cmd: "/bin/bash", args: "-c", "/usr/sbin/networksetup -addpreferredwirelessnetworkatindex \(en) \"\(ssid)\" 0 \(encrypt) \"\(ssidPwd)\"")
+                        } catch {
+                            writeToLog(theMessage: "Problem extracting data from profile.")
+                        }
+                        // Add to keychain
+                        
+                        
+//                                    // if we have a previous airport preferences file restore it - start
+//                                    if fm.fileExists(atPath: bakAirportPrefs) {
+//                                        do {
+//                                            if fm.fileExists(atPath: airportPrefs) {
+//                                                do {
+//                                                    try fm.removeItem(atPath: airportPrefs)
+//                                                    writeToLog(theMessage: "Removed existing airport preferences.")
+//                                                } catch {
+//                                                    writeToLog(theMessage: "Unable to restore previous airport preferences.")
+//                                                }
+//                                            }
+//                                            try fm.moveItem(atPath: bakAirportPrefs, toPath: airportPrefs)
+//                                            writeToLog(theMessage: "Restored previous airport preferences.")
+//                                        } catch {
+//                                            writeToLog(theMessage: "Unable to restore previous airport preferences.")
+//                                        }
+//                                    }
+//                                    // if we have a previous airport preferences file restore it - start
+                    }
+                    
                     if (connectivityCounter % 15) == 0 {
                         writeToLog(theMessage: "No connectivity for 30 seconds, power cycling WiFi.")
                         toggleWiFi()
@@ -1441,6 +1510,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
             } else {
                 writeToLog(theMessage: "Attempt \(i): There was a problem verifying migration with sample policy using jssmigrationcheck trigger.")
                 writeToLog(theMessage: "/usr/local/bin/jamf policy -trigger jssmigrationcheck")
+                writeToLog(theMessage: "Exit code: \(policyExitCode)")
                 if i == 10 {
                     writeToLog(theMessage: "Falling back to old settings and exiting!")
                     unverifiedFallback()
@@ -1490,6 +1560,8 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
         writeToLog(theMessage: "Launching Recon...")
         if myExitCode(cmd: "/usr/local/bin/jamf", args: "recon") == 0 {
             writeToLog(theMessage: "Submitting full recon to \(newJSSHostname):\(newJSSPort).")
+            _ = myExitCode(cmd: "/usr/local/bin/jamf", args: "manage")
+            sleep(10)
         } else {
             writeToLog(theMessage: "There was a problem submitting full recon to \(newJSSHostname):\(newJSSPort).")
             //exit(1)
@@ -1597,6 +1669,19 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
             theString = theString.substring(to: theString.index(before: theString.endIndex))
         }
         return theString
+    }
+    
+    func stringFromPlist(plistURL: URL, startString: String, endString: String) -> String {
+        writeToLog(theMessage: "reading from \(plistURL)")
+        var xmlValue = ""
+        do {
+            let one = try String(contentsOf: plistURL, encoding: String.Encoding.ascii).components(separatedBy: endString)
+            let _string = one[0].components(separatedBy: startString)
+            xmlValue = _string[1]
+        } catch {
+            writeToLog(theMessage: "unable to read file")
+        }
+        return xmlValue
     }
     
     func writeToLog(theMessage: String) {
