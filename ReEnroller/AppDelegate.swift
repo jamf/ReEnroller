@@ -63,12 +63,15 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
     @IBOutlet weak var mgmtAcctPwd2_TextField: NSSecureTextField!
     @IBOutlet weak var randomPassword_button: NSButton!
     @IBOutlet weak var rndPwdLen_TextField: NSTextField?
+    @IBOutlet weak var policyId_Textfield: NSTextField!
+
     @IBOutlet weak var createPolicy_Button: NSButton!
     @IBOutlet weak var skipMdmCheck_Button: NSButton!
     @IBOutlet weak var removeReEnroller_Button: NSButton!
     @IBOutlet weak var retainSite_Button: NSButton!
     @IBOutlet weak var enableSites_Button: NSButton!
     @IBOutlet weak var site_Button: NSPopUpButton!
+    @IBOutlet weak var runPolicy_Button: NSButton!
     @IBOutlet weak var separatePackage_button: NSButton!
     
     @IBOutlet weak var processQuickAdd_Button: NSButton!
@@ -105,50 +108,51 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
     let logFilePath = "/private/var/log/jamf.log"
     var LogFileW: FileHandle?  = FileHandle(forUpdatingAtPath: "")
     
-    var alert_answer: Bool = false
-    var oldURL = ""
-    var newURL = [String]()
-    var newJSSURL = ""
-    var newJSSHostname = ""
-    var newJSSPort = ""
+    var alert_answer: Bool  = false
+    var oldURL              = ""
+    var newURL              = [String]()
+    var newJSSURL           = ""
+    var newJSSHostname      = ""
+    var newJSSPort          = ""
     
-    let safeCharSet = CharacterSet.alphanumerics
-    var jssUsername = ""
-    var jssPassword = ""
-    var resourcePath = ""
-    var jssCredentials = ""
-    var jssCredentialsBase64 = ""
-    var siteDict = Dictionary<String, Any>()
-    var siteId = "-1"
-    var mgmtAcctPwdXml = ""
-    var rndPwdXml = ""  // if using a random management account password this adds xml to the migration complete policy
-    var mgmtAcctPwdLen = 8
+    let safeCharSet         = CharacterSet.alphanumerics
+    var jssUsername         = ""
+    var jssPassword         = ""
+    var resourcePath        = ""
+    var jssCredentials      = ""
+    var jssCredsBase64      = ""
+    var siteDict            = Dictionary<String, Any>()
+    var siteId              = "-1"
+    var mgmtAcctPwdXml      = ""
+    var rndPwdXml           = ""  // if using a random management account password this adds xml to the migration complete policy
+    var mgmtAcctPwdLen      = 8
     var pkgBuildResult: Int8 = 0
     
-    var newJssArray = [String]()
-    var shortHostname = ""
+    var newJssArray         = [String]()
+    var shortHostname       = ""
     
     // read this from Jamf server
-    var createConfSwitches = ""
+    var createConfSwitches  = ""
     
-    var newJssMgmtUrl = ""
-    var theNewInvite = ""
-    var removeReEnroller = "yes"    // by default delete the ReEnroller folder after enrollment
-    var retainSite = "true"         // by default retain site when re-enrolling
-    var skipMdmCheck = "no"         // by default do not skip mdm check
-    var StartInterval = 1800        // default retry interval is 1800 seconds (30 minutes)
-    var includesMsg = "includes"
-    var includesMsg2 = ""
-    var policyMsg = ""
+    var newJssMgmtUrl       = ""
+    var theNewInvite        = ""
+    var removeReEnroller    = "yes"    // by default delete the ReEnroller folder after enrollment
+    var retainSite          = "true"         // by default retain site when re-enrolling
+    var skipMdmCheck        = "no"         // by default do not skip mdm check
+    var StartInterval       = 1800        // default retry interval is 1800 seconds (30 minutes)
+    var includesMsg         = "includes"
+    var includesMsg2        = ""
+    var policyMsg           = ""
+    var postInsallPolicyId  = ""
     
-    var profileUuid = ""
+    var profileUuid         = ""
     var removeConfigProfile = ""
-    var removeAllProfiles = ""
+    var removeAllProfiles   = ""
     
-    var safePackageURL = ""
-    var safeProfileURL = ""
-    var Pipe_pkg = Pipe()
-    var task_pkg = Process()
+    var safePackageURL      = ""
+    var safeProfileURL      = ""
+    var Pipe_pkg            = Pipe()
+    var task_pkg            = Process()
     
     // OS version info
     let os = ProcessInfo().operatingSystemVersion
@@ -185,6 +189,15 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
         }
     }
     
+    @IBAction func runPolicy_Function(_ sender: Any) {
+        if runPolicy_Button.state == 1 {
+            policyId_Textfield.isEnabled = true
+        } else {
+            policyId_Textfield.isEnabled = false
+        }
+    }
+    
+    
 //    @IBAction func fetchSites_Button(_ sender: Any) {
     func fetchSites() {
         if enableSites_Button.state == 1 {
@@ -193,7 +206,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
 //            let safeCharSet = CharacterSet.alphanumerics
             let jssUrl = jssUrl_TextField.stringValue
             jssUsername = jssUsername_TextField.stringValue
-            jssPassword = jssPassword_TextField.stringValue.addingPercentEncoding(withAllowedCharacters: safeCharSet)!
+            jssPassword = jssPassword_TextField.stringValue
             
             if "\(jssUrl)" == "" {
                 alert_dialog(header: "Attention:", message: "Jamf server is required.")
@@ -208,7 +221,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
             }
             jssCredentials = "\(jssUsername):\(jssPassword)"
             let jssCredentialsUtf8 = jssCredentials.data(using: String.Encoding.utf8)
-            jssCredentialsBase64 = (jssCredentialsUtf8?.base64EncodedString())!
+            jssCredsBase64 = (jssCredentialsUtf8?.base64EncodedString())!
             
             resourcePath = "\(jssUrl)/JSSResource/sites"
             resourcePath = resourcePath.replacingOccurrences(of: "//JSSResource", with: "/JSSResource")
@@ -272,8 +285,8 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
             return
         }
         if randomPassword_button.state == 0 {
-            let mgmtAcctPwd = mgmtAcctPwd_TextField.stringValue.addingPercentEncoding(withAllowedCharacters: safeCharSet)!
-            let mgmtAcctPwd2 = mgmtAcctPwd2_TextField.stringValue.addingPercentEncoding(withAllowedCharacters: safeCharSet)!
+            let mgmtAcctPwd = mgmtAcctPwd_TextField.stringValue
+            let mgmtAcctPwd2 = mgmtAcctPwd2_TextField.stringValue
             if "\(mgmtAcctPwd)" == "" {
                 self.alert_dialog(header: "Attention", message: "Password cannot be left blank.")
                 mgmtAccount_TextField.becomeFirstResponder()
@@ -319,8 +332,8 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
         }
         // server is reachable - end
         
-        jssUsername = jssUsername_TextField.stringValue.addingPercentEncoding(withAllowedCharacters: safeCharSet)!
-        jssPassword = jssPassword_TextField.stringValue.addingPercentEncoding(withAllowedCharacters: safeCharSet)!
+        jssUsername = jssUsername_TextField.stringValue //.addingPercentEncoding(withAllowedCharacters: safeCharSet)!
+        jssPassword = jssPassword_TextField.stringValue //.addingPercentEncoding(withAllowedCharacters: safeCharSet)!
         
         if "\(jssUsername)" == "" || "\(jssPassword))" == "" {
             alert_dialog(header: "Alert", message: "Please provide both a username and password for the server.")
@@ -611,24 +624,24 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
         // Write values to launchd plist - end
     
 
-        do {
-//            try fm.createDirectory(atPath: buildFolderd+"/Library/Application Support/JAMF/ReEnroller/scripts", withIntermediateDirectories: true, attributes: nil)
-            do {
-                if separatePackage_button.state == 0 {
-//                    try fm.copyItem(atPath: myBundlePath+"/Contents/Resources/1/postinstall", toPath: buildFolderd+"/Library/Application Support/JAMF/ReEnroller/scripts/postinstall")
-                }
-                
-            } catch {
-                writeToLog(theMessage: "Could not copy postinstall script.")
-                alert_dialog("-Attention-", message: "Could not copy post install script to build location - exiting.")
-                exit(1)
-            }
-            
-        } catch {
-            writeToLog(theMessage: "Unable to place postinstall script.")
-            alert_dialog("-Attention-", message: "Could not create scripts directory for post install task in build location - exiting.")
-            exit(1)
-        }
+//            do {
+//    //            try fm.createDirectory(atPath: buildFolderd+"/Library/Application Support/JAMF/ReEnroller/scripts", withIntermediateDirectories: true, attributes: nil)
+//                do {
+//                    if separatePackage_button.state == 0 {
+//    //                    try fm.copyItem(atPath: myBundlePath+"/Contents/Resources/1/postinstall", toPath: buildFolderd+"/Library/Application Support/JAMF/ReEnroller/scripts/postinstall")
+//                    }
+//                    
+//                } catch {
+//                    writeToLog(theMessage: "Could not copy postinstall script.")
+//                    alert_dialog("-Attention-", message: "Could not copy post install script to build location - exiting.")
+//                    exit(1)
+//                }
+//                
+//            } catch {
+//                writeToLog(theMessage: "Unable to place postinstall script.")
+//                alert_dialog("-Attention-", message: "Could not create scripts directory for post install task in build location - exiting.")
+//                exit(1)
+//            }
         // prepare postinstall script if option is checked - end
         
         // Write settings from GUI to settings.plist
@@ -648,15 +661,11 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
         
         // Create pkg of app and launchd - start
         if separatePackage_button.state == 0 {
-//            pkgBuildResult = myExitCode(cmd: "/usr/bin/pkgbuild", args: "--identifier", "com.jamf.ReEnroller", "--root", buildFolder, "--scripts", buildFolder+"/Library/Application Support/JAMF/ReEnroller/scripts", NSHomeDirectory()+"/Desktop/ReEnroller-\(shortHostname).pkg")
             pkgBuildResult = myExitCode(cmd: "/usr/bin/pkgbuild", args: "--identifier", "com.jamf.ReEnroller", "--root", buildFolder, "--scripts", myBundlePath+"/Contents/Resources/1", NSHomeDirectory()+"/Desktop/ReEnroller-\(shortHostname).pkg")
 
         } else {
             pkgBuildResult = myExitCode(cmd: "/usr/bin/pkgbuild", args: "--identifier", "com.jamf.ReEnroller", "--root", buildFolder, "--scripts", myBundlePath+"/Contents/Resources/2", NSHomeDirectory()+"/Desktop/ReEnroller-\(shortHostname).pkg")
             pkgBuildResult = myExitCode(cmd: "/usr/bin/pkgbuild", args: "--identifier", "com.jamf.ReEnrollerd", "--root", buildFolderd, "--scripts", myBundlePath+"/Contents/Resources/1", NSHomeDirectory()+"/Desktop/ReEnrollerDaemon-\(shortHostname).pkg")
-
-//            pkgBuildResult = myExitCode(cmd: "/usr/bin/pkgbuild", args: "--identifier", "com.jamf.ReEnroller", "--root", buildFolder, NSHomeDirectory()+"/Desktop/ReEnroller-\(shortHostname).pkg")
-//            pkgBuildResult = myExitCode(cmd: "/usr/bin/pkgbuild", args: "--identifier", "com.jamf.ReEnrollerd", "--root", buildFolderd, "--scripts", buildFolderd+"/Library/Application Support/JAMF/ReEnroller/scripts", NSHomeDirectory()+"/Desktop/ReEnrollerDaemon-\(shortHostname).pkg")
         }
         if pkgBuildResult != 0 {
             alert_dialog("-Attention-", message: "Could not create the ReEnroller(Daemon) package - exiting.")
@@ -701,14 +710,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
     
     func beginMigration() {
         writeToLog(theMessage: "Starting the enrollment process for the new Jamf Pro server.")
-        
-//        // Install profile if present - start
-//        if !profileInstall() {
-//            unverifiedFallback()
-//            exit(1)
-//        }
-//        // Install profile if present - end
-        
+
         // ensure we still have network connectivity - start
         var connectivityCounter = 0
         while !connectedToNetwork() {
@@ -745,11 +747,12 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
 //        print("curl -m 30 -sk \(newJssMgmtUrl)/bin/jamf.gz -o '/Library/Application Support/JAMF/ReEnroller/jamf.gz'")
         if myExitCode(cmd: "/bin/bash", args: "-c", "curl -m 60 -sk \(newJssMgmtUrl)/bin/jamf.gz -o '/Library/Application Support/JAMF/ReEnroller/jamf.gz'") != 0 &&
             myExitCode(cmd: "/bin/bash", args: "-c", "curl -m 60 -sk \(newJssMgmtUrl)/bin/level1/jamf.gz -o '/Library/Application Support/JAMF/ReEnroller/jamf.gz'") != 0 {
-            writeToLog(theMessage: "Could not copy jamf binary from new server(\(newJssMgmtUrl)/bin/<level1>/jamf.gz), will rely on existing jamf binary.")
+            writeToLog(theMessage: "Could not copy jamf binary from new server(\(newJssMgmtUrl)/bin/level1/jamf.gz), will rely on existing jamf binary.")
         } else {
+            writeToLog(theMessage: "Downloaded jamf binary from new server(\(newJssMgmtUrl)/bin/jamf.gz).")
             if fm.fileExists(atPath: "/Library/Application Support/JAMF/ReEnroller/jamf.gz") {
                 if backup(operation: "copy", source: origBinary, destination: bakBinary) {
-                    if myExitCode(cmd: "/bin/bash", args: "-c", "gunzip /Library/Application\\ Support/JAMF/ReEnroller/jamf.gz") == 0 {
+                    if myExitCode(cmd: "/bin/bash", args: "-c", "gunzip /Library/Application Support/JAMF/ReEnroller/jamf.gz") == 0 {
                         do {
                             try fm.moveItem(atPath: "/Library/Application Support/JAMF/ReEnroller/jamf", toPath: origBinary)
                             writeToLog(theMessage: "Using jamf binary from the new server.")
@@ -762,11 +765,11 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
                                 try fm.removeItem(atPath: "/usr/local/jamf/bin/jamfAgent")
                             }
                         } catch {
-                            writeToLog(theMessage: "Unable to replace existing jamf binary, will rely on existing one.")
+                            writeToLog(theMessage: "Unable to remove existing jamf binary, will rely on existing one.")
                         }
                     }
                 } else {
-                    writeToLog(theMessage: "Unable to replace existing jamf binary, will rely on existing one.")
+                    writeToLog(theMessage: "Unable to unzip new jamf binary, will rely on existing one.")
                 }
             }
         }
@@ -1121,7 +1124,6 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
         
         let mdmCount = Int(profileList.trimmingCharacters(in: .whitespacesAndNewlines))!
         
-//        if profileList?.range(of: "00000000-0000-0000-A000-4A414D460003") == nil {
         if mdmCount == 0 {
             mdm = false
         }
@@ -1751,6 +1753,9 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
                 if plistData["skipMdmCheck"] != nil {
                     skipMdmCheck = plistData["skipMdmCheck"]! as! String
                 }
+                if plistData["postInsallPolicyId"] != nil {
+                    postInsallPolicyId = plistData["postInsallPolicyId"]! as! String
+                }
                 
                 
                 // look for an existing jamf plist file
@@ -1824,7 +1829,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
         //        print("serverRequest: \(serverRequest)")
         serverRequest.httpMethod = "GET"
         let serverConf = URLSessionConfiguration.default
-        serverConf.httpAdditionalHeaders = ["Authorization" : "Basic \(jssCredentialsBase64)", "Content-Type" : "application/json", "Accept" : "application/json"]
+        serverConf.httpAdditionalHeaders = ["Authorization" : "Basic \(jssCredsBase64)", "Content-Type" : "application/json", "Accept" : "application/json"]
         let serverSession = Foundation.URLSession(configuration: serverConf, delegate: self, delegateQueue: OperationQueue.main)
         let task = serverSession.dataTask(with: serverRequest as URLRequest, completionHandler: {
             (data, response, error) -> Void in

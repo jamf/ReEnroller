@@ -127,7 +127,7 @@ a:hover
 <div style="font-family:Arial;font-size:13px;line-height:15px;color:#000000;">
 <div>Enter the URL and Jamf administrator credentials, or an account with at least enrollment privileges, for the new Jamf server.</div>
 <div>If you wish to retain the existing management account and the password enter those credentials.&nbsp; If you wish to change the management account and or password, or wish to use a random password a new management account must be entered.&nbsp; This must be an account not currently on the machine, it will be created during (re)enrollment.&nbsp;&nbsp; </div>
-<div>If you choose to add a configuration profile either browse to the file or drag it in.&nbsp; A common profile may include a WiFi payload used to maintain network connectivity during the re-enrollment process. </div>
+<div>If you choose to add a configuration profile either browse to the file or drag it in.&nbsp; A common profile may include a WiFi payload used to maintain network connectivity during the re-enrollment process. Note, 802.1x profiles are not supported.</div>
 <div>For machines that were enrolled through DEP and have &lsquo;Allow MDM Profile Removal&rsquo; unchecked, you need to check the box &lsquo;Remove profiles marked in DEP as not to be removed&rsquo;.  Note, starting with High Sierra (10.13) this option no longer works if SIP is enabled.</div>
 <div>Select appropriate Site options.&nbsp; If the computer account already exists on the destination server with a Site assignemt, the Site may be preserved during re-enrollment.&nbsp; You're also able to select the Site to migrate the system into.</div>
 <div>To automatically create the policy used on the destination server to verity enrollment check the 'Create Migration Complete policy' box.</div>
@@ -265,7 +265,7 @@ curl -X POST -sku ${uname}:${pwd} ${server}JSSResource/computercommands/command/
 <div><hr></div>
 <div><strong>Items to note:</strong>
 <ul style="margin-left:17px;">
-   <li>The ReEnroller package <strong>will not</strong> install/run properly if the ReEnroller app is on the same machine prior to running the package.</li>
+   <li>The ReEnroller package <strong>will not</strong> install/run properly if the ReEnroller app is on the same machine prior to running the package.  This includes having the app on a mounted volume.</li>
    <li>As the process runs, logging information is written to /var/log/jamf.log.</li>
 </ul></div>
 </div>

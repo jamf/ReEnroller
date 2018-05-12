@@ -17,7 +17,6 @@
 		B5A43ED42043359A0012CB53 /* 2 in Resources */ = {isa = PBXBuildFile; fileRef = B5A43ED32043359A0012CB53 /* 2 */; };
 		B5A43ED6204335F30012CB53 /* 1 in Resources */ = {isa = PBXBuildFile; fileRef = B5A43ED5204335F30012CB53 /* 1 */; };
 		B5AC202B1F23108D00C16EAA /* ReEnrollerImage1.png in Resources */ = {isa = PBXBuildFile; fileRef = B5AC202A1F23108D00C16EAA /* ReEnrollerImage1.png */; };
-		B5D5CF471E74367500580AE7 /* postinstall in Resources */ = {isa = PBXBuildFile; fileRef = B5D5CF461E74367500580AE7 /* postinstall */; };
 		B5DBA04F1E5FCA2A00FA52CE /* com.jamf.ReEnroller.plist in Resources */ = {isa = PBXBuildFile; fileRef = B5DBA04E1E5FCA2A00FA52CE /* com.jamf.ReEnroller.plist */; };
 		B5F155801F4BE303002241A3 /* images in Resources */ = {isa = PBXBuildFile; fileRef = B5F1557E1F4BE303002241A3 /* images */; };
 /* End PBXBuildFile section */
@@ -35,7 +34,6 @@
 		B5A43ED32043359A0012CB53 /* 2 */ = {isa = PBXFileReference; lastKnownFileType = folder; path = 2; sourceTree = "<group>"; };
 		B5A43ED5204335F30012CB53 /* 1 */ = {isa = PBXFileReference; lastKnownFileType = folder; path = 1; sourceTree = "<group>"; };
 		B5AC202A1F23108D00C16EAA /* ReEnrollerImage1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = ReEnrollerImage1.png; sourceTree = "<group>"; };
-		B5D5CF461E74367500580AE7 /* postinstall */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = postinstall; sourceTree = "<group>"; };
 		B5DBA04E1E5FCA2A00FA52CE /* com.jamf.ReEnroller.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = com.jamf.ReEnroller.plist; path = ../com.jamf.ReEnroller.plist; sourceTree = "<group>"; };
 		B5F1557E1F4BE303002241A3 /* images */ = {isa = PBXFileReference; lastKnownFileType = folder; path = images; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -79,7 +77,6 @@
 				B5DBA04E1E5FCA2A00FA52CE /* com.jamf.ReEnroller.plist */,
 				B5A43ED5204335F30012CB53 /* 1 */,
 				B5A43ED32043359A0012CB53 /* 2 */,
-				B5D5CF461E74367500580AE7 /* postinstall */,
 				B5AC20301F258F4200C16EAA /* help */,
 			);
 			path = ReEnroller;
@@ -166,7 +163,6 @@
 			files = (
 				B5A43ECF203E3D260012CB53 /* apiMDM_remove.txt in Resources */,
 				B50831071E5A87F900133D1B /* Assets.xcassets in Resources */,
-				B5D5CF471E74367500580AE7 /* postinstall in Resources */,
 				B5AC202B1F23108D00C16EAA /* ReEnrollerImage1.png in Resources */,
 				B514454D1F7CB187000B4055 /* index.html in Resources */,
 				B55A276A1EACE2DD00AF8398 /* build-reenroller.png in Resources */,
