@@ -143,7 +143,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
     var includesMsg         = "includes"
     var includesMsg2        = ""
     var policyMsg           = ""
-    var postInsallPolicyId  = ""
+    var postInstallPolicyId  = ""
     
     var profileUuid         = ""
     var removeConfigProfile = ""
@@ -361,7 +361,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
         
         process_site.waitUntilExit()
         
-        let site_handle = pipe_site.fileHandleForReading
+//        let site_handle = pipe_site.fileHandleForReading
 //        let site_data = site_handle.readDataToEndOfFile()
         // get site info - end
 
@@ -546,14 +546,6 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
             plistData["removeReEnroller"] = "yes" as AnyObject
         }
         // configure ReEnroller folder removal - end
-
-//        // configure retainSite - start
-//        if retainSite_Button.state == 0 {
-//            plistData["remtainSite"] = "no" as AnyObject
-//        } else {
-//            plistData["remtainSite"] = "yes" as AnyObject
-//        }
-//        // configure retainSite - end
         
         // configure mdm check - start
         if skipMdmCheck_Button.state == 0 {
@@ -562,6 +554,20 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
             plistData["skipMdmCheck"] = "yes" as AnyObject
         }
         // configure mdm - end
+        
+        // postInstallPolicyId - start
+        if runPolicy_Button.state == 0 {
+            plistData["postInstallPolicyId"] = "" as AnyObject
+        } else {
+            let policyId = policyId_Textfield.stringValue
+            // verify we have a valid number
+            if policyId.rangeOfCharacter(from: CharacterSet.decimalDigits.inverted) != nil {
+                plistData["postInstallPolicyId"] = "" as AnyObject
+            } else {
+                plistData["postInstallPolicyId"] = policyId_Textfield.stringValue as AnyObject
+            }
+        }
+        // postInstallPolicyId - end
         
         // set retry interval in launchd - start
         if let retryInterval = Int(retry_TextField.stringValue) {
@@ -747,9 +753,9 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
 //        print("curl -m 30 -sk \(newJssMgmtUrl)/bin/jamf.gz -o '/Library/Application Support/JAMF/ReEnroller/jamf.gz'")
         if myExitCode(cmd: "/bin/bash", args: "-c", "curl -m 60 -sk \(newJssMgmtUrl)/bin/jamf.gz -o '/Library/Application Support/JAMF/ReEnroller/jamf.gz'") != 0 &&
             myExitCode(cmd: "/bin/bash", args: "-c", "curl -m 60 -sk \(newJssMgmtUrl)/bin/level1/jamf.gz -o '/Library/Application Support/JAMF/ReEnroller/jamf.gz'") != 0 {
-            writeToLog(theMessage: "Could not copy jamf binary from new server(\(newJssMgmtUrl)/bin/level1/jamf.gz), will rely on existing jamf binary.")
+            writeToLog(theMessage: "Could not copy jamf binary from new server(\(newJssMgmtUrl)), will rely on existing jamf binary.")
         } else {
-            writeToLog(theMessage: "Downloaded jamf binary from new server(\(newJssMgmtUrl)/bin/jamf.gz).")
+            writeToLog(theMessage: "Downloaded jamf binary from new server(\(newJssMgmtUrl)).")
             if fm.fileExists(atPath: "/Library/Application Support/JAMF/ReEnroller/jamf.gz") {
                 if backup(operation: "copy", source: origBinary, destination: bakBinary) {
                     if myExitCode(cmd: "/bin/bash", args: "-c", "gunzip /Library/Application Support/JAMF/ReEnroller/jamf.gz") == 0 {
@@ -1317,26 +1323,6 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
                             writeToLog(theMessage: "Problem extracting data from profile.")
                         }
                         // Add to keychain
-                        
-                        
-//                                    // if we have a previous airport preferences file restore it - start
-//                                    if fm.fileExists(atPath: bakAirportPrefs) {
-//                                        do {
-//                                            if fm.fileExists(atPath: airportPrefs) {
-//                                                do {
-//                                                    try fm.removeItem(atPath: airportPrefs)
-//                                                    writeToLog(theMessage: "Removed existing airport preferences.")
-//                                                } catch {
-//                                                    writeToLog(theMessage: "Unable to restore previous airport preferences.")
-//                                                }
-//                                            }
-//                                            try fm.moveItem(atPath: bakAirportPrefs, toPath: airportPrefs)
-//                                            writeToLog(theMessage: "Restored previous airport preferences.")
-//                                        } catch {
-//                                            writeToLog(theMessage: "Unable to restore previous airport preferences.")
-//                                        }
-//                                    }
-//                                    // if we have a previous airport preferences file restore it - start
                     }
                     
                     if (connectivityCounter % 15) == 0 {
@@ -1396,7 +1382,6 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
     func unverifiedFallback() {
         // only roll back if there is something to roll back to
         // add back in when ready to to use app on machines not currrently enrolled
-//        if oldURL != "" {
         writeToLog(theMessage: "Alert - There was a problem with enrolling your Mac to the new Jamf Server URL at \(newJSSHostname):\(newJSSPort). We are rolling you back to the old Jamf Server URL at \(oldURL)")
 
         // restore backup jamf binary - start
@@ -1581,6 +1566,25 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
         }
         // remove config profile if marked as such - end
         
+        // run policy if marked to do so - start
+        if postInstallPolicyId.rangeOfCharacter(from: CharacterSet.decimalDigits.inverted) != nil {
+            writeToLog(theMessage: "There was a problem with the value for the policy id: \(postInstallPolicyId)")
+        } else {
+            if  postInstallPolicyId != "" {
+                writeToLog(theMessage: "Running policy id \(postInstallPolicyId)")
+                if myExitCode(cmd: "/usr/local/bin/jamf", args: "policy", "-id", "\(postInstallPolicyId)") == 0 {
+                    writeToLog(theMessage: "Successfully called policy id \(postInstallPolicyId)")
+                } else {
+                    writeToLog(theMessage: "There was an error calling policy id \(postInstallPolicyId)")
+                    //exit(1)
+                }
+            } else {
+                writeToLog(theMessage: "No post migration policy is set to be called.")
+            }
+        }
+        
+        // run policy if marked to do so - end
+        
         // Remove ..JAMF/ReEnroller folder - start
         if removeReEnroller == "yes" {
             do {
@@ -1753,8 +1757,8 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
                 if plistData["skipMdmCheck"] != nil {
                     skipMdmCheck = plistData["skipMdmCheck"]! as! String
                 }
-                if plistData["postInsallPolicyId"] != nil {
-                    postInsallPolicyId = plistData["postInsallPolicyId"]! as! String
+                if plistData["postInstallPolicyId"] != nil {
+                    postInstallPolicyId = plistData["postInstallPolicyId"]! as! String
                 }
                 
                 

@@ -22,7 +22,7 @@
 	<string></string>
 	<key>skipMdmCheck</key>
 	<string></string>
-	<key>postInsallPolicyId</key>
+	<key>postInstallPolicyId</key>
 	<string></string>
 </dict>
 </plist>
