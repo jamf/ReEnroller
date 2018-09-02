@@ -48,6 +48,10 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
     
     @IBOutlet weak var help_Window: NSWindow!
     @IBOutlet weak var help_WebView: WebView!
+    @IBOutlet weak var reconMode_TabView: NSTabView!
+    
+    @IBOutlet weak var reEnroll_button: NSButton!
+    @IBOutlet weak var enroll_button: NSButton!
     
     @IBOutlet weak var quickAdd_PathControl: NSPathControl!
     @IBOutlet weak var profile_PathControl: NSPathControl!
@@ -63,20 +67,20 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
     @IBOutlet weak var mgmtAcctPwd2_TextField: NSSecureTextField!
     @IBOutlet weak var randomPassword_button: NSButton!
     @IBOutlet weak var rndPwdLen_TextField: NSTextField?
-    @IBOutlet weak var policyId_Textfield: NSTextField!
 
-    @IBOutlet weak var createPolicy_Button: NSButton!
-    @IBOutlet weak var skipMdmCheck_Button: NSButton!
-    @IBOutlet weak var removeReEnroller_Button: NSButton!
     @IBOutlet weak var retainSite_Button: NSButton!
     @IBOutlet weak var enableSites_Button: NSButton!
     @IBOutlet weak var site_Button: NSPopUpButton!
+    @IBOutlet weak var createPolicy_Button: NSButton!
+    @IBOutlet weak var skipMdmCheck_Button: NSButton!
     @IBOutlet weak var runPolicy_Button: NSButton!
-    @IBOutlet weak var separatePackage_button: NSButton!
+    @IBOutlet weak var policyId_Textfield: NSTextField!
+    @IBOutlet weak var removeReEnroller_Button: NSButton!
     
     @IBOutlet weak var processQuickAdd_Button: NSButton!
     @IBOutlet weak var spinner: NSProgressIndicator!
     @IBOutlet weak var retry_TextField: NSTextField!
+    @IBOutlet weak var separatePackage_button: NSButton!
     
     let origBinary = "/usr/local/jamf/bin/jamf"
     let bakBinary = "/Library/Application Support/JAMF/ReEnroller/backup/jamf.bak"
@@ -123,8 +127,8 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
     var jssCredsBase64      = ""
     var siteDict            = Dictionary<String, Any>()
     var siteId              = "-1"
-    var mgmtAcctPwdXml      = ""
-    var rndPwdXml           = ""  // if using a random management account password this adds xml to the migration complete policy
+    var mgmtAcctPwdXml      = ""    // static management account password
+    var acctMaintPwdXml              = ""    // ensures the managment account password is properly (re)set/randomized
     var mgmtAcctPwdLen      = 8
     var pkgBuildResult: Int8 = 0
     
@@ -169,6 +173,20 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
         help_WebView.mainFrameURL = helpFilePath
         help_Window.setIsVisible(true)
     }
+    
+    @IBAction func showReenroll_fn(_ sender: Any) {
+        reEnroll_button.isBordered = true
+        enroll_button.isBordered = false
+        processQuickAdd_Button.isEnabled = true
+        reconMode_TabView.selectTabViewItem(at: 0)
+    }
+    @IBAction func showEnroll_fn(_ sender: NSButton) {
+        reEnroll_button.isBordered = false
+        enroll_button.isBordered = true
+        processQuickAdd_Button.isEnabled = false
+        reconMode_TabView.selectTabViewItem(at: 1)
+    }
+    
     
     
     @IBAction func randomPassword(_ sender: Any) {
@@ -298,16 +316,18 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
                 return
             }
             mgmtAcctPwdXml = "<ssh_password>\(mgmtAcctPwd)</ssh_password>"
+            acctMaintPwdXml = "<account_maintenance><management_account><action>specified</action><managed_password>\(mgmtAcctPwd)</managed_password></management_account></account_maintenance>"
         } else {
+            // 180902 removed local user check
             // check the local system for the existance of the management account
-            if findAllUsers().contains(mgmtAcct) {
-                alert_dialog(header: "Attention:", message: "Account \(mgmtAcct) cannot be used with a random password as it exists on this system.")
-                return
-            }
+//            if findAllUsers().contains(mgmtAcct) {
+//                alert_dialog(header: "Attention:", message: "Account \(mgmtAcct) cannot be used with a random password as it exists on this system.")
+//                return
+//            }
             // verify random password lenght is an integer - start
             let pattern = "(^[0-9]*$)"
             let regex1 = try! NSRegularExpression(pattern: pattern, options: [])
-            let matches = regex1.matches(in: (rndPwdLen_TextField?.stringValue)!, options: [], range: NSRange(location: 0, length: (rndPwdLen_TextField?.stringValue.characters.count)!))
+            let matches = regex1.matches(in: (rndPwdLen_TextField?.stringValue)!, options: [], range: NSRange(location: 0, length: (rndPwdLen_TextField?.stringValue.count)!))
             if matches.count != 0 {
                 //                print("valid")
                 mgmtAcctPwdLen = Int((rndPwdLen_TextField?.stringValue)!)!
@@ -321,8 +341,9 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
                 return
             }
             // verify random password lenght is an integer - end
-            mgmtAcctPwdXml = ""
-            rndPwdXml = "<account_maintenance><management_account><action>random</action><managed_password_length>\(mgmtAcctPwdLen)</managed_password_length></management_account></account_maintenance>"
+            // create a random password
+            mgmtAcctPwdXml = myExitValue(cmd: "/bin/bash", args: "-c", "/usr/bin/uuidgen")[0]
+            acctMaintPwdXml = "<account_maintenance><management_account><action>random</action><managed_password_length>\(mgmtAcctPwdLen)</managed_password_length></management_account></account_maintenance>"
         }
         
         // server is reachable - start
@@ -407,7 +428,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
             let process_policy = Process()
             let pipe_policy = Pipe()
             
-            let migrationCheckPolicy = "<?xml version='1.0' encoding='UTF-8' standalone='no'?><policy><general><name>Migration Complete</name><enabled>true</enabled><trigger>EVENT</trigger><trigger_checkin>false</trigger_checkin><trigger_enrollment_complete>false</trigger_enrollment_complete><trigger_login>false</trigger_login><trigger_logout>false</trigger_logout><trigger_network_state_changed>false</trigger_network_state_changed><trigger_startup>false</trigger_startup><trigger_other>jssmigrationcheck</trigger_other><frequency>Ongoing</frequency><location_user_only>false</location_user_only><target_drive>/</target_drive><offline>false</offline><network_requirements>Any</network_requirements><site><name>None</name></site></general><scope><all_computers>true</all_computers></scope>\(rndPwdXml)<files_processes><run_command>touch /Library/Application\\ Support/JAMF/ReEnroller/Complete</run_command></files_processes></policy>"
+            let migrationCheckPolicy = "<?xml version='1.0' encoding='UTF-8' standalone='no'?><policy><general><name>Migration Complete v4</name><enabled>true</enabled><trigger>EVENT</trigger><trigger_checkin>false</trigger_checkin><trigger_enrollment_complete>false</trigger_enrollment_complete><trigger_login>false</trigger_login><trigger_logout>false</trigger_logout><trigger_network_state_changed>false</trigger_network_state_changed><trigger_startup>false</trigger_startup><trigger_other>jpsmigrationcheck</trigger_other><frequency>Ongoing</frequency><location_user_only>false</location_user_only><target_drive>/</target_drive><offline>false</offline><network_requirements>Any</network_requirements><site><name>None</name></site></general><scope><all_computers>true</all_computers></scope>\(acctMaintPwdXml)<files_processes><run_command>touch /Library/Application\\ Support/JAMF/ReEnroller/Complete</run_command></files_processes></policy>"
             
             process_policy.launchPath = "/usr/bin/curl"
             process_policy.arguments = ["-m", "20", "-sku", jssUsername + ":" + jssPassword, jssUrl + "/JSSResource/policies/id/0", "-d", migrationCheckPolicy, "-X", "POST", "-H", "Content-Type: text/xml"]
@@ -696,7 +717,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
        alert_dialog("Attention:", message: "A package (ReEnroller-\(shortHostname).pkg) has been created on your desktop which is ready to be deployed with your current Jamf server.\n\nThe package \(includesMsg) a postinstall script to load the launch daemon and start the ReEnroller app.\(includesMsg2)\(policyMsg)")
         // Create pkg of app and launchd - end
 
-        exit(0)
+//        exit(0)
     }
     // process function - end
     
@@ -981,30 +1002,34 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
         var returnString = "always_except_during_enrollment"
         var node = server + "/casper.jxml"
         node = node.replacingOccurrences(of: "//casper.jxml", with: "/casper.jxml")
+        
+        print("node: \(node)")
+        
         let pipe    = Pipe()
         let task    = Process()
         
         task.launchPath     = "/bin/bash"
         task.arguments      = ["-c", "/usr/bin/curl -m 60 -sk \(node) -H 'Content-Type: application/x-www-form-urlencoded' -d 'source=ReEnroller&username=\(name)&password=\(password)' -X POST | xpath '//verifySSLCert/text()'"]
         task.standardOutput = pipe
-        let outputHandle    = pipe.fileHandleForReading
-        
-        outputHandle.readabilityHandler = { pipe in
-            if let testResult = String(data: pipe.availableData, encoding: String.Encoding.utf8) {
-                returnString = testResult.replacingOccurrences(of: "\n", with: "")
-            } else {
-                self.writeToLog(theMessage: "unknown error while attempting check SSL verification settings.")
-            }
-        }
         
         task.launch()
+
+        let outdata = pipe.fileHandleForReading.readDataToEndOfFile()
+        if var testResult = String(data: outdata, encoding: .utf8) {
+            testResult = testResult.trimmingCharacters(in: .newlines)
+            returnString = testResult.components(separatedBy: "\n")[0]
+        } else {
+            self.writeToLog(theMessage: "unknown error while attempting check SSL verification settings.")
+        }
+        
         task.waitUntilExit()
         
+        print("sslVerify setting: \(returnString)")
         return returnString
     }
     // get verify SSL settings from new server - end
     
-    // configure verify SSL settings based on jamf binary version - start --> unused function, reads setting from server
+    // configure verify SSL settings based on jamf binary version - start --> unused function, reads setting from server now
     func verifySsl(veritySetting: String) -> String {
         var returnString = "-k"
         let pipe    = Pipe()
@@ -1078,7 +1103,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
         
         task.waitUntilExit()
         
-        print("status: \(status)")
+//        print("status: \(status)")
         return(status)
     }
     // function to return value of bash command - end
@@ -1244,7 +1269,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
         
         // verity connectivity to the new Jamf Pro server
         if myExitCode(cmd: "/usr/local/bin/jamf", args: "checkjssconnection") == 0 {
-            writeToLog(theMessage: "Created JAMF config file for \(newServer)")
+            writeToLog(theMessage: "checkjssconnection for \(newServer) was successful")
         } else {
             writeToLog(theMessage: "There was a problem checking the Jamf Server Connection to \(newServer). Falling back to old settings and exiting!")
             unverifiedFallback()
@@ -1486,19 +1511,19 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
     }
     
     func verifyNewEnrollment() {
-        for i in 1...10 {
+        for i in 1...5 {
             // test for a policy on the new Jamf Pro server and that it ran successfully
-            let policyExitCode = myExitCode(cmd: "/usr/local/bin/jamf", args: "policy", "-trigger", "jssmigrationcheck")
-            sleep(5)
+            let policyExitCode = myExitCode(cmd: "/usr/local/bin/jamf", args: "policy", "-trigger", "jpsmigrationcheck")
+            sleep(20)
             if policyExitCode == 0 && fm.fileExists(atPath: verificationFile) {
-                writeToLog(theMessage: "Verified migration with sample policy using jssmigrationcheck trigger.")
+                writeToLog(theMessage: "Verified migration with sample policy using jpsmigrationcheck trigger.")
                 writeToLog(theMessage: "Policy created the check file.")
                 return
             } else {
-                writeToLog(theMessage: "Attempt \(i): There was a problem verifying migration with sample policy using jssmigrationcheck trigger.")
-                writeToLog(theMessage: "/usr/local/bin/jamf policy -trigger jssmigrationcheck")
+                writeToLog(theMessage: "Attempt \(i): There was a problem verifying migration with sample policy using jpsmigrationcheck trigger.")
+                writeToLog(theMessage: "/usr/local/bin/jamf policy -trigger jpsmigrationcheck")
                 writeToLog(theMessage: "Exit code: \(policyExitCode)")
-                if i == 10 {
+                if i == 5 {
                     writeToLog(theMessage: "Falling back to old settings and exiting!")
                     unverifiedFallback()
                     exit(1)
@@ -1703,7 +1728,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
         
         var basePlistPath = myBundlePath
         // remove /ReEnroller.app from the basePlistPath to get path to folder
-        basePlistPath = basePlistPath.substring(to: basePlistPath.index(basePlistPath.startIndex, offsetBy: (basePlistPath.characters.count-15)))
+        basePlistPath = basePlistPath.substring(to: basePlistPath.index(basePlistPath.startIndex, offsetBy: (basePlistPath.count-15)))
 
         let settingsFile = basePlistPath+"/settings.plist"
         
@@ -1798,6 +1823,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
             } else {
                 writeToLog(theMessage: "Configuration not found, launching GUI.")
                 
+                showReenroll_fn(self)
                 retry_TextField.stringValue = "30"
                 removeReEnroller_Button.state = 1
                 rndPwdLen_TextField?.isEnabled = false
@@ -1811,6 +1837,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
         } else {
             writeToLog(theMessage: "Configuration not found, launching GUI.")
             
+            showReenroll_fn(self)
             retry_TextField.stringValue = "30"
             removeReEnroller_Button.state = 1
             rndPwdLen_TextField?.isEnabled = false

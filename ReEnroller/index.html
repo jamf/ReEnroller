@@ -144,7 +144,7 @@ a:hover
 <div>After the process is complete you&rsquo;ll find a package, ReEnroller-&lt;hostname&gt;.pkg, saved to your Desktop.&nbsp; If creating a second package, ReEnrollerDaemon-&lt;hostname&gt;.pkg, will also appear on the Desktop.  Each package is ready to be deployed with a policy on the Jamf Server.</div>
     <div>As the re-enrollment process kicks off the client will attempt to download, and use, the jamf binary from the new Jamf server.  If the download fails it will rely on the existing jamf binary.  Existing configurations will be backed up to /Library/Application Support/JAMF/ReEnroller/backup.  Upon successful re-enrollment the backups will be deleted, if the re-enrollment fails the backups will be restored.</div>
 <div><hr></div>
-<div>To verify the machine successfully migrated a 'Migration Complete' policy must exist on the new server, scoped to all managed clients.&nbsp; As mentioned earlier this policy may be created automatically.&nbsp; If you wish to create it manually it must, at a minimum, contain a Files and Processes payload.&nbsp; On the policy General tab configure a Custom Event (jssmigrationcheck) and Execution Frequency (Ongoing) as illustrated below:</div>
+<div>To verify the machine successfully migrated a 'Migration Complete' policy must exist on the new server, scoped to all managed clients.&nbsp; As mentioned earlier this policy may be created automatically.&nbsp; If you wish to create it manually it must, at a minimum, contain a Files and Processes payload.&nbsp; On the policy General tab configure a Custom Event (jpsmigrationcheck) and Execution Frequency (Ongoing) as illustrated below:</div>
 </div>
 </div>
 <div id="app_image" style="position:relative;width:494px;height:124px;">
