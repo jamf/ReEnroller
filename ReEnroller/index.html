@@ -137,11 +137,23 @@ a:hover
 <div>Set an interval for the process to retry re-enrollment (5 minutes or greater) in the event it fails, or keep the default of 30 minutes.  You are able to separate the launch daemon/postinstall script from the re-enrollment application by checking the box, 'Create Separate Package'.  With the box checked 2 packages will be created, one with the launchdaemon and postinstall script, the other with the re-enrollment application and settings.  This allows one to stage the application then deploy the launch daemon at a later date, or create a custom launch daemon, say to repair enrollments that have failed over time.</div>
 <div>Once everything is added click Build.</div>
 </div></div>
-<div id="app_image" style="position:relative;max-width:490px;max-height:auto">
+<div id="app_image" style="position:relative;width: 490px;height: auto">
 <img src="images/ReEnroller.png" alt=""></div>
 <div id="main_body" style="position:relative;">
 <div style="font-family:Arial;font-size:13px;line-height:15px;color:#000000;">
 <div>After the process is complete you&rsquo;ll find a package, ReEnroller-&lt;hostname&gt;.pkg, saved to your Desktop.&nbsp; If creating a second package, ReEnrollerDaemon-&lt;hostname&gt;.pkg, will also appear on the Desktop.  Each package is ready to be deployed with a policy on the Jamf Server.</div>
+
+</div></div>
+<div id="main_body" style="position:relative;">
+    <div style="font-family:Arial;font-size:13px;line-height:15px;color:#000000;">
+<div>Once a package is built, and profiles are in place, it can be deployed from the Jamf Pro server via a policy or from the app itself.  Pushing the package requires credentials for an account able to remotely login (ssh) to the remote machine and the machine having ssh enabled on port 22.</div>
+</div></div>
+<div id="app_image" style="position:relative;width: 490px;height: auto">
+    <img src="images/ReEnroller2.png" alt=""></div>
+
+
+<div id="main_body" style="position:relative;">
+    <div style="font-family:Arial;font-size:13px;line-height:15px;color:#000000;">
     <div>As the re-enrollment process kicks off the client will attempt to download, and use, the jamf binary from the new Jamf server.  If the download fails it will rely on the existing jamf binary.  Existing configurations will be backed up to /Library/Application Support/JAMF/ReEnroller/backup.  Upon successful re-enrollment the backups will be deleted, if the re-enrollment fails the backups will be restored.</div>
 <div><hr></div>
 <div>To verify the machine successfully migrated a 'Migration Complete' policy must exist on the new server, scoped to all managed clients.&nbsp; As mentioned earlier this policy may be created automatically.&nbsp; If you wish to create it manually it must, at a minimum, contain a Files and Processes payload.&nbsp; On the policy General tab configure a Custom Event (jpsmigrationcheck) and Execution Frequency (Ongoing) as illustrated below:</div>

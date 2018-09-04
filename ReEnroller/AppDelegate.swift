@@ -128,7 +128,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
     var siteDict            = Dictionary<String, Any>()
     var siteId              = "-1"
     var mgmtAcctPwdXml      = ""    // static management account password
-    var acctMaintPwdXml              = ""    // ensures the managment account password is properly (re)set/randomized
+    var acctMaintPwdXml     = ""    // ensures the managment account password is properly randomized
     var mgmtAcctPwdLen      = 8
     var pkgBuildResult: Int8 = 0
     
@@ -153,10 +153,15 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
     var removeConfigProfile = ""
     var removeAllProfiles   = ""
     
-    var safePackageURL      = ""
+//    var safePackageURL      = ""
     var safeProfileURL      = ""
     var Pipe_pkg            = Pipe()
     var task_pkg            = Process()
+    
+    // variables for client deployment
+    @IBOutlet weak var enrollmentPackage: NSPathControl!
+    @IBOutlet weak var remoteClient_TextField: NSTextField!
+    
     
     // OS version info
     let os = ProcessInfo().operatingSystemVersion
@@ -187,6 +192,34 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
         reconMode_TabView.selectTabViewItem(at: 1)
     }
     
+    @IBAction func runRemote(_ sender: Any) {
+        var packageUrlString    = ""
+        var packageArray        = [String]()
+        var pushPackageName     = ""
+        if let packageUrl = enrollmentPackage.url {
+            packageUrlString = "\(packageUrl)".replacingOccurrences(of: "%20", with: " ")
+            packageUrlString = packageUrlString.replacingOccurrences(of: "file://", with: "")
+            if packageUrlString != "/" {
+                print("path to package: \(packageUrlString)")
+                packageArray = "\(packageUrlString)".components(separatedBy: "/")
+                pushPackageName = packageArray.last!
+            } else {
+                print("path to package: Missing")
+            }
+        }   // reEnroller package to deploy - end
+        
+        print("remote client: \(remoteClient_TextField.stringValue)")
+        
+        let remotePush = myExitCode(cmd: "/bin/bash", args: "-c", "expect -c \";spawn scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \"\(packageUrlString)\" \(mgmtAccount_TextField.stringValue)@\(remoteClient_TextField.stringValue):/tmp/.\(pushPackageName);;expect \\\"*Password*\\\";send \(mgmtAcctPwd_TextField.stringValue);send \\\r;;expect eof;\" > /dev/null")
+        print("result of remote push: \(remotePush)")
+        
+        let remoteInstall = myExitCode(cmd: "/bin/bash", args: "-c", "expect -c \";spawn ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -t \(mgmtAccount_TextField.stringValue)@\(remoteClient_TextField.stringValue) \\\"sudo /usr/sbin/installer -pkg /tmp/.\(pushPackageName) -target /\\\";expect \\\"*Password*\\\";send \\\"\(mgmtAcctPwd_TextField.stringValue)\\\";send \\r;;expect \\\"*Password*\\\";send \\\"\(mgmtAcctPwd_TextField.stringValue)\\\";send \\r;;expect eof;\" > /dev/null")
+        print("result of remote install: \(remoteInstall)")
+        
+        let remoteRemove = myExitCode(cmd: "/bin/bash", args: "-c", "expect -c \";spawn ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -t \(mgmtAccount_TextField.stringValue)@\(remoteClient_TextField.stringValue) \\\"sudo /bin/rm /tmp/.\(pushPackageName)\\\";expect \\\"*Password*\\\";send \\\"\(mgmtAcctPwd_TextField.stringValue)\\\";send \\r;;expect \\\"*Password*\\\";send \\\"\(mgmtAcctPwd_TextField.stringValue)\\\";send \\r;;expect eof;\" > /dev/null")
+        print("result of remote remove: \(remoteRemove)")
+        
+    }
     
     
     @IBAction func randomPassword(_ sender: Any) {
@@ -316,14 +349,17 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
                 return
             }
             mgmtAcctPwdXml = "<ssh_password>\(mgmtAcctPwd)</ssh_password>"
-            acctMaintPwdXml = "<account_maintenance><management_account><action>specified</action><managed_password>\(mgmtAcctPwd)</managed_password></management_account></account_maintenance>"
+            // can't use this to (re)set management account password, receive the following
+//            Executing Policy Change Password
+//            Error: The Managed Account Password could not be changed.
+            // acctMaintPwdXml = "<account_maintenance><management_account><action>specified</action><managed_password>\(mgmtAcctPwd)</managed_password></management_account></account_maintenance>"
         } else {
-            // 180902 removed local user check
-            // check the local system for the existance of the management account
-//            if findAllUsers().contains(mgmtAcct) {
-//                alert_dialog(header: "Attention:", message: "Account \(mgmtAcct) cannot be used with a random password as it exists on this system.")
-//                return
-//            }
+            // like to get rid of this - find way to change password when client and JPS differ
+//          check the local system for the existance of the management account
+            if findAllUsers().contains(mgmtAcct) {
+                alert_dialog(header: "Attention:", message: "Account \(mgmtAcct) cannot be used with a random password as it exists on this system.")
+                return
+            }
             // verify random password lenght is an integer - start
             let pattern = "(^[0-9]*$)"
             let regex1 = try! NSRegularExpression(pattern: pattern, options: [])
@@ -432,14 +468,16 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
             
             process_policy.launchPath = "/usr/bin/curl"
             process_policy.arguments = ["-m", "20", "-sku", jssUsername + ":" + jssPassword, jssUrl + "/JSSResource/policies/id/0", "-d", migrationCheckPolicy, "-X", "POST", "-H", "Content-Type: text/xml"]
-//            print("curl: /usr/bin/curl -m 30 -vfku \(jssUsername):\(jssPassword) \(jssUrl)/JSSResource/policies/id/0 -d \(migrationCheckPolicy) -X POST -H \"Content-Type: text/xml\"\n")
+            print("curl: /usr/bin/curl -m 20 -vfku \(jssUsername):\(jssPassword) \(jssUrl)/JSSResource/policies/id/0 -d \(migrationCheckPolicy) -X POST -H \"Content-Type: text/xml\"\n")
+            
+            
             process_policy.standardOutput = pipe_policy
             // create migration complete policy - end
             
             process_policy.launch()
             
             process_policy.waitUntilExit()
-            
+                        
 //            let policyHandle = pipe_policy.fileHandleForReading
 //            let policyData = policyHandle.readDataToEndOfFile()
 //            let policyPostResponse = String(data:policyData, encoding: String.Encoding.utf8)
@@ -476,6 +514,9 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
         // put app in place
         
         let buildFolder = "/private/tmp/reEnroller-"+getDateTime(x: 1)
+        
+        let _ = myExitCode(cmd: "/bin/rm", args: "/private/tmp/reEnroller*")
+        
         var buildFolderd = "" // build folder for launchd items, may be outside build folder if separating app from launchd
         let settingsPlistPath = buildFolder+"/Library/Application Support/JAMF/ReEnroller/settings.plist"
         
@@ -716,6 +757,13 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
         // alert the user, we're done
        alert_dialog("Attention:", message: "A package (ReEnroller-\(shortHostname).pkg) has been created on your desktop which is ready to be deployed with your current Jamf server.\n\nThe package \(includesMsg) a postinstall script to load the launch daemon and start the ReEnroller app.\(includesMsg2)\(policyMsg)")
         // Create pkg of app and launchd - end
+        
+//        do {
+//            try fm.removeItem(atPath: "/private/tmp/reEnroller-"+"(.*)")
+//        } catch {
+//            print("unable to remove build folder")
+//        }
+        let _ = myExitCode(cmd: "/bin/bash", args: "-c", "/bin/rm -fr /private/tmp/reEnroller-*")
 
 //        exit(0)
     }
@@ -1116,19 +1164,34 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
         
         task.launchPath     = "/usr/bin/nslookup"
         task.arguments      = server
-        task.standardOutput = pipe
-        let outputHandle    = pipe.fileHandleForReading
+//        task.standardOutput = pipe
+//        let outputHandle    = pipe.fileHandleForReading
+//
+//        outputHandle.readabilityHandler = { pipe in
+//            if let testResult = String(data: pipe.availableData, encoding: String.Encoding.utf8) {
+//                lookupResult = testResult.replacingOccurrences(of: "\n", with: "\n\t   ")
+//                self.writeToLog(theMessage: "nslookup results for \(server):\n\t   \(lookupResult)")
+//            } else {
+//                self.writeToLog(theMessage: "unknown error while attempting nslookup")
+//            }
+//        }
+//
+//        task.launch()
+//        task.waitUntilExit()
         
-        outputHandle.readabilityHandler = { pipe in
-            if let testResult = String(data: pipe.availableData, encoding: String.Encoding.utf8) {
-                lookupResult = testResult.replacingOccurrences(of: "\n", with: "\n\t   ")
-                self.writeToLog(theMessage: "nslookup results for \(server):\n\t   \(lookupResult)")
-            } else {
-                self.writeToLog(theMessage: "unknown error while attempting nslookup")
-            }
-        }
+        task.standardOutput = pipe
         
         task.launch()
+        
+        let outdata = pipe.fileHandleForReading.readDataToEndOfFile()
+        if let testResult = String(data: outdata, encoding: .utf8) {
+//            testResult = testResult.trimmingCharacters(in: .newlines)
+            lookupResult = testResult.replacingOccurrences(of: "\n", with: "\n\t   ")
+            self.writeToLog(theMessage: "nslookup results for \(server):\n\t   \(lookupResult)")
+        } else {
+            self.writeToLog(theMessage: "unknown error while attempting nslookup")
+        }
+        
         task.waitUntilExit()
         
     }
@@ -1238,9 +1301,11 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
         // ensure we still have network connectivity - end
         
         // create a conf file for the new server
-        writeToLog(theMessage: "Running: /usr/local/bin/jamf createConf -url \(newServer) -verifySSLCert \(createConfSwitches)")
+//        writeToLog(theMessage: "Running: /usr/local/bin/jamf createConf -url \(newServer) -verifySSLCert \(createConfSwitches)")
+        writeToLog(theMessage: "Running: /usr/local/bin/jamf createConf -url \(newServer)")
         //        if myExitCode(cmd: "/usr/local/bin/jamf", args: "createConf", "-url", "\(newServer)", "\(createConfSwitches)") == 0 {
-        if myExitCode(cmd: "/usr/local/bin/jamf", args: "createConf", "-url", "\(newServer)", "-verifySSLCert", createConfSwitches) == 0 {
+//        if myExitCode(cmd: "/usr/local/bin/jamf", args: "createConf", "-url", "\(newServer)", "-verifySSLCert", createConfSwitches) == 0 {
+        if myExitCode(cmd: "/usr/local/bin/jamf", args: "createConf", "-url", "\(newServer)") == 0 {
             writeToLog(theMessage: "Created JAMF config file for \(newServer)")
         } else {
             writeToLog(theMessage: "There was a problem creating JAMF config file for \(newServer). Falling back to old settings and exiting.")
@@ -1260,6 +1325,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
 
         // enroll with the new server using an invitation
         if myExitCode(cmd: "/usr/local/bin/jamf", args: "enroll", "-invitation", "\(newInvite)", "-noRecon", "-noPolicy", "-noManage") == 0 {
+            writeToLog(theMessage: "/usr/local/bin/jamf enroll -invitation xxxxxxxx -noRecon -noPolicy -noManage")
             writeToLog(theMessage: "Enrolled to new Jamf Server: \(newServer)")
         } else {
             writeToLog(theMessage: "There was a problem enrolling to new Jamf Server: \(newServer). Falling back to old settings and exiting!")
@@ -1279,11 +1345,9 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
         // enable mdm
         if skipMdmCheck == "no" {
             if myExitCode(cmd: "/usr/local/bin/jamf", args: "mdm") == 0 {
-                writeToLog(theMessage: "Enrolled - getting mdm profiles from new JSS.")
+                writeToLog(theMessage: "MDM Enrolled - getting MDM profiles from new JSS.")
             } else {
-                writeToLog(theMessage: "There was a problem getting mdm profiles from new JSS.")
-                //unverifiedFallback()
-                //exit(1)
+                writeToLog(theMessage: "There was a problem getting MDM profiles from new JSS.")
             }
             sleep(2)
         } else {
@@ -1505,6 +1569,12 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
         }
         // restore backup jamf plist - end
         
+        // re-enable mdm management from old server on the system - start
+        if myExitCode(cmd: "/usr/local/bin/jamf", args: "mdm") == 0 {
+            writeToLog(theMessage: "MDM Enrolled - getting MDM profiles from old JSS.")
+        } else {
+            writeToLog(theMessage: "There was a problem getting MDM profiles from old JSS.")
+        }
         // re-enable mdm management from old server on the system - end
         writeToLog(theMessage: "Exiting failback.")
         exit(1)
