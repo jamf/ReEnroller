@@ -854,7 +854,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
         //exit(0)   // for testing
         
         // backup existing jamf keychain - start
-        if backup(operation: "copy", source: origKeychainFile, destination: bakKeychainFile) {
+        if backup(operation: "move", source: origKeychainFile, destination: bakKeychainFile) {
             writeToLog(theMessage: "Successfully backed up jamf keychain")
         } else {
             writeToLog(theMessage: "Failed to backup jamf keychain")
@@ -1329,6 +1329,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
             writeToLog(theMessage: "Enrolled to new Jamf Server: \(newServer)")
         } else {
             writeToLog(theMessage: "There was a problem enrolling to new Jamf Server: \(newServer). Falling back to old settings and exiting!")
+            writeToLog(theMessage: "/usr/local/bin/jamf enroll -invitation \(newInvite) -noRecon -noPolicy -noManage")
             unverifiedFallback()
             exit(1)
         }
