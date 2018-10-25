@@ -34,6 +34,9 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////////
 
+// PI-000524: prevents management account password from being reset if password on
+//            client doesn't match password on server.
+
 import Cocoa
 import Collaboration
 import Foundation
@@ -127,6 +130,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
     var jssCredsBase64      = ""
     var siteDict            = Dictionary<String, Any>()
     var siteId              = "-1"
+    var mgmtAccount         = ""    // manangement account read from plist
     var mgmtAcctPwdXml      = ""    // static management account password
     var acctMaintPwdXml     = ""    // ensures the managment account password is properly randomized
     var mgmtAcctPwdLen      = 8
@@ -140,10 +144,10 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
     
     var newJssMgmtUrl       = ""
     var theNewInvite        = ""
-    var removeReEnroller    = "yes"    // by default delete the ReEnroller folder after enrollment
-    var retainSite          = "true"         // by default retain site when re-enrolling
-    var skipMdmCheck        = "no"         // by default do not skip mdm check
-    var StartInterval       = 1800        // default retry interval is 1800 seconds (30 minutes)
+    var removeReEnroller    = "yes"         // by default delete the ReEnroller folder after enrollment
+    var retainSite          = "true"        // by default retain site when re-enrolling
+    var skipMdmCheck        = "no"          // by default do not skip mdm check
+    var StartInterval       = 1800          // default retry interval is 1800 seconds (30 minutes)
     var includesMsg         = "includes"
     var includesMsg2        = ""
     var policyMsg           = ""
@@ -331,7 +335,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
         
         let mgmtAcct = mgmtAccount_TextField.stringValue
         if "\(mgmtAcct)" == "" {
-            self.alert_dialog(header: "Attention", message: "You must supply the existing management account username.")
+            self.alert_dialog(header: "Attention", message: "You must supply a management account username.")
             mgmtAccount_TextField.becomeFirstResponder()
             return
         }
@@ -356,7 +360,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
         } else {
             // like to get rid of this - find way to change password when client and JPS differ
 //          check the local system for the existance of the management account
-            if findAllUsers().contains(mgmtAcct) {
+            if ( userOperation(mgmtUser: mgmtAcct, operation: "find") != "" ) {
                 alert_dialog(header: "Attention:", message: "Account \(mgmtAcct) cannot be used with a random password as it exists on this system.")
                 return
             }
@@ -504,6 +508,8 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
         plistData["newJSSHostname"] = newJSSHostname as AnyObject
         plistData["newJSSPort"] = newJSSPort as AnyObject
         //plistData["createConfSwitches"] = newURL_array[1] as AnyObject
+        
+        plistData["mgmtAccount"] = mgmtAccount_TextField.stringValue as AnyObject
         
         
         //exit(0)
@@ -781,8 +787,10 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
     }
     // func alert_dialog - end
     
-// -------------------------  Start the migration  ------------------------- //
-    
+//---------------------------------------------------------------------------//
+//--------------------------  Start the migration  --------------------------//
+//---------------------------------------------------------------------------//
+
     func beginMigration() {
         writeToLog(theMessage: "Starting the enrollment process for the new Jamf Pro server.")
 
@@ -885,8 +893,11 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
         } else {
             writeToLog(theMessage: "ConfigurationProfiles is not backed up on machines with High Sierra or later due to SIP.")
         }
-
         // backup existing ConfigurationProfiles dir, if present - end
+        
+        // rename management account if present - start
+        
+        // rename management account if present - end
         
         // Let's enroll
         enrollNewJss(newServer: newJssMgmtUrl, newInvite: theNewInvite)
@@ -979,7 +990,9 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
     }
     
     
-    func findAllUsers()->[String] {
+    func userOperation(mgmtUser: String, operation: String) -> String {
+        var returnVal           = ""
+        var userUuid            = ""
         let defaultAuthority    = CSGetLocalIdentityAuthority().takeUnretainedValue()
         let identityClass       = kCSIdentityClassUser
         
@@ -993,7 +1006,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
         
         let resultsCount = CFArrayGetCount(results)
         
-        var allUsersArray = [String]()
+//        var allUsersArray = [String]()
         var allGeneratedUID = [String]()
         
         for idx in 0..<resultsCount {
@@ -1002,11 +1015,35 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
             allGeneratedUID.append(uuidString! as String)
             
             if let uuidNS = NSUUID(uuidString: uuidString! as String), let identityObject = CBIdentity(uniqueIdentifier: uuidNS as UUID, authority: CBIdentityAuthority.default()) {
+                
+                let regex = try! NSRegularExpression(pattern: "<CSIdentity(.|\n)*?>", options:.caseInsensitive)
+                var trimmedIdentityObject = regex.stringByReplacingMatches(in: "\(identityObject)", options: [], range: NSRange(0..<"\(identityObject)".utf16.count), withTemplate: "")
+                trimmedIdentityObject = trimmedIdentityObject.replacingOccurrences(of: " = ", with: " : ")
+                trimmedIdentityObject = String(trimmedIdentityObject.dropFirst())
+                trimmedIdentityObject = String(trimmedIdentityObject.dropLast())
+                //        print("trimmed: \(trimmedIdentityObject)")
+                let userAttribArray   = trimmedIdentityObject.split(separator: ",")
+                
+                let posixIdArray = userAttribArray.last!.split(separator: " ")
+                let posixId = "\(String(describing: posixIdArray.last))"
                 let username = identityObject.posixName
-                allUsersArray.append(username)
+                userUuid = "\(identityObject.uniqueIdentifier)"
+                
+//                allUsersArray.append(username)
+                if ( mgmtUser.lowercased() == username.lowercased() ) {
+                    switch operation {
+                    case "find":
+                        returnVal = userUuid
+                    case "id":
+                        returnVal = posixId
+                    default:
+                        break
+                    }   // switch operation - end
+                }   // if ( mgmtUser.lowercased() == username.lowercased() ) - end
             }
         }
-        return allUsersArray
+//        return allUsersArray
+        return returnVal
     }
     
     func getDateTime(x: Int8) -> String {
@@ -1830,6 +1867,11 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
                 theNewInvite = plistData["theNewInvite"]! as! String
                 newJssMgmtUrl = "https://\(newJSSHostname):\(newJSSPort)"
                 writeToLog(theMessage: "newServer: \(newJSSHostname)\nnewPort: \(newJSSPort)")
+                
+                // read management account
+                if plistData["mgmtAccount"] != nil {
+                    mgmtAccount = plistData["mgmtAccount"]! as! String
+                }
                 
                 // read config profile vars
                 if plistData["profileUUID"] != nil {

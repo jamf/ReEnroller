@@ -12,7 +12,9 @@
 		B508310A1E5A87F900133D1B /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = B50831081E5A87F900133D1B /* MainMenu.xib */; };
 		B514454D1F7CB187000B4055 /* index.html in Resources */ = {isa = PBXBuildFile; fileRef = B514454C1F7CB187000B4055 /* index.html */; };
 		B5319B211E5F3E9200268E38 /* settings.plist in Resources */ = {isa = PBXBuildFile; fileRef = B5319B201E5F3E9200268E38 /* settings.plist */; };
+		B541FD52215D79CB004D6B6C /* command.swift in Sources */ = {isa = PBXBuildFile; fileRef = B541FD51215D79CB004D6B6C /* command.swift */; };
 		B55A276A1EACE2DD00AF8398 /* build-reenroller.png in Resources */ = {isa = PBXBuildFile; fileRef = B55A27691EACE2DD00AF8398 /* build-reenroller.png */; };
+		B562410F215B1992007F8144 /* mgmtAccount.swift in Sources */ = {isa = PBXBuildFile; fileRef = B562410E215B1991007F8144 /* mgmtAccount.swift */; };
 		B5A43ECF203E3D260012CB53 /* apiMDM_remove.txt in Resources */ = {isa = PBXBuildFile; fileRef = B5A43ECE203E3D260012CB53 /* apiMDM_remove.txt */; };
 		B5A43ED42043359A0012CB53 /* 2 in Resources */ = {isa = PBXBuildFile; fileRef = B5A43ED32043359A0012CB53 /* 2 */; };
 		B5A43ED6204335F30012CB53 /* 1 in Resources */ = {isa = PBXBuildFile; fileRef = B5A43ED5204335F30012CB53 /* 1 */; };
@@ -29,7 +31,9 @@
 		B508310B1E5A87F900133D1B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		B514454C1F7CB187000B4055 /* index.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = index.html; sourceTree = "<group>"; };
 		B5319B201E5F3E9200268E38 /* settings.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = settings.plist; sourceTree = "<group>"; };
+		B541FD51215D79CB004D6B6C /* command.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = command.swift; sourceTree = "<group>"; };
 		B55A27691EACE2DD00AF8398 /* build-reenroller.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "build-reenroller.png"; sourceTree = "<group>"; };
+		B562410E215B1991007F8144 /* mgmtAccount.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = mgmtAccount.swift; sourceTree = "<group>"; };
 		B5A43ECE203E3D260012CB53 /* apiMDM_remove.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = apiMDM_remove.txt; sourceTree = "<group>"; };
 		B5A43ED32043359A0012CB53 /* 2 */ = {isa = PBXFileReference; lastKnownFileType = folder; path = 2; sourceTree = "<group>"; };
 		B5A43ED5204335F30012CB53 /* 1 */ = {isa = PBXFileReference; lastKnownFileType = folder; path = 1; sourceTree = "<group>"; };
@@ -69,6 +73,8 @@
 			isa = PBXGroup;
 			children = (
 				B50831041E5A87F900133D1B /* AppDelegate.swift */,
+				B541FD51215D79CB004D6B6C /* command.swift */,
+				B562410E215B1991007F8144 /* mgmtAccount.swift */,
 				B50831061E5A87F900133D1B /* Assets.xcassets */,
 				B55A27681EACE2BA00AF8398 /* Images */,
 				B50831081E5A87F900133D1B /* MainMenu.xib */,
@@ -182,6 +188,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B541FD52215D79CB004D6B6C /* command.swift in Sources */,
+				B562410F215B1992007F8144 /* mgmtAccount.swift in Sources */,
 				B50831051E5A87F900133D1B /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
