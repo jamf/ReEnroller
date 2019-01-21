@@ -68,8 +68,12 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
     @IBOutlet weak var mgmtAccount_TextField: NSTextField!
     @IBOutlet weak var mgmtAcctPwd_TextField: NSSecureTextField!
     @IBOutlet weak var mgmtAcctPwd2_TextField: NSSecureTextField!
-    @IBOutlet weak var randomPassword_button: NSButton!
     @IBOutlet weak var rndPwdLen_TextField: NSTextField?
+    
+    // management account buttons
+    @IBOutlet weak var mgmtAcctCreate_button: NSButton!
+    @IBOutlet weak var mgmtAcctHide_button: NSButton!
+    @IBOutlet weak var randomPassword_button: NSButton!
 
     @IBOutlet weak var retainSite_Button: NSButton!
     @IBOutlet weak var enableSites_Button: NSButton!
@@ -134,6 +138,8 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
     var mgmtAcctPwdXml      = ""    // static management account password
     var acctMaintPwdXml     = ""    // ensures the managment account password is properly randomized
     var mgmtAcctPwdLen      = 8
+    var mgmtAcctCreate      = "true"
+    var mgmtAcctHide        = "true"
     var pkgBuildResult: Int8 = 0
     
     var newJssArray         = [String]()
@@ -225,7 +231,6 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
         
     }
     
-    
     @IBAction func randomPassword(_ sender: Any) {
         if randomPassword_button.state == 1 {
             mgmtAcctPwd_TextField.isEnabled = false
@@ -258,7 +263,6 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
         if enableSites_Button.state == 1 {
             // get site info - start
             var siteArray = [String]()
-//            let safeCharSet = CharacterSet.alphanumerics
             let jssUrl = jssUrl_TextField.stringValue
             jssUsername = jssUsername_TextField.stringValue
             jssPassword = jssPassword_TextField.stringValue
@@ -321,8 +325,6 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
         }
     }
     
-    
-    
     // process function - start
     @IBAction func process(_ sender: Any) {
         // get invitation code - start
@@ -339,6 +341,9 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
             mgmtAccount_TextField.becomeFirstResponder()
             return
         }
+        // fix special characters in management account name
+        let mgmtAcctNameXml = xmlEncode(rawString: mgmtAcct)
+        
         if randomPassword_button.state == 0 {
             let mgmtAcctPwd = mgmtAcctPwd_TextField.stringValue
             let mgmtAcctPwd2 = mgmtAcctPwd2_TextField.stringValue
@@ -352,7 +357,12 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
                 mgmtAcctPwd_TextField.becomeFirstResponder()
                 return
             }
-            mgmtAcctPwdXml = "<ssh_password>\(mgmtAcctPwd)</ssh_password>"
+            
+            // fix special characters in management account password
+            let mgmtAcctPwdEncode = xmlEncode(rawString: mgmtAcctPwd)  
+            mgmtAcctPwdXml = "<ssh_password>\(mgmtAcctPwdEncode)</ssh_password>"
+//            mgmtAcctPwdXml = "<ssh_password>\(mgmtAcctPwd)</ssh_password>"
+            
             // can't use this to (re)set management account password, receive the following
 //            Executing Policy Change Password
 //            Error: The Managed Account Password could not be changed.
@@ -431,8 +441,10 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
         let pipe_invite = Pipe()
         
         retainSite_Button.state == 1 ? (retainSite = "true") : (retainSite = "false")
+        mgmtAcctCreate_button.state == 1 ? (mgmtAcctCreate = "true") : (mgmtAcctCreate = "false")
+        mgmtAcctHide_button.state == 1 ? (mgmtAcctHide = "true") : (mgmtAcctHide = "false")
         
-        let invite_request = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?><computer_invitation><lifetime>2147483647</lifetime><multiple_uses_allowed>true</multiple_uses_allowed><ssh_username>" + mgmtAcct + "</ssh_username><ssh_password_method>\(randomPassword_button.state)</ssh_password_method>\(mgmtAcctPwdXml)<enroll_into_site><id>" + siteId + "</id></enroll_into_site><keep_existing_site_membership>" + retainSite + "</keep_existing_site_membership><create_account_if_does_not_exist>true</create_account_if_does_not_exist><hide_account>true</hide_account><lock_down_ssh>false</lock_down_ssh></computer_invitation>"
+        let invite_request = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?><computer_invitation><lifetime>2147483647</lifetime><multiple_uses_allowed>true</multiple_uses_allowed><ssh_username>" + mgmtAcctNameXml + "</ssh_username><ssh_password_method>\(randomPassword_button.state)</ssh_password_method>\(mgmtAcctPwdXml)<enroll_into_site><id>" + siteId + "</id></enroll_into_site><keep_existing_site_membership>" + retainSite + "</keep_existing_site_membership><create_account_if_does_not_exist>\(mgmtAcctCreate)</create_account_if_does_not_exist><hide_account>\(mgmtAcctHide)</hide_account><lock_down_ssh>false</lock_down_ssh></computer_invitation>"
 //        print("invite request: " + invite_request)
         
         process_invite.launchPath = "/bin/bash"
@@ -447,6 +459,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
         let handle = pipe_invite.fileHandleForReading
         let data = handle.readDataToEndOfFile()
         let postResponse = String(data:data, encoding: String.Encoding.utf8)
+        print("full reply from curl:\n\(String(describing: postResponse))\n")
         
         if let start = postResponse?.range(of: "<invitation>"),
             let end  = postResponse?.range(of: "</invitation>", range: start.upperBound..<(postResponse?.endIndex)!) {
@@ -472,7 +485,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
             
             process_policy.launchPath = "/usr/bin/curl"
             process_policy.arguments = ["-m", "20", "-sku", jssUsername + ":" + jssPassword, jssUrl + "/JSSResource/policies/id/0", "-d", migrationCheckPolicy, "-X", "POST", "-H", "Content-Type: text/xml"]
-            print("curl: /usr/bin/curl -m 20 -vfku \(jssUsername):\(jssPassword) \(jssUrl)/JSSResource/policies/id/0 -d \(migrationCheckPolicy) -X POST -H \"Content-Type: text/xml\"\n")
+//            print("curl: /usr/bin/curl -m 20 -vfku \(jssUsername):******** \(jssUrl)/JSSResource/policies/id/0 -d \(migrationCheckPolicy) -X POST -H \"Content-Type: text/xml\"\n")
             
             
             process_policy.standardOutput = pipe_policy
@@ -1338,11 +1351,9 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
         // ensure we still have network connectivity - end
         
         // create a conf file for the new server
-//        writeToLog(theMessage: "Running: /usr/local/bin/jamf createConf -url \(newServer) -verifySSLCert \(createConfSwitches)")
-        writeToLog(theMessage: "Running: /usr/local/bin/jamf createConf -url \(newServer)")
-        //        if myExitCode(cmd: "/usr/local/bin/jamf", args: "createConf", "-url", "\(newServer)", "\(createConfSwitches)") == 0 {
-//        if myExitCode(cmd: "/usr/local/bin/jamf", args: "createConf", "-url", "\(newServer)", "-verifySSLCert", createConfSwitches) == 0 {
-        if myExitCode(cmd: "/usr/local/bin/jamf", args: "createConf", "-url", "\(newServer)") == 0 {
+        writeToLog(theMessage: "Running: /usr/local/bin/jamf createConf -verifySSLCert \(createConfSwitches) -url \(newServer)")
+
+        if myExitCode(cmd: "/usr/local/bin/jamf", args: "createConf", "-verifySSLCert", "\(createConfSwitches)", "-url", "\(newServer)") == 0 {
             writeToLog(theMessage: "Created JAMF config file for \(newServer)")
         } else {
             writeToLog(theMessage: "There was a problem creating JAMF config file for \(newServer). Falling back to old settings and exiting.")
@@ -2024,6 +2035,16 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
     }
     
     //    --------------------------------------- grab sites - end ---------------------------------------
+    
+    func xmlEncode(rawString: String) -> String {
+        var encodedString = rawString
+        encodedString = encodedString.replacingOccurrences(of: "&", with: "&amp;")
+        encodedString = encodedString.replacingOccurrences(of: "\"", with: "&quot;")
+        encodedString = encodedString.replacingOccurrences(of: "'", with: "&apos;")
+        encodedString = encodedString.replacingOccurrences(of: ">", with: "&gt;")
+        encodedString = encodedString.replacingOccurrences(of: "<", with: "&lt;")
+        return encodedString
+    }
 
     func applicationDidFinishLaunching(_ aNotification: Notification) {
         // Insert code here to initialize your application

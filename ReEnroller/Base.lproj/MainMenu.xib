@@ -29,6 +29,8 @@
                 <outlet property="jssUrl_TextField" destination="Ix2-v7-KHl" id="VdB-T3-Gm6"/>
                 <outlet property="jssUsername_TextField" destination="eId-ZF-pBs" id="gp6-I8-i0X"/>
                 <outlet property="mgmtAccount_TextField" destination="sex-gw-Xbu" id="MBd-gs-fXu"/>
+                <outlet property="mgmtAcctCreate_button" destination="F5l-IS-zHa" id="X70-2h-M0X"/>
+                <outlet property="mgmtAcctHide_button" destination="IYF-P1-Ed6" id="LAS-jw-8nW"/>
                 <outlet property="mgmtAcctPwd2_TextField" destination="4Mi-ts-Mkb" id="jMx-6P-3hu"/>
                 <outlet property="mgmtAcctPwd_TextField" destination="UeO-ev-3Pi" id="nSs-FI-thJ"/>
                 <outlet property="policyId_Textfield" destination="NTe-wJ-qJH" id="TWr-Z7-WBc"/>
@@ -181,7 +183,7 @@
             <windowStyleMask key="styleMask" titled="YES" miniaturizable="YES"/>
             <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
             <rect key="contentRect" x="526" y="510" width="592" height="516"/>
-            <rect key="screenRect" x="0.0" y="0.0" width="1440" height="877"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="1280" height="777"/>
             <view key="contentView" wantsLayer="YES" id="EiT-Mj-1SZ">
                 <rect key="frame" x="0.0" y="0.0" width="592" height="516"/>
                 <autoresizingMask key="autoresizingMask"/>
@@ -231,10 +233,6 @@ Method</string>
                             <action selector="myHelp:" target="Voe-Tx-rLC" id="VFY-y5-gRT"/>
                         </connections>
                     </button>
-                    <progressIndicator wantsLayer="YES" horizontalHuggingPriority="750" verticalHuggingPriority="750" fixedFrame="YES" maxValue="100" displayedWhenStopped="NO" bezeled="NO" indeterminate="YES" style="spinning" translatesAutoresizingMaskIntoConstraints="NO" id="bWs-qh-l7v">
-                        <rect key="frame" x="485" y="333" width="32" height="32"/>
-                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                    </progressIndicator>
                     <tabView fixedFrame="YES" drawsBackground="NO" type="noTabsNoBorder" translatesAutoresizingMaskIntoConstraints="NO" id="ARm-RJ-r6Y">
                         <rect key="frame" x="103" y="-1" width="490" height="265"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
@@ -723,6 +721,28 @@ Method</string>
                             <action selector="showReenroll_fn:" target="Voe-Tx-rLC" id="AUN-kx-upo"/>
                         </connections>
                     </button>
+                    <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="F5l-IS-zHa">
+                        <rect key="frame" x="421" y="348" width="138" height="42"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <buttonCell key="cell" type="check" bezelStyle="regularSquare" imagePosition="left" controlSize="small" state="on" inset="2" id="2Kw-Yb-PEx">
+                            <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                            <string key="title">Create the account 
+if it does not exist</string>
+                            <font key="font" metaFont="smallSystem"/>
+                        </buttonCell>
+                    </button>
+                    <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="IYF-P1-Ed6">
+                        <rect key="frame" x="421" y="335" width="119" height="20"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <buttonCell key="cell" type="check" title="Hide the account" bezelStyle="regularSquare" imagePosition="left" controlSize="small" state="on" inset="2" id="uOk-Ta-9nv">
+                            <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                            <font key="font" metaFont="smallSystem"/>
+                        </buttonCell>
+                    </button>
+                    <progressIndicator wantsLayer="YES" horizontalHuggingPriority="750" verticalHuggingPriority="750" fixedFrame="YES" maxValue="100" displayedWhenStopped="NO" bezeled="NO" indeterminate="YES" style="spinning" translatesAutoresizingMaskIntoConstraints="NO" id="bWs-qh-l7v">
+                        <rect key="frame" x="464" y="288" width="32" height="32"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                    </progressIndicator>
                 </subviews>
             </view>
             <point key="canvasLocation" x="130" y="-196"/>
@@ -732,7 +752,7 @@ Method</string>
             <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
             <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
             <rect key="contentRect" x="163" y="199" width="916" height="481"/>
-            <rect key="screenRect" x="0.0" y="0.0" width="1440" height="877"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="1280" height="777"/>
             <view key="contentView" id="2IQ-8e-ug6">
                 <rect key="frame" x="0.0" y="0.0" width="916" height="481"/>
                 <autoresizingMask key="autoresizingMask"/>
