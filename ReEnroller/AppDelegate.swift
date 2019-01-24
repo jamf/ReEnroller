@@ -459,13 +459,13 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
         let handle = pipe_invite.fileHandleForReading
         let data = handle.readDataToEndOfFile()
         let postResponse = String(data:data, encoding: String.Encoding.utf8)
-        print("full reply from curl:\n\(String(describing: postResponse))\n")
+        print("full reply from curl:\n\(String(describing: postResponse!))\n")
         
         if let start = postResponse?.range(of: "<invitation>"),
             let end  = postResponse?.range(of: "</invitation>", range: start.upperBound..<(postResponse?.endIndex)!) {
             theNewInvite.append((postResponse?[start.upperBound..<end.lowerBound])!)
         } else {
-            print("invalid input")
+            print("invalid reply from the Jamf server when requesting an invitation code.")
         }
         
         if "\(theNewInvite)" == "" {
@@ -1377,7 +1377,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
             writeToLog(theMessage: "Enrolled to new Jamf Server: \(newServer)")
         } else {
             writeToLog(theMessage: "There was a problem enrolling to new Jamf Server: \(newServer). Falling back to old settings and exiting!")
-            writeToLog(theMessage: "/usr/local/bin/jamf enroll -invitation \(newInvite) -noRecon -noPolicy -noManage")
+//            writeToLog(theMessage: "/usr/local/bin/jamf enroll -invitation \(newInvite) -noRecon -noPolicy -noManage")
             unverifiedFallback()
             exit(1)
         }
