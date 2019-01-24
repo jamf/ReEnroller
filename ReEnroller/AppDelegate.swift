@@ -449,7 +449,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
         
         process_invite.launchPath = "/bin/bash"
 //        process_invite.arguments = ["-c", "/usr/bin/curl", "-m", "20", "fku", jssUsername + ":" + jssPassword, jssUrl + "/JSSResource/computerinvitations/id/0", "-d", invite_request, "-X", "POST", "-H", "Content-Type: text/xml"]
-        process_invite.arguments = ["-c", "/usr/bin/curl -m 30 -sku \(jssUsername):\(jssPassword) \(jssUrl)/JSSResource/computerinvitations/id/0 -d '\(invite_request)' -X POST -H Content-Type: text/xml"]
+        process_invite.arguments = ["-c", "/usr/bin/curl -m 30 -sku \(jssUsername):\(jssPassword) \(jssUrl)/JSSResource/computerinvitations/id/0 -d '\(invite_request)' -X POST -H 'Content-Type: text/xml'"]
         process_invite.standardOutput = pipe_invite
         
         process_invite.launch()
