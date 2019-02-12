@@ -239,11 +239,11 @@ Method</string>
                         <font key="font" metaFont="system"/>
                         <tabViewItems>
                             <tabViewItem label="Tab" identifier="" id="F2S-38-bYI" userLabel="reEnroll">
-                                <view key="view" ambiguous="YES" id="bdq-oV-CNv" userLabel="reEnroll View">
+                                <view key="view" id="bdq-oV-CNv" userLabel="reEnroll View">
                                     <rect key="frame" x="0.0" y="0.0" width="490" height="265"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
-                                        <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="izB-J4-owE">
+                                        <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="izB-J4-owE">
                                             <rect key="frame" x="12" y="230" width="131" height="16"/>
                                             <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Configuration Profile:" id="cZP-wq-1qW">
                                                 <font key="font" metaFont="systemSemibold" size="12"/>
@@ -251,21 +251,21 @@ Method</string>
                                                 <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                             </textFieldCell>
                                         </textField>
-                                        <button ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Gf3-ge-igM">
+                                        <button translatesAutoresizingMaskIntoConstraints="NO" id="Gf3-ge-igM">
                                             <rect key="frame" x="14" y="213" width="125" height="20"/>
                                             <buttonCell key="cell" type="check" title="Remove when done" bezelStyle="regularSquare" imagePosition="left" controlSize="small" inset="2" id="diM-MB-cZA">
                                                 <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                                 <font key="font" metaFont="smallSystem"/>
                                             </buttonCell>
                                         </button>
-                                        <button ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="ZHS-IU-wah">
+                                        <button translatesAutoresizingMaskIntoConstraints="NO" id="ZHS-IU-wah">
                                             <rect key="frame" x="14" y="195" width="400" height="18"/>
                                             <buttonCell key="cell" type="check" title="Remove profiles marked in DEP as not to be removed - pre macOS 10.13" bezelStyle="regularSquare" imagePosition="left" controlSize="small" inset="2" id="LRI-KW-V9X">
                                                 <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                                 <font key="font" metaFont="smallSystem"/>
                                             </buttonCell>
                                         </button>
-                                        <textField verticalHuggingPriority="750" ambiguous="YES" textCompletion="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Ofq-EU-8hD">
+                                        <textField verticalHuggingPriority="750" textCompletion="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Ofq-EU-8hD">
                                             <rect key="frame" x="33" y="183" width="155" height="15"/>
                                             <constraints>
                                                 <constraint firstAttribute="height" constant="15" id="DDr-kh-irV"/>
@@ -283,7 +283,7 @@ Method</string>
                                                 <font key="font" metaFont="smallSystem"/>
                                             </buttonCell>
                                         </button>
-                                        <pathControl verticalHuggingPriority="750" ambiguous="YES" allowsExpansionToolTips="YES" translatesAutoresizingMaskIntoConstraints="NO" id="XUD-Au-zbw">
+                                        <pathControl verticalHuggingPriority="750" allowsExpansionToolTips="YES" translatesAutoresizingMaskIntoConstraints="NO" id="XUD-Au-zbw">
                                             <rect key="frame" x="151" y="225" width="263" height="26"/>
                                             <constraints>
                                                 <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="257" id="iRC-B5-Xu4"/>
@@ -304,7 +304,7 @@ Method</string>
                                                 <font key="font" metaFont="smallSystem"/>
                                             </buttonCell>
                                         </button>
-                                        <button identifier="existingSite" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="bmJ-dd-b0c">
+                                        <button identifier="existingSite" translatesAutoresizingMaskIntoConstraints="NO" id="bmJ-dd-b0c">
                                             <rect key="frame" x="14" y="163" width="177" height="18"/>
                                             <buttonCell key="cell" type="check" title="Use existing site membership" bezelStyle="regularSquare" imagePosition="left" controlSize="small" state="on" inset="2" id="C0A-ig-Cai">
                                                 <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
@@ -488,7 +488,7 @@ Method</string>
                                 </view>
                             </tabViewItem>
                             <tabViewItem label="View" identifier="" id="4kc-76-4cg" userLabel="enroll">
-                                <view key="view" id="PhD-dp-QJL" userLabel="enroll View">
+                                <view key="view" ambiguous="YES" id="PhD-dp-QJL" userLabel="enroll View">
                                     <rect key="frame" x="0.0" y="0.0" width="490" height="265"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>

@@ -362,7 +362,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
             }
             
             // fix special characters in management account password
-            let mgmtAcctPwdEncode = xmlEncode(rawString: mgmtAcctPwd)  
+            let mgmtAcctPwdEncode = xmlEncode(rawString: mgmtAcctPwd)
             mgmtAcctPwdXml = "<ssh_password>\(mgmtAcctPwdEncode)</ssh_password>"
 //            mgmtAcctPwdXml = "<ssh_password>\(mgmtAcctPwd)</ssh_password>"
             
@@ -420,398 +420,342 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
                     return
                 }
                 
+                let jpsCredentials = "\(self.jssUsername):\(self.jssPassword)"
+                let jpsBase64Creds = jpsCredentials.data(using: .utf8)?.base64EncodedString() ?? ""
+                
                 self.spinner.startAnimation(self)
                 
                 // get SSL verification settings from new server - start
-                self.plistData["createConfSwitches"] = self.getSslVerify(server: jssUrl, name: self.jssUsername, password: self.jssPassword) as AnyObject
-                // get SSL verification settings from new server - end
-                
-                // get site info - start
-//                let process_site = Process()
-//                let pipe_site = Pipe()
-//                
-//                var resourcePath = "\(jssUrl))/JSSResource/sites"
-//                resourcePath = resourcePath.replacingOccurrences(of: "//JSSResource", with: "/JSSResource")
-//                
-//                process_site.launchPath = "/usr/bin/curl"
-//                process_site.arguments = ["-sku", "\(self.jssUsername):\(self.jssPassword)", resourcePath, "-H", "Accept: application/json"]
-//                process_site.standardOutput = pipe_site
-//                
-//                process_site.launch()
-//                
-//                process_site.waitUntilExit()
-                
-                //        let site_handle = pipe_site.fileHandleForReading
-                //        let site_data = site_handle.readDataToEndOfFile()
-                // get site info - end
-                
-                
-                let process_invite = Process()
-                let pipe_invite = Pipe()
-                
-                self.retainSite_Button.state == 1 ? (self.retainSite = "true") : (self.retainSite = "false")
-                self.mgmtAcctCreate_button.state == 1 ? (self.mgmtAcctCreate = "true") : (self.mgmtAcctCreate = "false")
-                self.mgmtAcctHide_button.state == 1 ? (self.mgmtAcctHide = "true") : (self.mgmtAcctHide = "false")
-                
-                self.theNewInvite = ""
-                
-                let invite_request = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?><computer_invitation><lifetime>2147483647</lifetime><multiple_uses_allowed>true</multiple_uses_allowed><ssh_username>" + mgmtAcctNameXml + "</ssh_username><ssh_password_method>\(self.randomPassword_button.state)</ssh_password_method>\(self.mgmtAcctPwdXml)<enroll_into_site><id>" + self.siteId + "</id></enroll_into_site><keep_existing_site_membership>" + self.retainSite + "</keep_existing_site_membership><create_account_if_does_not_exist>\(self.mgmtAcctCreate)</create_account_if_does_not_exist><hide_account>\(self.mgmtAcctHide)</hide_account><lock_down_ssh>false</lock_down_ssh></computer_invitation>"
-//                print("invite request: " + invite_request)
-                
-                process_invite.launchPath = "/bin/bash"
-                //        process_invite.arguments = ["-c", "/usr/bin/curl", "-m", "20", "fku", jssUsername + ":" + jssPassword, jssUrl + "/JSSResource/computerinvitations/id/0", "-d", invite_request, "-X", "POST", "-H", "Content-Type: text/xml"]
-                process_invite.arguments = ["-c", "/usr/bin/curl -m 30 -sku \(self.jssUsername):\(self.jssPassword) \(jssUrl)/JSSResource/computerinvitations/id/0 -d '\(invite_request)' -X POST -H 'Content-Type: text/xml'"]
-                process_invite.standardOutput = pipe_invite
-                
-                process_invite.launch()
-                
-                process_invite.waitUntilExit()
-                
-                let handle = pipe_invite.fileHandleForReading
-                let data = handle.readDataToEndOfFile()
-                let postResponse = String(data:data, encoding: String.Encoding.utf8)
-                print("full reply for invitiation code:\n\t\(String(describing: postResponse!))\n")
-                
-                if let start = postResponse?.range(of: "<invitation>"),
-                    let end  = postResponse?.range(of: "</invitation>", range: start.upperBound..<(postResponse?.endIndex)!) {
-                    self.theNewInvite.append((postResponse?[start.upperBound..<end.lowerBound])!)
-                } else {
-                    print("invalid reply from the Jamf server when requesting an invitation code.")
-                }
-                
-                if "\(self.theNewInvite)" == "" {
-                    self.alert_dialog(header: "Alert", message: "Unable to create invitation.  Verify the account, \(self.jssUsername), has been assigned permissions to do so.")
-                    self.spinner.stopAnimation(self)
-                    return
-                } //else {
-                
-                //}
-                
-                if self.createPolicy_Button.state == 1 {
-                    // create migration complete policy - start
-                    let process_policy = Process()
-                    let pipe_policy = Pipe()
+//                self.plistData["createConfSwitches"] =
+                self.getSslVerify(action: "POST", endpoint: "\(jssUrl)/casper.jxml", name: self.jssUsername, password: self.jssPassword) {
+                    (result: [Any]) in
+//                    var verifySslSetting = ""
+//                    let responseCode = result[0] as! Int
+                    let verifySslSetting = result[1] as! String
                     
-                    let migrationCheckPolicy = "<?xml version='1.0' encoding='UTF-8' standalone='no'?><policy><general><name>Migration Complete v4</name><enabled>true</enabled><trigger>EVENT</trigger><trigger_checkin>false</trigger_checkin><trigger_enrollment_complete>false</trigger_enrollment_complete><trigger_login>false</trigger_login><trigger_logout>false</trigger_logout><trigger_network_state_changed>false</trigger_network_state_changed><trigger_startup>false</trigger_startup><trigger_other>jpsmigrationcheck</trigger_other><frequency>Ongoing</frequency><location_user_only>false</location_user_only><target_drive>/</target_drive><offline>false</offline><network_requirements>Any</network_requirements><site><name>None</name></site></general><scope><all_computers>true</all_computers></scope>\(self.acctMaintPwdXml)<files_processes><run_command>touch /Library/Application\\ Support/JAMF/ReEnroller/Complete</run_command></files_processes></policy>"
-                    
-                    process_policy.launchPath = "/usr/bin/curl"
-                    process_policy.arguments = ["-m", "20", "-sku", self.jssUsername + ":" + self.jssPassword, jssUrl + "/JSSResource/policies/id/0", "-d", migrationCheckPolicy, "-X", "POST", "-H", "Content-Type: text/xml"]
-                    //            print("curl: /usr/bin/curl -m 20 -vfku \(jssUsername):******** \(jssUrl)/JSSResource/policies/id/0 -d \(migrationCheckPolicy) -X POST -H \"Content-Type: text/xml\"\n")
-                    
-                    
-                    process_policy.standardOutput = pipe_policy
-                    // create migration complete policy - end
-                    
-                    process_policy.launch()
-                    
-                    process_policy.waitUntilExit()
-                    
-                    //            let policyHandle = pipe_policy.fileHandleForReading
-                    //            let policyData = policyHandle.readDataToEndOfFile()
-                    //            let policyPostResponse = String(data:policyData, encoding: String.Encoding.utf8)
-                    
-                    //            print("policyPostResponse: \(String(describing: policyPostResponse))")
-                    // create migration complete policy - start
-                }
-                
-                self.plistData["theNewInvite"] = self.theNewInvite as AnyObject
-                
-                jssUrl = jssUrl.lowercased().replacingOccurrences(of: "https://", with: "")
-                jssUrl = jssUrl.lowercased().replacingOccurrences(of: "http://", with: "")
-                (self.newJSSHostname, self.newJSSPort) = self.getHost_getPort(theURL: jssUrl)
-                //        print("newJSSHostname: \(newJSSHostname)")
-                
-                // get server hostname for use in the package name
-                self.newJssArray = self.newJSSHostname.components(separatedBy: ".")
-                self.newJssArray[0] == "" ? (self.shortHostname = "new") : (self.shortHostname = self.newJssArray[0])
-                
-                //        print("newJSSPort: \(newJSSPort)")
-                self.newJssMgmtUrl = "https://\(self.newJSSHostname):\(self.newJSSPort)"
-                //        print("newJssMgmtUrl: \(newJssMgmtUrl)")
-                
-                self.plistData["newJSSHostname"] = self.newJSSHostname as AnyObject
-                self.plistData["newJSSPort"] = self.newJSSPort as AnyObject
-                //plistData["createConfSwitches"] = newURL_array[1] as AnyObject
-                
-                self.plistData["mgmtAccount"] = self.mgmtAccount_TextField.stringValue as AnyObject
-                
-                
-                //exit(0)
-                
-                // get invitation code - end
-                
-                
-                // put app in place
-                
-                let buildFolder = "/private/tmp/reEnroller-"+self.getDateTime(x: 1)
-                
-                let _ = self.myExitCode(cmd: "/bin/rm", args: "/private/tmp/reEnroller*")
-                
-                var buildFolderd = "" // build folder for launchd items, may be outside build folder if separating app from launchd
-                let settingsPlistPath = buildFolder+"/Library/Application Support/JAMF/ReEnroller/settings.plist"
-                
-                // create build location and place items
-                do {
-                    try self.fm.createDirectory(atPath: buildFolder+"/Library/Application Support/JAMF/ReEnroller", withIntermediateDirectories: true, attributes: nil)
-                    
-                    // Need to be able to run the app with elevated privileges for this to work
-                    //            // set permissions and ownership
-                    //            attributes[.posixPermissions] = 0o750
-                    //            attributes[.ownerAccountID] = 0
-                    //            attributes[.groupOwnerAccountID] = 0
-                    //            do {
-                    //                try fm.setAttributes(attributes, ofItemAtPath: buildFolder+"/Library/Application Support/JAMF/ReEnroller")
-                    //            }
-                    
-                    // copy the app into the pkg building location
-                    do {
-                        try self.fm.copyItem(atPath: self.myBundlePath, toPath: buildFolder+"/Library/Application Support/JAMF/ReEnroller/ReEnroller.app")
-                    } catch {
-                        self.alert_dialog("-Attention-", message: "Could not copy app to build folder - exiting.")
-                        exit(1)
-                    }
-                    // put settings.plist into place
-                    do {
-                        try self.fm.copyItem(atPath: self.blankSettingsPlistPath, toPath: settingsPlistPath)
-                    } catch {
-                        self.alert_dialog("-Attention-", message: "Could not copy settings.plist to build folder - exiting.")
-                        exit(1)
-                    }
-                    
-                } catch {
-                    self.alert_dialog("-Attention-", message: "Could not create build folder - exiting.")
-                    exit(1)
-                }
-                
-                // create folder to hold backups of exitsing files/folders - start
-                do {
-                    try self.fm.createDirectory(atPath: buildFolder+"/Library/Application Support/JAMF/ReEnroller/backup", withIntermediateDirectories: true, attributes: nil)
-                } catch {
-                    self.alert_dialog("-Attention-", message: "Could not create backup folder - exiting.")
-                    exit(1)
-                }
-                // create folder to hold backups of exitsing files/folders - end
-                
-                // if a config profile is present copy it to the pkg building location
-                if let profileURL = self.profile_PathControl.url {
-                    self.safeProfileURL = "\(profileURL)".replacingOccurrences(of: "%20", with: " ")
-                    self.safeProfileURL = self.safeProfileURL.replacingOccurrences(of: "file://", with: "")
-                    //            print("safeProfileURL: \(safeProfileURL)")
-                    
-                    if self.safeProfileURL != "/" {
-                        do {
-                            try self.fm.copyItem(atPath: self.safeProfileURL, toPath: buildFolder+"/Library/Application Support/JAMF/ReEnroller/profile.mobileconfig")
-                        } catch {
-                            self.alert_dialog("-Attention-", message: "Could not copy config profile.  If there are spaces in the profile name try removing them. Unable to create pkg - exiting.")
-                            self.writeToLog(theMessage: "Could not copy config profile.  If there are spaces in the profile name try removing them. Unable to create pkg - exiting.")
-                            exit(1)
-                        }
-                        // add config profile values to settings - start
-                        do {
-                            let one = try String(contentsOf: self.profile_PathControl.url! as URL, encoding: String.Encoding.ascii).components(separatedBy: "</string><key>PayloadType</key>")
-                            let PayloadUUID = one[0].components(separatedBy: "<key>PayloadUUID</key><string>")
-                            //                    print ("\(PayloadUUID[1])")
-                            self.plistData["profileUUID"] = "\(PayloadUUID[1])" as AnyObject
-                            if self.removeProfile_Button.state == 0 {
-                                self.plistData["removeProfile"] = "false" as AnyObject
-                            } else {
-                                self.plistData["removeProfile"] = "true" as AnyObject
-                            }
-                        } catch {
-                            print("unable to read file")
-                        }
-                    }
-                }   // add config profile values to settings - end
-                
-                // configure all profile removal - start
-                if self.removeAllProfiles_Button.state == 0 {
-                    self.plistData["removeAllProfiles"] = "false" as AnyObject
-                } else {
-                    self.plistData["removeAllProfiles"] = "true" as AnyObject
-                }
-                // configure all profile removal - end
-                
-                // configure ReEnroller folder removal - start
-                if self.removeReEnroller_Button.state == 0 {
-                    self.plistData["removeReEnroller"] = "no" as AnyObject
-                } else {
-                    self.plistData["removeReEnroller"] = "yes" as AnyObject
-                }
-                // configure ReEnroller folder removal - end
-                
-                // configure mdm check - start
-                if self.skipMdmCheck_Button.state == 0 {
-                    self.plistData["skipMdmCheck"] = "no" as AnyObject
-                } else {
-                    self.plistData["skipMdmCheck"] = "yes" as AnyObject
-                }
-                // configure mdm - end
-                
-                // postInstallPolicyId - start
-                if self.runPolicy_Button.state == 0 {
-                    self.plistData["postInstallPolicyId"] = "" as AnyObject
-                } else {
-                    let policyId = self.policyId_Textfield.stringValue
-                    // verify we have a valid number
-                    if policyId.rangeOfCharacter(from: CharacterSet.decimalDigits.inverted) != nil {
-                        self.plistData["postInstallPolicyId"] = "" as AnyObject
+                    if "\(verifySslSetting)" == "" {
+                        self.alert_dialog(header: "Alert", message: "Unable to determine verifySSLCert setting on server, setting to always_except_during_enrollment")
+                        self.plistData["createConfSwitches"] = "always_except_during_enrollment" as AnyObject
                     } else {
-                        self.plistData["postInstallPolicyId"] = self.policyId_Textfield.stringValue as AnyObject
+                        self.plistData["createConfSwitches"] = verifySslSetting as AnyObject
+                        print("verifySSLCert setting from server: \(verifySslSetting)")
                     }
-                }
-                // postInstallPolicyId - end
+                  
+                    // get SSL verification settings from new server - end
+                    self.retainSite_Button.state == 1 ? (self.retainSite = "true") : (self.retainSite = "false")
+                    self.mgmtAcctCreate_button.state == 1 ? (self.mgmtAcctCreate = "true") : (self.mgmtAcctCreate = "false")
+                    self.mgmtAcctHide_button.state == 1 ? (self.mgmtAcctHide = "true") : (self.mgmtAcctHide = "false")
                 
-                // set retry interval in launchd - start
-                if let retryInterval = Int(self.retry_TextField.stringValue) {
-                    if retryInterval >= 5 {
-                        self.StartInterval = retryInterval*60    // convert minutes to seconds
-                        //                print("Setting custon retry interval: \(StartInterval)")
-                    }
-                } else {
-                    self.spinner.stopAnimation(self)
-                    self.alert_dialog("-Attention-", message: "Invalid value entered for the retry interval.")
-                    return
-                }
-                // set retry interval in launchd - end
+                    self.theNewInvite = ""
                 
-                // prepare postinstall script if option is checked - start
-                if self.separatePackage_button.state == 0 {
-                    buildFolderd = buildFolder
-                } else {
-                    buildFolderd = "/private/tmp/reEnrollerd-"+self.getDateTime(x: 1)
-                    self.includesMsg = "does not include"
-                    self.includesMsg2 = "  The launch daemons are packaged in: ReEnrollerDaemon-\(self.shortHostname).pkg."
-                }
+                    let invite_request = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?><computer_invitation><lifetime>2147483647</lifetime><multiple_uses_allowed>true</multiple_uses_allowed><ssh_username>" + mgmtAcctNameXml + "</ssh_username><ssh_password_method>\(self.randomPassword_button.state)</ssh_password_method>\(self.mgmtAcctPwdXml)<enroll_into_site><id>" + self.siteId + "</id></enroll_into_site><keep_existing_site_membership>" + self.retainSite + "</keep_existing_site_membership><create_account_if_does_not_exist>\(self.mgmtAcctCreate)</create_account_if_does_not_exist><hide_account>\(self.mgmtAcctHide)</hide_account><lock_down_ssh>false</lock_down_ssh></computer_invitation>"
+    //                print("invite request: " + invite_request)
                 
-                do {
-                    try self.fm.createDirectory(atPath: buildFolderd+"/Library/LaunchDaemons", withIntermediateDirectories: true, attributes: nil)
-                    do {
-                        try self.fm.copyItem(atPath: self.myBundlePath+"/Contents/Resources/com.jamf.ReEnroller.plist", toPath: buildFolderd+"/Library/LaunchDaemons/com.jamf.ReEnroller.plist")
-                    } catch {
-                        self.writeToLog(theMessage: "Could not copy launchd, unable to create pkg")
-                        self.alert_dialog("-Attention-", message: "Could not copy launchd to build folder - exiting.")
-                        exit(1)
-                    }
-                    
-                } catch {
-                    self.writeToLog(theMessage: "Unable to place launch daemon.")
-                    self.alert_dialog("-Attention-", message: "Could not LaunchDeamons folder in build folder - exiting.")
-                    exit(1)
-                }
-                // put launch daemon in place - end
-                
-                let launchdFile = buildFolderd+"/Library/LaunchDaemons/com.jamf.ReEnroller.plist"
-                if self.fm.fileExists(atPath: launchdFile) {
-                    let launchdPlistXML = self.fm.contents(atPath: launchdFile)!
-                    do{
-                        self.writeToLog(theMessage: "Reading settings from: \(launchdFile)")
-                        self.launchdPlistData = try PropertyListSerialization.propertyList(from: launchdPlistXML,
-                                                                                      options: .mutableContainersAndLeaves,
-                                                                                      format: &self.format)
-                            as! [String : AnyObject]
-                    }
-                    catch{
-                        self.writeToLog(theMessage: "Error launchd plist: \(error), format: \(self.format)")
-                    }
-                }
-                
-                self.launchdPlistData["StartInterval"] = self.StartInterval as AnyObject
-                
-                // Write values to launchd plist - start
-                (self.launchdPlistData as NSDictionary).write(toFile: launchdFile, atomically: false)
-                // Write values to launchd plist - end
-                
-                
-                //            do {
-                //    //            try fm.createDirectory(atPath: buildFolderd+"/Library/Application Support/JAMF/ReEnroller/scripts", withIntermediateDirectories: true, attributes: nil)
-                //                do {
-                //                    if separatePackage_button.state == 0 {
-                //    //                    try fm.copyItem(atPath: myBundlePath+"/Contents/Resources/1/postinstall", toPath: buildFolderd+"/Library/Application Support/JAMF/ReEnroller/scripts/postinstall")
-                //                    }
-                //
-                //                } catch {
-                //                    writeToLog(theMessage: "Could not copy postinstall script.")
-                //                    alert_dialog("-Attention-", message: "Could not copy post install script to build location - exiting.")
-                //                    exit(1)
-                //                }
-                //
-                //            } catch {
-                //                writeToLog(theMessage: "Unable to place postinstall script.")
-                //                alert_dialog("-Attention-", message: "Could not create scripts directory for post install task in build location - exiting.")
-                //                exit(1)
-                //            }
-                // prepare postinstall script if option is checked - end
-                
-                // Write settings from GUI to settings.plist
-                (self.plistData as NSDictionary).write(toFile: settingsPlistPath, atomically: false)
-                
-                // rename existing ReEnroller.pkg if it exists - start
-                if self.fm.fileExists(atPath: NSHomeDirectory()+"/Desktop/ReEnroller-\(self.shortHostname).pkg") {
-                    do {
-                        try self.fm.moveItem(atPath: NSHomeDirectory()+"/Desktop/ReEnroller-\(self.shortHostname).pkg", toPath: NSHomeDirectory()+"/Desktop/ReEnroller-\(self.shortHostname)-"+self.getDateTime(x: 1)+".pkg")
-                    } catch {
-                        self.alert_dialog("Alert", message: "Unable to rename an existing ReEnroller-\(self.shortHostname).pkg file on the Desktop.  Try renaming/removing it manually: sudo mv ~/Desktop/ReEnroller-\(self.shortHostname).pkg ~/Desktop/ReEnroller-\(self.shortHostname)-old.pkg.")
-                        exit(1)
-                    }
-                }
-                // rename existing ReEnroller.pkg if it exists - end
-                
-                
-                // Create pkg of app and launchd - start
-                if self.separatePackage_button.state == 0 {
-                    self.pkgBuildResult = self.myExitCode(cmd: "/usr/bin/pkgbuild", args: "--identifier", "com.jamf.ReEnroller", "--root", buildFolder, "--scripts", self.myBundlePath+"/Contents/Resources/1", NSHomeDirectory()+"/Desktop/ReEnroller-\(self.shortHostname).pkg")
-                    
-                } else {
-                    self.pkgBuildResult = self.myExitCode(cmd: "/usr/bin/pkgbuild", args: "--identifier", "com.jamf.ReEnroller", "--root", buildFolder, "--scripts", self.myBundlePath+"/Contents/Resources/2", NSHomeDirectory()+"/Desktop/ReEnroller-\(self.shortHostname).pkg")
-                    self.pkgBuildResult = self.myExitCode(cmd: "/usr/bin/pkgbuild", args: "--identifier", "com.jamf.ReEnrollerd", "--root", buildFolderd, "--scripts", self.myBundlePath+"/Contents/Resources/1", NSHomeDirectory()+"/Desktop/ReEnrollerDaemon-\(self.shortHostname).pkg")
-                }
-                if self.pkgBuildResult != 0 {
-                    self.alert_dialog("-Attention-", message: "Could not create the ReEnroller(Daemon) package - exiting.")
-                    exit(1)
-                }
-                // Create pkg of app and launchd - end
-                
-                self.spinner.stopAnimation(self)
-                
-                if self.createPolicy_Button.state == 1 {
-                    self.policyMsg = "\n\nVerify the Migration Complete policy was created on the new server.  "
-                    if self.randomPassword_button.state == 0 {
-                        self.policyMsg.append("The policy should contain a 'Files and Processes' payload.  Modify if needed.")
-                    } else {
-                        self.policyMsg.append("The policy should contain a 'Files and Processes' payload along with a 'Management Account' payload.  Modify if needed.")
-                    }
-                } else {
-                    self.policyMsg = "\n\nBe sure to create a migration complete policy before starting to migrate, see help or more information."
-                }
-                
-                // alert the user, we're done
-                self.alert_dialog("Attention:", message: "A package (ReEnroller-\(self.shortHostname).pkg) has been created on your desktop which is ready to be deployed with your current Jamf server.\n\nThe package \(self.includesMsg) a postinstall script to load the launch daemon and start the ReEnroller app.\(self.includesMsg2)\(self.policyMsg)")
-                // Create pkg of app and launchd - end
-                
-                //        do {
-                //            try fm.removeItem(atPath: "/private/tmp/reEnroller-"+"(.*)")
-                //        } catch {
-                //            print("unable to remove build folder")
-                //        }
-                let _ = self.myExitCode(cmd: "/bin/bash", args: "-c", "/bin/rm -fr /private/tmp/reEnroller-*")
+                    // get invitation code
+                    self.apiAction(action: "POST", credentials: jpsBase64Creds, xml: invite_request, endpoint: "\(jssUrl)/JSSResource/computerinvitations/id/0") {
+                        (result: [Any]) in
+                        let responseCode = result[0] as! Int
+                        let responseMesage = result[1] as! String
+                        if !(responseCode > 199 && responseCode < 300) {
+                            self.alert_dialog(header: "Attention", message: "Failed to create invitation code.\nMessage: \(responseMesage)\nResponse code: \(responseCode)")
+                            self.spinner.stopAnimation(self)
+                            return
+                        } else {
+                            print("full reply for invitiation code request:\n\t\(responseMesage)\n")
+                            if let start = responseMesage.range(of: "<invitation>"),
+                                let end  = responseMesage.range(of: "</invitation>", range: start.upperBound..<(responseMesage.endIndex)) {
+                                self.theNewInvite.append((responseMesage[start.upperBound..<end.lowerBound]))
+                                if "\(self.theNewInvite)" == "" {
+                                    self.alert_dialog(header: "Alert", message: "Unable to create invitation.  Verify the account, \(self.jssUsername), has been assigned permissions to do so.")
+                                    self.spinner.stopAnimation(self)
+                                    return
+                                } else {
+                                    print("Found invitation code: \(self.theNewInvite)")
+                                    
+                                    if self.createPolicy_Button.state == 1 {
+                                        
+                                        let migrationCheckPolicy = "<?xml version='1.0' encoding='UTF-8' standalone='no'?><policy><general><name>Migration Complete v4</name><enabled>true</enabled><trigger>EVENT</trigger><trigger_checkin>false</trigger_checkin><trigger_enrollment_complete>false</trigger_enrollment_complete><trigger_login>false</trigger_login><trigger_logout>false</trigger_logout><trigger_network_state_changed>false</trigger_network_state_changed><trigger_startup>false</trigger_startup><trigger_other>jpsmigrationcheck</trigger_other><frequency>Ongoing</frequency><location_user_only>false</location_user_only><target_drive>/</target_drive><offline>false</offline><network_requirements>Any</network_requirements><site><name>None</name></site></general><scope><all_computers>true</all_computers></scope><files_processes><run_command>touch /Library/Application\\ Support/JAMF/ReEnroller/Complete</run_command></files_processes></policy>"
+                                        
+                                        self.apiAction(action: "POST", credentials: jpsBase64Creds, xml: migrationCheckPolicy, endpoint: "\(jssUrl)/JSSResource/policies/id/0") {
+                                            (result: [Any]) in
+                                            let responseCode = result[0] as! Int
+                                            let responseMesage = result[1] as! String
+                                            if !(responseCode > 199 && responseCode < 300) {
+                                                if responseCode == 409 {
+                                                    print("Migration complete policy already exists")
+                                                } else {
+                                                    self.alert_dialog(header: "Attention", message: "Failed to create the migration complete policy.\nSee Help to create it manually.\nResponse code: \(responseCode)")
+                                                }
+                                            } else {
+                                                print("Created new enrollment complete policy")
+                                                print("\(responseMesage)")
+                                            }
+                                            
+                                        }
+                                    }   // if self.createPolicy_Button.state == 1 - end
+                                    
+                                    self.plistData["theNewInvite"] = self.theNewInvite as AnyObject
+                                    
+                                    jssUrl = jssUrl.lowercased().replacingOccurrences(of: "https://", with: "")
+                                    jssUrl = jssUrl.lowercased().replacingOccurrences(of: "http://", with: "")
+                                    (self.newJSSHostname, self.newJSSPort) = self.getHost_getPort(theURL: jssUrl)
+                                    //        print("newJSSHostname: \(newJSSHostname)")
+                                    
+                                    // get server hostname for use in the package name
+                                    self.newJssArray = self.newJSSHostname.components(separatedBy: ".")
+                                    self.newJssArray[0] == "" ? (self.shortHostname = "new") : (self.shortHostname = self.newJssArray[0])
+                                    
+                                    //        print("newJSSPort: \(newJSSPort)")
+                                    self.newJssMgmtUrl = "https://\(self.newJSSHostname):\(self.newJSSPort)"
+                                    //        print("newJssMgmtUrl: \(newJssMgmtUrl)")
+                                    
+                                    self.plistData["newJSSHostname"] = self.newJSSHostname as AnyObject
+                                    self.plistData["newJSSPort"] = self.newJSSPort as AnyObject
+                                    //plistData["createConfSwitches"] = newURL_array[1] as AnyObject
+                                    
+                                    self.plistData["mgmtAccount"] = self.mgmtAccount_TextField.stringValue as AnyObject
+                                    
+                                    // put app in place
+                                    let buildFolder = "/private/tmp/reEnroller-"+self.getDateTime(x: 1)
+                                    
+                                    let _ = self.myExitCode(cmd: "/bin/rm", args: "/private/tmp/reEnroller*")
+                                    
+                                    var buildFolderd = "" // build folder for launchd items, may be outside build folder if separating app from launchd
+                                    let settingsPlistPath = buildFolder+"/Library/Application Support/JAMF/ReEnroller/settings.plist"
+                                    
+                                    // create build location and place items
+                                    do {
+                                        try self.fm.createDirectory(atPath: buildFolder+"/Library/Application Support/JAMF/ReEnroller", withIntermediateDirectories: true, attributes: nil)
+                                        
+                                        // Need to be able to run the app with elevated privileges for this to work
+                                        //            // set permissions and ownership
+                                        //            attributes[.posixPermissions] = 0o750
+                                        //            attributes[.ownerAccountID] = 0
+                                        //            attributes[.groupOwnerAccountID] = 0
+                                        //            do {
+                                        //                try fm.setAttributes(attributes, ofItemAtPath: buildFolder+"/Library/Application Support/JAMF/ReEnroller")
+                                        //            }
+                                        
+                                        // copy the app into the pkg building location
+                                        do {
+                                            try self.fm.copyItem(atPath: self.myBundlePath, toPath: buildFolder+"/Library/Application Support/JAMF/ReEnroller/ReEnroller.app")
+                                        } catch {
+                                            self.alert_dialog(header: "-Attention-", message: "Could not copy app to build folder - exiting.")
+                                            exit(1)
+                                        }
+                                        // put settings.plist into place
+                                        do {
+                                            try self.fm.copyItem(atPath: self.blankSettingsPlistPath, toPath: settingsPlistPath)
+                                        } catch {
+                                            self.alert_dialog(header: "-Attention-", message: "Could not copy settings.plist to build folder - exiting.")
+                                            exit(1)
+                                        }
+                                        
+                                    } catch {
+                                        self.alert_dialog(header: "-Attention-", message: "Could not create build folder - exiting.")
+                                        exit(1)
+                                    }
+                                    
+                                    // create folder to hold backups of exitsing files/folders - start
+                                    do {
+                                        try self.fm.createDirectory(atPath: buildFolder+"/Library/Application Support/JAMF/ReEnroller/backup", withIntermediateDirectories: true, attributes: nil)
+                                    } catch {
+                                        self.alert_dialog(header: "-Attention-", message: "Could not create backup folder - exiting.")
+                                        exit(1)
+                                    }
+                                    // create folder to hold backups of exitsing files/folders - end
+                                    
+                                    // if a config profile is present copy it to the pkg building location
+                                    if let profileURL = self.profile_PathControl.url {
+                                        self.safeProfileURL = "\(profileURL)".replacingOccurrences(of: "%20", with: " ")
+                                        self.safeProfileURL = self.safeProfileURL.replacingOccurrences(of: "file://", with: "")
+                                        //            print("safeProfileURL: \(safeProfileURL)")
+                                        
+                                        if self.safeProfileURL != "/" {
+                                            do {
+                                                try self.fm.copyItem(atPath: self.safeProfileURL, toPath: buildFolder+"/Library/Application Support/JAMF/ReEnroller/profile.mobileconfig")
+                                            } catch {
+                                                self.alert_dialog(header: "-Attention-", message: "Could not copy config profile.  If there are spaces in the profile name try removing them. Unable to create pkg - exiting.")
+                                                self.writeToLog(theMessage: "Could not copy config profile.  If there are spaces in the profile name try removing them. Unable to create pkg - exiting.")
+                                                exit(1)
+                                            }
+                                            // add config profile values to settings - start
+                                            do {
+                                                let one = try String(contentsOf: self.profile_PathControl.url! as URL, encoding: String.Encoding.ascii).components(separatedBy: "</string><key>PayloadType</key>")
+                                                let PayloadUUID = one[0].components(separatedBy: "<key>PayloadUUID</key><string>")
+                                                //                    print ("\(PayloadUUID[1])")
+                                                self.plistData["profileUUID"] = "\(PayloadUUID[1])" as AnyObject
+                                                if self.removeProfile_Button.state == 0 {
+                                                    self.plistData["removeProfile"] = "false" as AnyObject
+                                                } else {
+                                                    self.plistData["removeProfile"] = "true" as AnyObject
+                                                }
+                                            } catch {
+                                                print("unable to read file")
+                                            }
+                                        }
+                                    }   // add config profile values to settings - end
+                                    
+                                    // configure all profile removal - start
+                                    if self.removeAllProfiles_Button.state == 0 {
+                                        self.plistData["removeAllProfiles"] = "false" as AnyObject
+                                    } else {
+                                        self.plistData["removeAllProfiles"] = "true" as AnyObject
+                                    }
+                                    // configure all profile removal - end
+                                    
+                                    // configure ReEnroller folder removal - start
+                                    if self.removeReEnroller_Button.state == 0 {
+                                        self.plistData["removeReEnroller"] = "no" as AnyObject
+                                    } else {
+                                        self.plistData["removeReEnroller"] = "yes" as AnyObject
+                                    }
+                                    // configure ReEnroller folder removal - end
+                                    
+                                    // configure mdm check - start
+                                    if self.skipMdmCheck_Button.state == 0 {
+                                        self.plistData["skipMdmCheck"] = "no" as AnyObject
+                                    } else {
+                                        self.plistData["skipMdmCheck"] = "yes" as AnyObject
+                                    }
+                                    // configure mdm - end
+                                    
+                                    // postInstallPolicyId - start
+                                    if self.runPolicy_Button.state == 0 {
+                                        self.plistData["postInstallPolicyId"] = "" as AnyObject
+                                    } else {
+                                        let policyId = self.policyId_Textfield.stringValue
+                                        // verify we have a valid number
+                                        if policyId.rangeOfCharacter(from: CharacterSet.decimalDigits.inverted) != nil {
+                                            self.plistData["postInstallPolicyId"] = "" as AnyObject
+                                        } else {
+                                            self.plistData["postInstallPolicyId"] = self.policyId_Textfield.stringValue as AnyObject
+                                        }
+                                    }
+                                    // postInstallPolicyId - end
+                                    
+                                    // set retry interval in launchd - start
+                                    if let retryInterval = Int(self.retry_TextField.stringValue) {
+                                        if retryInterval >= 5 {
+                                            self.StartInterval = retryInterval*60    // convert minutes to seconds
+                                            //                print("Setting custon retry interval: \(StartInterval)")
+                                        }
+                                    } else {
+                                        self.spinner.stopAnimation(self)
+                                        self.alert_dialog(header: "-Attention-", message: "Invalid value entered for the retry interval.")
+                                        return
+                                    }
+                                    // set retry interval in launchd - end
+                                    
+                                    // prepare postinstall script if option is checked - start
+                                    if self.separatePackage_button.state == 0 {
+                                        buildFolderd = buildFolder
+                                    } else {
+                                        buildFolderd = "/private/tmp/reEnrollerd-"+self.getDateTime(x: 1)
+                                        self.includesMsg = "does not include"
+                                        self.includesMsg2 = "  The launch daemons are packaged in: ReEnrollerDaemon-\(self.shortHostname).pkg."
+                                    }
+                                    
+                                    do {
+                                        try self.fm.createDirectory(atPath: buildFolderd+"/Library/LaunchDaemons", withIntermediateDirectories: true, attributes: nil)
+                                        do {
+                                            try self.fm.copyItem(atPath: self.myBundlePath+"/Contents/Resources/com.jamf.ReEnroller.plist", toPath: buildFolderd+"/Library/LaunchDaemons/com.jamf.ReEnroller.plist")
+                                        } catch {
+                                            self.writeToLog(theMessage: "Could not copy launchd, unable to create pkg")
+                                            self.alert_dialog(header: "-Attention-", message: "Could not copy launchd to build folder - exiting.")
+                                            exit(1)
+                                        }
+                                        
+                                    } catch {
+                                        self.writeToLog(theMessage: "Unable to place launch daemon.")
+                                        self.alert_dialog(header: "-Attention-", message: "Could not LaunchDeamons folder in build folder - exiting.")
+                                        exit(1)
+                                    }
+                                    // put launch daemon in place - end
+                                    
+                                    let launchdFile = buildFolderd+"/Library/LaunchDaemons/com.jamf.ReEnroller.plist"
+                                    if self.fm.fileExists(atPath: launchdFile) {
+                                        let launchdPlistXML = self.fm.contents(atPath: launchdFile)!
+                                        do{
+                                            self.writeToLog(theMessage: "Reading settings from: \(launchdFile)")
+                                            self.launchdPlistData = try PropertyListSerialization.propertyList(from: launchdPlistXML,
+                                                                                                               options: .mutableContainersAndLeaves,
+                                                                                                               format: &self.format)
+                                                as! [String : AnyObject]
+                                        }
+                                        catch{
+                                            self.writeToLog(theMessage: "Error launchd plist: \(error), format: \(self.format)")
+                                        }
+                                    }
+                                    
+                                    self.launchdPlistData["StartInterval"] = self.StartInterval as AnyObject
+                                    
+                                    // Write values to launchd plist - start
+                                    (self.launchdPlistData as NSDictionary).write(toFile: launchdFile, atomically: false)
+                                    // Write values to launchd plist - end
+                                    
+                                    // Write settings from GUI to settings.plist
+                                    (self.plistData as NSDictionary).write(toFile: settingsPlistPath, atomically: false)
+                                    
+                                    // rename existing ReEnroller.pkg if it exists - start
+                                    if self.fm.fileExists(atPath: NSHomeDirectory()+"/Desktop/ReEnroller-\(self.shortHostname).pkg") {
+                                        do {
+                                            try self.fm.moveItem(atPath: NSHomeDirectory()+"/Desktop/ReEnroller-\(self.shortHostname).pkg", toPath: NSHomeDirectory()+"/Desktop/ReEnroller-\(self.shortHostname)-"+self.getDateTime(x: 1)+".pkg")
+                                        } catch {
+                                            self.alert_dialog(header: "Alert", message: "Unable to rename an existing ReEnroller-\(self.shortHostname).pkg file on the Desktop.  Try renaming/removing it manually: sudo mv ~/Desktop/ReEnroller-\(self.shortHostname).pkg ~/Desktop/ReEnroller-\(self.shortHostname)-old.pkg.")
+                                            exit(1)
+                                        }
+                                    }
+                                    // rename existing ReEnroller.pkg if it exists - end
+                                    
+                                    // Create pkg of app and launchd - start
+                                    if self.separatePackage_button.state == 0 {
+                                        self.pkgBuildResult = self.myExitCode(cmd: "/usr/bin/pkgbuild", args: "--identifier", "com.jamf.ReEnroller", "--root", buildFolder, "--scripts", self.myBundlePath+"/Contents/Resources/1", NSHomeDirectory()+"/Desktop/ReEnroller-\(self.shortHostname).pkg")
+                                        
+                                    } else {
+                                        self.pkgBuildResult = self.myExitCode(cmd: "/usr/bin/pkgbuild", args: "--identifier", "com.jamf.ReEnroller", "--root", buildFolder, "--scripts", self.myBundlePath+"/Contents/Resources/2", NSHomeDirectory()+"/Desktop/ReEnroller-\(self.shortHostname).pkg")
+                                        self.pkgBuildResult = self.myExitCode(cmd: "/usr/bin/pkgbuild", args: "--identifier", "com.jamf.ReEnrollerd", "--root", buildFolderd, "--scripts", self.myBundlePath+"/Contents/Resources/1", NSHomeDirectory()+"/Desktop/ReEnrollerDaemon-\(self.shortHostname).pkg")
+                                    }
+                                    if self.pkgBuildResult != 0 {
+                                        self.alert_dialog(header: "-Attention-", message: "Could not create the ReEnroller(Daemon) package - exiting.")
+                                        exit(1)
+                                    }
+                                    // Create pkg of app and launchd - end
+                                    
+                                    self.spinner.stopAnimation(self)
+                                    
+                                    if self.createPolicy_Button.state == 1 {
+                                        self.policyMsg = "\n\nVerify the Migration Complete policy was created on the new server.  "
+                                        if self.randomPassword_button.state == 0 {
+                                            self.policyMsg.append("The policy should contain a 'Files and Processes' payload.  Modify if needed.")
+                                        } else {
+                                            self.policyMsg.append("The policy should contain a 'Files and Processes' payload along with a 'Management Account' payload.  Modify if needed.")
+                                        }
+                                    } else {
+                                        self.policyMsg = "\n\nBe sure to create a migration complete policy before starting to migrate, see help or more information."
+                                    }
+                                    
+                                    // alert the user, we're done
+                                    self.alert_dialog(header: "Attention:", message: "A package (ReEnroller-\(self.shortHostname).pkg) has been created on your desktop which is ready to be deployed with your current Jamf server.\n\nThe package \(self.includesMsg) a postinstall script to load the launch daemon and start the ReEnroller app.\(self.includesMsg2)\(self.policyMsg)")
+                                    // Create pkg of app and launchd - end
+                                    
+                                    let _ = self.myExitCode(cmd: "/bin/bash", args: "-c", "/bin/rm -fr /private/tmp/reEnroller-*")
 
-            }
-        }
+                                }
+                            } else {
+                                print("invalid reply from the Jamf server when requesting an invitation code.")
+                                self.spinner.stopAnimation(self)
+                                return
+                            }
+                        }
+                    }
+                }
+                
+            }   // healthcheck - server is reachable - end
+        }   // healthCheck(server: jssUrl) - end
        
     }
     // process function - end
-    
-    // func alert_dialog - start
-    func alert_dialog(_ header: String, message: String) {
-        let dialog: NSAlert = NSAlert()
-        dialog.messageText = header
-        dialog.informativeText = message
-        dialog.alertStyle = NSAlertStyle.warning
-        dialog.addButton(withTitle: "OK")
-        dialog.runModal()
-//        return true
-    }
-    // func alert_dialog - end
     
 //---------------------------------------------------------------------------//
 //--------------------------  Start the migration  --------------------------//
@@ -940,7 +884,6 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
                         // rename management account if present - end
                         
                         // Let's enroll
-                        //                    self.enrollNewJss(newServer: self.newJssMgmtUrl, newInvite: self.theNewInvite)
                         self.enrollNewJps(newServer: self.newJssMgmtUrl, newInvite: self.theNewInvite) {
                             (enrolled: String) in
                             if ( enrolled == "failed" ) {
@@ -972,7 +915,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
                     try fm.moveItem(atPath: destination, toPath: destination+"-"+backupDate)
                     writeToLog(theMessage: "Backed up existing, \(destination), to "+destination+"-"+backupDate)
                 } catch {
-                    alert_dialog("Alert", message: "Unable to rename existing item, \(destination).")
+                    alert_dialog(header: "Alert", message: "Unable to rename existing item, \(destination).")
                     writeToLog(theMessage: "Failed to rename \(destination).")
                     success = false
                 }
@@ -1028,15 +971,15 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
             do {
                 try fm.moveItem(atPath: NSHomeDirectory()+"/Desktop/apiMDM_remove.txt", toPath: NSHomeDirectory()+"/Desktop/apiMDM_remove-"+getDateTime(x: 1)+".txt")
             } catch {
-                alert_dialog("Alert", message: "The script (apiMDM_remove.txt) already exists on your Desktop and we couldn't rename it.  Either delete/rename the file and download again or copy the script from Help.")
+                alert_dialog(header: "Alert", message: "The script (apiMDM_remove.txt) already exists on your Desktop and we couldn't rename it.  Either delete/rename the file and download again or copy the script from Help.")
                 return
             }
         }
         do {
             try fm.copyItem(atPath: myBundlePath+"/Contents/Resources/apiMDM_remove.txt", toPath: NSHomeDirectory()+"/Desktop/apiMDM_remove.txt")
-            alert_dialog("-Attention-", message: "The script (apiMDM_remove.txt) has been copied to your Desktop.")
+            alert_dialog(header: "-Attention-", message: "The script (apiMDM_remove.txt) has been copied to your Desktop.")
         } catch {
-            alert_dialog("-Attention-", message: "Could not copy scipt to the Desktop.  Copy manually from Help.")
+            alert_dialog(header: "-Attention-", message: "Could not copy scipt to the Desktop.  Copy manually from Help.")
         }
     }
     
@@ -1134,71 +1077,49 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
     }
     
     // get verify SSL settings from new server - start
-    func getSslVerify(server: String, name: String, password: String) -> String {
-        var returnString = "always_except_during_enrollment"
-        var node = server + "/casper.jxml"
-        node = node.replacingOccurrences(of: "//casper.jxml", with: "/casper.jxml")
+    func getSslVerify(action: String, endpoint: String, name: String, password: String, completion: @escaping (_ result: [Any]) -> Void) {
+        URLCache.shared.removeAllCachedResponses()
+        var responseData = ""
+        var sslSetting   = ""
         
-//        print("node: \(node)")
+        let serverUrl = NSURL(string: "\(endpoint)")
+        let serverRequest = NSMutableURLRequest(url: serverUrl! as URL)
+        let body = "source=ReEnroller&username=\(name)&password=\(password)"
         
-        let pipe    = Pipe()
-        let task    = Process()
+        serverRequest.httpMethod = "\(action)"
+        serverRequest.httpBody = Data(body.utf8)
+        let serverConf = URLSessionConfiguration.default
+        serverConf.httpAdditionalHeaders = ["Content-Type" : "application/x-www-form-urlencoded"]
         
-        task.launchPath     = "/bin/bash"
-        task.arguments      = ["-c", "/usr/bin/curl -m 60 -sk \(node) -H 'Content-Type: application/x-www-form-urlencoded' -d 'source=ReEnroller&username=\(name)&password=\(password)' -X POST | xpath '//verifySSLCert/text()'"]
-        task.standardOutput = pipe
-        
-        task.launch()
+        let session = Foundation.URLSession(configuration: serverConf, delegate: self, delegateQueue: OperationQueue.main)
+        let task = session.dataTask(with: serverRequest as URLRequest, completionHandler: {
+            (data, response, error) -> Void in
+            if let httpResponse = response as? HTTPURLResponse {
+                if let _ = String(data: data!, encoding: .utf8) {
+                    responseData = String(data: data!, encoding: .utf8)!
+                    responseData = responseData.replacingOccurrences(of: "\n", with: "")
+                    
+                    if let start = responseData.range(of: "<verifySSLCert>"),
+                        let end  = responseData.range(of: "</verifySSLCert>", range: start.upperBound..<(responseData.endIndex)) {
+                        sslSetting.append((responseData[start.upperBound..<end.lowerBound]))
+                    }   // let end  = responseMesage.range - end
 
-        let outdata = pipe.fileHandleForReading.readDataToEndOfFile()
-        if var testResult = String(data: outdata, encoding: .utf8) {
-            testResult = testResult.trimmingCharacters(in: .newlines)
-            returnString = testResult.components(separatedBy: "\n")[0]
-        } else {
-            self.writeToLog(theMessage: "unknown error while attempting check SSL verification settings.")
-        }
+                    print("response code: \(httpResponse.statusCode)")
+//                    print("response: \(responseData)")
+                    completion([httpResponse.statusCode,"\(sslSetting)"])
+                } else {
+                    print("No data was returned from health check.")
+                    completion([httpResponse.statusCode,""])
+                }
+                
+            } else {
+                completion([404,""])
+            }
+        })
+        task.resume()
         
-        task.waitUntilExit()
-        
-        print("sslVerify setting: \(returnString)")
-        return returnString
     }
     // get verify SSL settings from new server - end
-    
-    // configure verify SSL settings based on jamf binary version - start --> unused function, reads setting from server now
-    func verifySsl(veritySetting: String) -> String {
-        var returnString = "-k"
-        let pipe    = Pipe()
-        let task    = Process()
-        
-        task.launchPath     = "/usr/local/bin/jamf"
-        task.arguments      = ["version"]
-        task.standardOutput = pipe
-        let outputHandle    = pipe.fileHandleForReading
-        
-        outputHandle.readabilityHandler = { pipe in
-            if let testResult = String(data: pipe.availableData, encoding: String.Encoding.utf8) {
-                let theString = testResult.replacingOccurrences(of: "\n", with: "")
-                let theStringArray = theString.components(separatedBy: "=")
-                let theVersionArray = theStringArray[1].components(separatedBy: ".")
-                let major = Int(theVersionArray[0])
-                let minor = Int(theVersionArray[1])
-                if (major! < 10) && (minor! < 98) {
-                    returnString = "-k"
-                } else {
-                    returnString = "-verifySSLCert always_except_during_enrollment"
-                }
-            } else {
-                self.writeToLog(theMessage: "unknown error while attempting jamf binary version check")
-            }
-        }
-        
-        task.launch()
-        task.waitUntilExit()
-
-        return returnString
-    }
-    // configure verify SSL settings based on jamf binary version - start
 
     // function to return exit code of bash command - start
     func myExitCode(cmd: String, args: String...) -> Int8 {
@@ -1244,47 +1165,6 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
     }
     // function to return value of bash command - end
     
-    // function to perform nslookup of server and log results - start
-    func myNslookup(server: String...) {
-        var lookupResult  = ""
-        let pipe    = Pipe()
-        let task    = Process()
-        
-        task.launchPath     = "/usr/bin/nslookup"
-        task.arguments      = server
-//        task.standardOutput = pipe
-//        let outputHandle    = pipe.fileHandleForReading
-//
-//        outputHandle.readabilityHandler = { pipe in
-//            if let testResult = String(data: pipe.availableData, encoding: String.Encoding.utf8) {
-//                lookupResult = testResult.replacingOccurrences(of: "\n", with: "\n\t   ")
-//                self.writeToLog(theMessage: "nslookup results for \(server):\n\t   \(lookupResult)")
-//            } else {
-//                self.writeToLog(theMessage: "unknown error while attempting nslookup")
-//            }
-//        }
-//
-//        task.launch()
-//        task.waitUntilExit()
-        
-        task.standardOutput = pipe
-        
-        task.launch()
-        
-        let outdata = pipe.fileHandleForReading.readDataToEndOfFile()
-        if let testResult = String(data: outdata, encoding: .utf8) {
-//            testResult = testResult.trimmingCharacters(in: .newlines)
-            lookupResult = testResult.replacingOccurrences(of: "\n", with: "\n\t   ")
-            self.writeToLog(theMessage: "nslookup results for \(server):\n\t   \(lookupResult)")
-        } else {
-            self.writeToLog(theMessage: "unknown error while attempting nslookup")
-        }
-        
-        task.waitUntilExit()
-        
-    }
-    // function to perform nslookup of server and log results - end
-    
     // function to return mdm status - start
     func mdmInstalled(cmd: String, args: String...) -> Bool {
         var mdm = true
@@ -1311,11 +1191,9 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
         }
         return mdm
     }
-    
-    // function to mdm status - end
+        // function to mdm status - end
     
     func enrollNewJps(newServer: String, newInvite: String, completion: @escaping (_ enrolled: String) -> Void) {
-//        func enrollNewJss(newServer: String, newInvite: String) {
         writeToLog(theMessage: "Starting the new enrollment.")
         
         // remove mdm profile - start
@@ -1406,16 +1284,6 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
             //                    exit(1)
             completion("failed")
         }
-        
-        // verify the new server is listening - not needed?
-//        if myExitCode(cmd: "/usr/bin/nc", args: "-z", "-G", "10", "\(newJSSHostname)", "\(newJSSPort)") == 0 {
-//            writeToLog(theMessage: "New server: \(newJSSHostname) is listening on port: \(newJSSPort)")
-//        } else {
-//            writeToLog(theMessage: "Unable to connect to new server: \(newServer) on port: \(newJSSPort)")
-//            writeToLog(theMessage: "Failure to enroll looks highly probable.")
-//            // perform nslookup on new server
-//            myNslookup(server: newJSSHostname)
-//        }
 
         // enroll with the new server using an invitation
         if myExitCode(cmd: "/usr/local/bin/jamf", args: "enroll", "-invitation", "\(newInvite)", "-noRecon", "-noPolicy", "-noManage") == 0 {
@@ -1838,7 +1706,6 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
         }
     }
     
-    
     func alert_dialog(header: String, message: String) {
         let dialog: NSAlert = NSAlert()
         dialog.messageText = header
@@ -1848,6 +1715,40 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
         dialog.runModal()
         //return true
     }   // func alert_dialog - end
+    
+    func apiAction(action: String, credentials: String, xml: String, endpoint: String, completion: @escaping (_ result: [Any]) -> Void) {
+        URLCache.shared.removeAllCachedResponses()
+        var responseData = ""
+        
+        let serverUrl = NSURL(string: "\(endpoint)")
+        let serverRequest = NSMutableURLRequest(url: serverUrl! as URL)
+        
+        serverRequest.httpMethod = "\(action)"
+        serverRequest.httpBody = Data(xml.utf8)
+        let serverConf = URLSessionConfiguration.default
+        serverConf.httpAdditionalHeaders = ["Authorization" : "Basic \(credentials)", "Content-Type" : "application/xml", "Accept" : "application/xml"]
+        
+        let session = Foundation.URLSession(configuration: serverConf, delegate: self, delegateQueue: OperationQueue.main)
+        let task = session.dataTask(with: serverRequest as URLRequest, completionHandler: {
+            (data, response, error) -> Void in
+            if let httpResponse = response as? HTTPURLResponse {
+                if let _ = String(data: data!, encoding: .utf8) {
+                    responseData = String(data: data!, encoding: .utf8)!
+                    responseData = responseData.replacingOccurrences(of: "\n", with: "")
+                    print("response code: \(httpResponse.statusCode)")
+                    print("response: \(responseData)")
+                    completion([httpResponse.statusCode,"\(responseData)"])
+                } else {
+                    print("No data was returned from health check.")
+                    completion([httpResponse.statusCode,""])
+                }
+                
+            } else {
+                completion([404,""])
+            }
+        })
+        task.resume()
+    }   // func apiAction - end
     
     func healthCheck(server: String, completion: @escaping (_ result: [String]) -> Void) {
         URLCache.shared.removeAllCachedResponses()
