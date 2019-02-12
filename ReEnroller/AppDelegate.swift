@@ -176,6 +176,9 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
     // OS version info
     let os = ProcessInfo().operatingSystemVersion
     
+    var startMigrationQ = OperationQueue()
+    var enrollmentQ     = OperationQueue()
+    
     // migration check policy
 
     @IBAction func myHelp(_ sender: Any) {
@@ -397,394 +400,404 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
         }
         
         // server is reachable - start
-        if !(checkURL(theUrl: jssUrl) == 0) {
-            self.alert_dialog(header: "Attention", message: "The new server, \(jssUrl), could not be contacted.")
-            return
-        }
-        // server is reachable - end
-        
-        jssUsername = jssUsername_TextField.stringValue //.addingPercentEncoding(withAllowedCharacters: safeCharSet)!
-        jssPassword = jssPassword_TextField.stringValue //.addingPercentEncoding(withAllowedCharacters: safeCharSet)!
-        
-        if "\(jssUsername)" == "" || "\(jssPassword))" == "" {
-            alert_dialog(header: "Alert", message: "Please provide both a username and password for the server.")
-            return
-        }
-        
-        spinner.startAnimation(self)
-        
-        // get SSL verification settings from new server - start
-        plistData["createConfSwitches"] = getSslVerify(server: jssUrl, name: jssUsername, password: jssPassword) as AnyObject
-        // get SSL verification settings from new server - end
-        
-        // get site info - start
-        let process_site = Process()
-        let pipe_site = Pipe()
-        
-        var resourcePath = "\(jssUrl))/JSSResource/sites"
-        resourcePath = resourcePath.replacingOccurrences(of: "//JSSResource", with: "/JSSResource")
-        
-        process_site.launchPath = "/usr/bin/curl"
-        process_site.arguments = ["-sku", "\(jssUsername):\(jssPassword)", resourcePath, "-H", "Accept: application/json"]
-        process_site.standardOutput = pipe_site
-        
-        process_site.launch()
-        
-        process_site.waitUntilExit()
-        
-//        let site_handle = pipe_site.fileHandleForReading
-//        let site_data = site_handle.readDataToEndOfFile()
-        // get site info - end
-
-        
-        let process_invite = Process()
-        let pipe_invite = Pipe()
-        
-        retainSite_Button.state == 1 ? (retainSite = "true") : (retainSite = "false")
-        mgmtAcctCreate_button.state == 1 ? (mgmtAcctCreate = "true") : (mgmtAcctCreate = "false")
-        mgmtAcctHide_button.state == 1 ? (mgmtAcctHide = "true") : (mgmtAcctHide = "false")
-        
-        let invite_request = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?><computer_invitation><lifetime>2147483647</lifetime><multiple_uses_allowed>true</multiple_uses_allowed><ssh_username>" + mgmtAcctNameXml + "</ssh_username><ssh_password_method>\(randomPassword_button.state)</ssh_password_method>\(mgmtAcctPwdXml)<enroll_into_site><id>" + siteId + "</id></enroll_into_site><keep_existing_site_membership>" + retainSite + "</keep_existing_site_membership><create_account_if_does_not_exist>\(mgmtAcctCreate)</create_account_if_does_not_exist><hide_account>\(mgmtAcctHide)</hide_account><lock_down_ssh>false</lock_down_ssh></computer_invitation>"
-//        print("invite request: " + invite_request)
-        
-        process_invite.launchPath = "/bin/bash"
-//        process_invite.arguments = ["-c", "/usr/bin/curl", "-m", "20", "fku", jssUsername + ":" + jssPassword, jssUrl + "/JSSResource/computerinvitations/id/0", "-d", invite_request, "-X", "POST", "-H", "Content-Type: text/xml"]
-        process_invite.arguments = ["-c", "/usr/bin/curl -m 30 -sku \(jssUsername):\(jssPassword) \(jssUrl)/JSSResource/computerinvitations/id/0 -d '\(invite_request)' -X POST -H 'Content-Type: text/xml'"]
-        process_invite.standardOutput = pipe_invite
-        
-        process_invite.launch()
-        
-        process_invite.waitUntilExit()
-        
-        let handle = pipe_invite.fileHandleForReading
-        let data = handle.readDataToEndOfFile()
-        let postResponse = String(data:data, encoding: String.Encoding.utf8)
-        print("full reply from curl:\n\(String(describing: postResponse!))\n")
-        
-        if let start = postResponse?.range(of: "<invitation>"),
-            let end  = postResponse?.range(of: "</invitation>", range: start.upperBound..<(postResponse?.endIndex)!) {
-            theNewInvite.append((postResponse?[start.upperBound..<end.lowerBound])!)
-        } else {
-            print("invalid reply from the Jamf server when requesting an invitation code.")
-        }
-        
-        if "\(theNewInvite)" == "" {
-            alert_dialog(header: "Alert", message: "Unable to create invitation.  Verify the account, \(jssUsername), has been assigned permissions to do so.")
-            spinner.stopAnimation(self)
-            return
-        } //else {
-
-        //}
-        
-        if createPolicy_Button.state == 1 {
-            // create migration complete policy - start
-            let process_policy = Process()
-            let pipe_policy = Pipe()
-            
-            let migrationCheckPolicy = "<?xml version='1.0' encoding='UTF-8' standalone='no'?><policy><general><name>Migration Complete v4</name><enabled>true</enabled><trigger>EVENT</trigger><trigger_checkin>false</trigger_checkin><trigger_enrollment_complete>false</trigger_enrollment_complete><trigger_login>false</trigger_login><trigger_logout>false</trigger_logout><trigger_network_state_changed>false</trigger_network_state_changed><trigger_startup>false</trigger_startup><trigger_other>jpsmigrationcheck</trigger_other><frequency>Ongoing</frequency><location_user_only>false</location_user_only><target_drive>/</target_drive><offline>false</offline><network_requirements>Any</network_requirements><site><name>None</name></site></general><scope><all_computers>true</all_computers></scope>\(acctMaintPwdXml)<files_processes><run_command>touch /Library/Application\\ Support/JAMF/ReEnroller/Complete</run_command></files_processes></policy>"
-            
-            process_policy.launchPath = "/usr/bin/curl"
-            process_policy.arguments = ["-m", "20", "-sku", jssUsername + ":" + jssPassword, jssUrl + "/JSSResource/policies/id/0", "-d", migrationCheckPolicy, "-X", "POST", "-H", "Content-Type: text/xml"]
-//            print("curl: /usr/bin/curl -m 20 -vfku \(jssUsername):******** \(jssUrl)/JSSResource/policies/id/0 -d \(migrationCheckPolicy) -X POST -H \"Content-Type: text/xml\"\n")
-            
-            
-            process_policy.standardOutput = pipe_policy
-            // create migration complete policy - end
-            
-            process_policy.launch()
-            
-            process_policy.waitUntilExit()
-                        
-//            let policyHandle = pipe_policy.fileHandleForReading
-//            let policyData = policyHandle.readDataToEndOfFile()
-//            let policyPostResponse = String(data:policyData, encoding: String.Encoding.utf8)
-            
-//            print("policyPostResponse: \(String(describing: policyPostResponse))")
-            // create migration complete policy - start
-        }
-        
-        plistData["theNewInvite"] = theNewInvite as AnyObject
-        
-        jssUrl = jssUrl.lowercased().replacingOccurrences(of: "https://", with: "")
-        jssUrl = jssUrl.lowercased().replacingOccurrences(of: "http://", with: "")
-        (newJSSHostname, newJSSPort) = getHost_getPort(theURL: jssUrl)
-//        print("newJSSHostname: \(newJSSHostname)")
-        
-        // get server hostname for use in the package name
-        newJssArray = newJSSHostname.components(separatedBy: ".")
-        newJssArray[0] == "" ? (shortHostname = "new") : (shortHostname = newJssArray[0])
-        
-//        print("newJSSPort: \(newJSSPort)")
-        newJssMgmtUrl = "https://\(newJSSHostname):\(newJSSPort)"
-//        print("newJssMgmtUrl: \(newJssMgmtUrl)")
-        
-        plistData["newJSSHostname"] = newJSSHostname as AnyObject
-        plistData["newJSSPort"] = newJSSPort as AnyObject
-        //plistData["createConfSwitches"] = newURL_array[1] as AnyObject
-        
-        plistData["mgmtAccount"] = mgmtAccount_TextField.stringValue as AnyObject
-        
-        
-        //exit(0)
-        
-        // get invitation code - end
-        
-        
-        // put app in place
-        
-        let buildFolder = "/private/tmp/reEnroller-"+getDateTime(x: 1)
-        
-        let _ = myExitCode(cmd: "/bin/rm", args: "/private/tmp/reEnroller*")
-        
-        var buildFolderd = "" // build folder for launchd items, may be outside build folder if separating app from launchd
-        let settingsPlistPath = buildFolder+"/Library/Application Support/JAMF/ReEnroller/settings.plist"
-        
-        // create build location and place items
-        do {
-            try fm.createDirectory(atPath: buildFolder+"/Library/Application Support/JAMF/ReEnroller", withIntermediateDirectories: true, attributes: nil)
-            
-            // Need to be able to run the app with elevated privileges for this to work
-//            // set permissions and ownership
-//            attributes[.posixPermissions] = 0o750
-//            attributes[.ownerAccountID] = 0
-//            attributes[.groupOwnerAccountID] = 0
-//            do {
-//                try fm.setAttributes(attributes, ofItemAtPath: buildFolder+"/Library/Application Support/JAMF/ReEnroller")
-//            }
-            
-            // copy the app into the pkg building location
-            do {
-                try fm.copyItem(atPath: myBundlePath, toPath: buildFolder+"/Library/Application Support/JAMF/ReEnroller/ReEnroller.app")
-            } catch {
-                alert_dialog("-Attention-", message: "Could not copy app to build folder - exiting.")
-                exit(1)
-            }
-            // put settings.plist into place
-            do {
-                try fm.copyItem(atPath: blankSettingsPlistPath, toPath: settingsPlistPath)
-            } catch {
-                alert_dialog("-Attention-", message: "Could not copy settings.plist to build folder - exiting.")
-                exit(1)
-            }
-            
-        } catch {
-            alert_dialog("-Attention-", message: "Could not create build folder - exiting.")
-            exit(1)
-        }
-        
-        // create folder to hold backups of exitsing files/folders - start
-        do {
-            try fm.createDirectory(atPath: buildFolder+"/Library/Application Support/JAMF/ReEnroller/backup", withIntermediateDirectories: true, attributes: nil)
-        } catch {
-            alert_dialog("-Attention-", message: "Could not create backup folder - exiting.")
-            exit(1)
-        }
-        // create folder to hold backups of exitsing files/folders - end
-        
-        // if a config profile is present copy it to the pkg building location
-        if let profileURL = profile_PathControl.url {
-            safeProfileURL = "\(profileURL)".replacingOccurrences(of: "%20", with: " ")
-            safeProfileURL = safeProfileURL.replacingOccurrences(of: "file://", with: "")
-//            print("safeProfileURL: \(safeProfileURL)")
-
-            if safeProfileURL != "/" {
-                do {
-                    try fm.copyItem(atPath: safeProfileURL, toPath: buildFolder+"/Library/Application Support/JAMF/ReEnroller/profile.mobileconfig")
-                } catch {
-                    alert_dialog("-Attention-", message: "Could not copy config profile.  If there are spaces in the profile name try removing them. Unable to create pkg - exiting.")
-                        writeToLog(theMessage: "Could not copy config profile.  If there are spaces in the profile name try removing them. Unable to create pkg - exiting.")
-                        exit(1)
-                }
-                // add config profile values to settings - start
-                do {
-                    let one = try String(contentsOf: profile_PathControl.url! as URL, encoding: String.Encoding.ascii).components(separatedBy: "</string><key>PayloadType</key>")
-                    let PayloadUUID = one[0].components(separatedBy: "<key>PayloadUUID</key><string>")
-//                    print ("\(PayloadUUID[1])")
-                    plistData["profileUUID"] = "\(PayloadUUID[1])" as AnyObject
-                    if removeProfile_Button.state == 0 {
-                        plistData["removeProfile"] = "false" as AnyObject
-                    } else {
-                        plistData["removeProfile"] = "true" as AnyObject
-                    }
-                } catch {
-                    print("unable to read file")
-                }
-            }
-        }   // add config profile values to settings - end
-        
-        // configure all profile removal - start
-        if removeAllProfiles_Button.state == 0 {
-            plistData["removeAllProfiles"] = "false" as AnyObject
-        } else {
-            plistData["removeAllProfiles"] = "true" as AnyObject
-        }
-        // configure all profile removal - end
-        
-        // configure ReEnroller folder removal - start
-        if removeReEnroller_Button.state == 0 {
-            plistData["removeReEnroller"] = "no" as AnyObject
-        } else {
-            plistData["removeReEnroller"] = "yes" as AnyObject
-        }
-        // configure ReEnroller folder removal - end
-        
-        // configure mdm check - start
-        if skipMdmCheck_Button.state == 0 {
-            plistData["skipMdmCheck"] = "no" as AnyObject
-        } else {
-            plistData["skipMdmCheck"] = "yes" as AnyObject
-        }
-        // configure mdm - end
-        
-        // postInstallPolicyId - start
-        if runPolicy_Button.state == 0 {
-            plistData["postInstallPolicyId"] = "" as AnyObject
-        } else {
-            let policyId = policyId_Textfield.stringValue
-            // verify we have a valid number
-            if policyId.rangeOfCharacter(from: CharacterSet.decimalDigits.inverted) != nil {
-                plistData["postInstallPolicyId"] = "" as AnyObject
-            } else {
-                plistData["postInstallPolicyId"] = policyId_Textfield.stringValue as AnyObject
-            }
-        }
-        // postInstallPolicyId - end
-        
-        // set retry interval in launchd - start
-        if let retryInterval = Int(retry_TextField.stringValue) {
-            if retryInterval >= 5 {
-                StartInterval = retryInterval*60    // convert minutes to seconds
-//                print("Setting custon retry interval: \(StartInterval)")
-            }
-        } else {
-            spinner.stopAnimation(self)
-            alert_dialog("-Attention-", message: "Invalid value entered for the retry interval.")
-            return
-        }
-        // set retry interval in launchd - end
-        
-        // prepare postinstall script if option is checked - start
-        if separatePackage_button.state == 0 {
-            buildFolderd = buildFolder
-        } else {
-            buildFolderd = "/private/tmp/reEnrollerd-"+getDateTime(x: 1)
-            includesMsg = "does not include"
-            includesMsg2 = "  The launch daemons are packaged in: ReEnrollerDaemon-\(shortHostname).pkg."
-        }
-
-        do {
-            try fm.createDirectory(atPath: buildFolderd+"/Library/LaunchDaemons", withIntermediateDirectories: true, attributes: nil)
-            do {
-                try fm.copyItem(atPath: myBundlePath+"/Contents/Resources/com.jamf.ReEnroller.plist", toPath: buildFolderd+"/Library/LaunchDaemons/com.jamf.ReEnroller.plist")
-            } catch {
-                writeToLog(theMessage: "Could not copy launchd, unable to create pkg")
-                alert_dialog("-Attention-", message: "Could not copy launchd to build folder - exiting.")
-                exit(1)
-            }
-            
-        } catch {
-            writeToLog(theMessage: "Unable to place launch daemon.")
-            alert_dialog("-Attention-", message: "Could not LaunchDeamons folder in build folder - exiting.")
-            exit(1)
-        }
-        // put launch daemon in place - end
-        
-        let launchdFile = buildFolderd+"/Library/LaunchDaemons/com.jamf.ReEnroller.plist"
-        if fm.fileExists(atPath: launchdFile) {
-            let launchdPlistXML = fm.contents(atPath: launchdFile)!
-            do{
-                writeToLog(theMessage: "Reading settings from: \(launchdFile)")
-                launchdPlistData = try PropertyListSerialization.propertyList(from: launchdPlistXML,
-                                                                              options: .mutableContainersAndLeaves,
-                                                                              format: &format)
-                    as! [String : AnyObject]
-            }
-            catch{
-                writeToLog(theMessage: "Error launchd plist: \(error), format: \(format)")
-            }
-        }
-
-        launchdPlistData["StartInterval"] = StartInterval as AnyObject
-    
-        // Write values to launchd plist - start
-        (launchdPlistData as NSDictionary).write(toFile: launchdFile, atomically: false)
-        // Write values to launchd plist - end
-    
-
-//            do {
-//    //            try fm.createDirectory(atPath: buildFolderd+"/Library/Application Support/JAMF/ReEnroller/scripts", withIntermediateDirectories: true, attributes: nil)
-//                do {
-//                    if separatePackage_button.state == 0 {
-//    //                    try fm.copyItem(atPath: myBundlePath+"/Contents/Resources/1/postinstall", toPath: buildFolderd+"/Library/Application Support/JAMF/ReEnroller/scripts/postinstall")
-//                    }
-//                    
-//                } catch {
-//                    writeToLog(theMessage: "Could not copy postinstall script.")
-//                    alert_dialog("-Attention-", message: "Could not copy post install script to build location - exiting.")
-//                    exit(1)
-//                }
-//                
-//            } catch {
-//                writeToLog(theMessage: "Unable to place postinstall script.")
-//                alert_dialog("-Attention-", message: "Could not create scripts directory for post install task in build location - exiting.")
-//                exit(1)
-//            }
-        // prepare postinstall script if option is checked - end
-        
-        // Write settings from GUI to settings.plist
-        (plistData as NSDictionary).write(toFile: settingsPlistPath, atomically: false)
-        
-        // rename existing ReEnroller.pkg if it exists - start
-        if fm.fileExists(atPath: NSHomeDirectory()+"/Desktop/ReEnroller-\(shortHostname).pkg") {
-            do {
-                try fm.moveItem(atPath: NSHomeDirectory()+"/Desktop/ReEnroller-\(shortHostname).pkg", toPath: NSHomeDirectory()+"/Desktop/ReEnroller-\(shortHostname)-"+getDateTime(x: 1)+".pkg")
-            } catch {
-                alert_dialog("Alert", message: "Unable to rename an existing ReEnroller-\(shortHostname).pkg file on the Desktop.  Try renaming/removing it manually: sudo mv ~/Desktop/ReEnroller-\(shortHostname).pkg ~/Desktop/ReEnroller-\(shortHostname)-old.pkg.")
-                exit(1)
-            }
-        }
-        // rename existing ReEnroller.pkg if it exists - end
-        
-        
-        // Create pkg of app and launchd - start
-        if separatePackage_button.state == 0 {
-            pkgBuildResult = myExitCode(cmd: "/usr/bin/pkgbuild", args: "--identifier", "com.jamf.ReEnroller", "--root", buildFolder, "--scripts", myBundlePath+"/Contents/Resources/1", NSHomeDirectory()+"/Desktop/ReEnroller-\(shortHostname).pkg")
-
-        } else {
-            pkgBuildResult = myExitCode(cmd: "/usr/bin/pkgbuild", args: "--identifier", "com.jamf.ReEnroller", "--root", buildFolder, "--scripts", myBundlePath+"/Contents/Resources/2", NSHomeDirectory()+"/Desktop/ReEnroller-\(shortHostname).pkg")
-            pkgBuildResult = myExitCode(cmd: "/usr/bin/pkgbuild", args: "--identifier", "com.jamf.ReEnrollerd", "--root", buildFolderd, "--scripts", myBundlePath+"/Contents/Resources/1", NSHomeDirectory()+"/Desktop/ReEnrollerDaemon-\(shortHostname).pkg")
-        }
-        if pkgBuildResult != 0 {
-            alert_dialog("-Attention-", message: "Could not create the ReEnroller(Daemon) package - exiting.")
-            exit(1)
-        }
-        // Create pkg of app and launchd - end
-
-        spinner.stopAnimation(self)
-        
-        if createPolicy_Button.state == 1 {
-            policyMsg = "\n\nVerify the Migration Complete policy was created on the new server.  "
-            if randomPassword_button.state == 0 {
-                policyMsg.append("The policy should contain a 'Files and Processes' payload.  Modify if needed.")
-            } else {
-                policyMsg.append("The policy should contain a 'Files and Processes' payload along with a 'Management Account' payload.  Modify if needed.")
-            }
-        } else {
-            policyMsg = "\n\nBe sure to create a migration complete policy before starting to migrate, see help or more information."
-        }
-        
-        // alert the user, we're done
-       alert_dialog("Attention:", message: "A package (ReEnroller-\(shortHostname).pkg) has been created on your desktop which is ready to be deployed with your current Jamf server.\n\nThe package \(includesMsg) a postinstall script to load the launch daemon and start the ReEnroller app.\(includesMsg2)\(policyMsg)")
-        // Create pkg of app and launchd - end
-        
-//        do {
-//            try fm.removeItem(atPath: "/private/tmp/reEnroller-"+"(.*)")
-//        } catch {
-//            print("unable to remove build folder")
+//        if !(checkURL(theUrl: jssUrl) == 0) {
+//            self.alert_dialog(header: "Attention", message: "The new server, \(jssUrl), could not be contacted.")
+//            return
 //        }
-        let _ = myExitCode(cmd: "/bin/bash", args: "-c", "/bin/rm -fr /private/tmp/reEnroller-*")
+        healthCheck(server: jssUrl) {
+            (result: [String]) in
+            print("health check result: \(result)")
+            if ( result[1] != "[]" ) {
+                self.alert_dialog(header: "Attention", message: "The new server, \(jssUrl), does not appear ready for enrollments.\nResult of healthCheck: \(result[1])\nResponse code: \(result[0])")
+                return
+            } else {
+                // server is reachable
+                self.jssUsername = self.jssUsername_TextField.stringValue //.addingPercentEncoding(withAllowedCharacters: safeCharSet)!
+                self.jssPassword = self.jssPassword_TextField.stringValue //.addingPercentEncoding(withAllowedCharacters: safeCharSet)!
+                
+                if "\(self.jssUsername)" == "" || "\(self.jssPassword))" == "" {
+                    self.alert_dialog(header: "Alert", message: "Please provide both a username and password for the server.")
+                    return
+                }
+                
+                self.spinner.startAnimation(self)
+                
+                // get SSL verification settings from new server - start
+                self.plistData["createConfSwitches"] = self.getSslVerify(server: jssUrl, name: self.jssUsername, password: self.jssPassword) as AnyObject
+                // get SSL verification settings from new server - end
+                
+                // get site info - start
+//                let process_site = Process()
+//                let pipe_site = Pipe()
+//                
+//                var resourcePath = "\(jssUrl))/JSSResource/sites"
+//                resourcePath = resourcePath.replacingOccurrences(of: "//JSSResource", with: "/JSSResource")
+//                
+//                process_site.launchPath = "/usr/bin/curl"
+//                process_site.arguments = ["-sku", "\(self.jssUsername):\(self.jssPassword)", resourcePath, "-H", "Accept: application/json"]
+//                process_site.standardOutput = pipe_site
+//                
+//                process_site.launch()
+//                
+//                process_site.waitUntilExit()
+                
+                //        let site_handle = pipe_site.fileHandleForReading
+                //        let site_data = site_handle.readDataToEndOfFile()
+                // get site info - end
+                
+                
+                let process_invite = Process()
+                let pipe_invite = Pipe()
+                
+                self.retainSite_Button.state == 1 ? (self.retainSite = "true") : (self.retainSite = "false")
+                self.mgmtAcctCreate_button.state == 1 ? (self.mgmtAcctCreate = "true") : (self.mgmtAcctCreate = "false")
+                self.mgmtAcctHide_button.state == 1 ? (self.mgmtAcctHide = "true") : (self.mgmtAcctHide = "false")
+                
+                self.theNewInvite = ""
+                
+                let invite_request = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?><computer_invitation><lifetime>2147483647</lifetime><multiple_uses_allowed>true</multiple_uses_allowed><ssh_username>" + mgmtAcctNameXml + "</ssh_username><ssh_password_method>\(self.randomPassword_button.state)</ssh_password_method>\(self.mgmtAcctPwdXml)<enroll_into_site><id>" + self.siteId + "</id></enroll_into_site><keep_existing_site_membership>" + self.retainSite + "</keep_existing_site_membership><create_account_if_does_not_exist>\(self.mgmtAcctCreate)</create_account_if_does_not_exist><hide_account>\(self.mgmtAcctHide)</hide_account><lock_down_ssh>false</lock_down_ssh></computer_invitation>"
+//                print("invite request: " + invite_request)
+                
+                process_invite.launchPath = "/bin/bash"
+                //        process_invite.arguments = ["-c", "/usr/bin/curl", "-m", "20", "fku", jssUsername + ":" + jssPassword, jssUrl + "/JSSResource/computerinvitations/id/0", "-d", invite_request, "-X", "POST", "-H", "Content-Type: text/xml"]
+                process_invite.arguments = ["-c", "/usr/bin/curl -m 30 -sku \(self.jssUsername):\(self.jssPassword) \(jssUrl)/JSSResource/computerinvitations/id/0 -d '\(invite_request)' -X POST -H 'Content-Type: text/xml'"]
+                process_invite.standardOutput = pipe_invite
+                
+                process_invite.launch()
+                
+                process_invite.waitUntilExit()
+                
+                let handle = pipe_invite.fileHandleForReading
+                let data = handle.readDataToEndOfFile()
+                let postResponse = String(data:data, encoding: String.Encoding.utf8)
+                print("full reply for invitiation code:\n\t\(String(describing: postResponse!))\n")
+                
+                if let start = postResponse?.range(of: "<invitation>"),
+                    let end  = postResponse?.range(of: "</invitation>", range: start.upperBound..<(postResponse?.endIndex)!) {
+                    self.theNewInvite.append((postResponse?[start.upperBound..<end.lowerBound])!)
+                } else {
+                    print("invalid reply from the Jamf server when requesting an invitation code.")
+                }
+                
+                if "\(self.theNewInvite)" == "" {
+                    self.alert_dialog(header: "Alert", message: "Unable to create invitation.  Verify the account, \(self.jssUsername), has been assigned permissions to do so.")
+                    self.spinner.stopAnimation(self)
+                    return
+                } //else {
+                
+                //}
+                
+                if self.createPolicy_Button.state == 1 {
+                    // create migration complete policy - start
+                    let process_policy = Process()
+                    let pipe_policy = Pipe()
+                    
+                    let migrationCheckPolicy = "<?xml version='1.0' encoding='UTF-8' standalone='no'?><policy><general><name>Migration Complete v4</name><enabled>true</enabled><trigger>EVENT</trigger><trigger_checkin>false</trigger_checkin><trigger_enrollment_complete>false</trigger_enrollment_complete><trigger_login>false</trigger_login><trigger_logout>false</trigger_logout><trigger_network_state_changed>false</trigger_network_state_changed><trigger_startup>false</trigger_startup><trigger_other>jpsmigrationcheck</trigger_other><frequency>Ongoing</frequency><location_user_only>false</location_user_only><target_drive>/</target_drive><offline>false</offline><network_requirements>Any</network_requirements><site><name>None</name></site></general><scope><all_computers>true</all_computers></scope>\(self.acctMaintPwdXml)<files_processes><run_command>touch /Library/Application\\ Support/JAMF/ReEnroller/Complete</run_command></files_processes></policy>"
+                    
+                    process_policy.launchPath = "/usr/bin/curl"
+                    process_policy.arguments = ["-m", "20", "-sku", self.jssUsername + ":" + self.jssPassword, jssUrl + "/JSSResource/policies/id/0", "-d", migrationCheckPolicy, "-X", "POST", "-H", "Content-Type: text/xml"]
+                    //            print("curl: /usr/bin/curl -m 20 -vfku \(jssUsername):******** \(jssUrl)/JSSResource/policies/id/0 -d \(migrationCheckPolicy) -X POST -H \"Content-Type: text/xml\"\n")
+                    
+                    
+                    process_policy.standardOutput = pipe_policy
+                    // create migration complete policy - end
+                    
+                    process_policy.launch()
+                    
+                    process_policy.waitUntilExit()
+                    
+                    //            let policyHandle = pipe_policy.fileHandleForReading
+                    //            let policyData = policyHandle.readDataToEndOfFile()
+                    //            let policyPostResponse = String(data:policyData, encoding: String.Encoding.utf8)
+                    
+                    //            print("policyPostResponse: \(String(describing: policyPostResponse))")
+                    // create migration complete policy - start
+                }
+                
+                self.plistData["theNewInvite"] = self.theNewInvite as AnyObject
+                
+                jssUrl = jssUrl.lowercased().replacingOccurrences(of: "https://", with: "")
+                jssUrl = jssUrl.lowercased().replacingOccurrences(of: "http://", with: "")
+                (self.newJSSHostname, self.newJSSPort) = self.getHost_getPort(theURL: jssUrl)
+                //        print("newJSSHostname: \(newJSSHostname)")
+                
+                // get server hostname for use in the package name
+                self.newJssArray = self.newJSSHostname.components(separatedBy: ".")
+                self.newJssArray[0] == "" ? (self.shortHostname = "new") : (self.shortHostname = self.newJssArray[0])
+                
+                //        print("newJSSPort: \(newJSSPort)")
+                self.newJssMgmtUrl = "https://\(self.newJSSHostname):\(self.newJSSPort)"
+                //        print("newJssMgmtUrl: \(newJssMgmtUrl)")
+                
+                self.plistData["newJSSHostname"] = self.newJSSHostname as AnyObject
+                self.plistData["newJSSPort"] = self.newJSSPort as AnyObject
+                //plistData["createConfSwitches"] = newURL_array[1] as AnyObject
+                
+                self.plistData["mgmtAccount"] = self.mgmtAccount_TextField.stringValue as AnyObject
+                
+                
+                //exit(0)
+                
+                // get invitation code - end
+                
+                
+                // put app in place
+                
+                let buildFolder = "/private/tmp/reEnroller-"+self.getDateTime(x: 1)
+                
+                let _ = self.myExitCode(cmd: "/bin/rm", args: "/private/tmp/reEnroller*")
+                
+                var buildFolderd = "" // build folder for launchd items, may be outside build folder if separating app from launchd
+                let settingsPlistPath = buildFolder+"/Library/Application Support/JAMF/ReEnroller/settings.plist"
+                
+                // create build location and place items
+                do {
+                    try self.fm.createDirectory(atPath: buildFolder+"/Library/Application Support/JAMF/ReEnroller", withIntermediateDirectories: true, attributes: nil)
+                    
+                    // Need to be able to run the app with elevated privileges for this to work
+                    //            // set permissions and ownership
+                    //            attributes[.posixPermissions] = 0o750
+                    //            attributes[.ownerAccountID] = 0
+                    //            attributes[.groupOwnerAccountID] = 0
+                    //            do {
+                    //                try fm.setAttributes(attributes, ofItemAtPath: buildFolder+"/Library/Application Support/JAMF/ReEnroller")
+                    //            }
+                    
+                    // copy the app into the pkg building location
+                    do {
+                        try self.fm.copyItem(atPath: self.myBundlePath, toPath: buildFolder+"/Library/Application Support/JAMF/ReEnroller/ReEnroller.app")
+                    } catch {
+                        self.alert_dialog("-Attention-", message: "Could not copy app to build folder - exiting.")
+                        exit(1)
+                    }
+                    // put settings.plist into place
+                    do {
+                        try self.fm.copyItem(atPath: self.blankSettingsPlistPath, toPath: settingsPlistPath)
+                    } catch {
+                        self.alert_dialog("-Attention-", message: "Could not copy settings.plist to build folder - exiting.")
+                        exit(1)
+                    }
+                    
+                } catch {
+                    self.alert_dialog("-Attention-", message: "Could not create build folder - exiting.")
+                    exit(1)
+                }
+                
+                // create folder to hold backups of exitsing files/folders - start
+                do {
+                    try self.fm.createDirectory(atPath: buildFolder+"/Library/Application Support/JAMF/ReEnroller/backup", withIntermediateDirectories: true, attributes: nil)
+                } catch {
+                    self.alert_dialog("-Attention-", message: "Could not create backup folder - exiting.")
+                    exit(1)
+                }
+                // create folder to hold backups of exitsing files/folders - end
+                
+                // if a config profile is present copy it to the pkg building location
+                if let profileURL = self.profile_PathControl.url {
+                    self.safeProfileURL = "\(profileURL)".replacingOccurrences(of: "%20", with: " ")
+                    self.safeProfileURL = self.safeProfileURL.replacingOccurrences(of: "file://", with: "")
+                    //            print("safeProfileURL: \(safeProfileURL)")
+                    
+                    if self.safeProfileURL != "/" {
+                        do {
+                            try self.fm.copyItem(atPath: self.safeProfileURL, toPath: buildFolder+"/Library/Application Support/JAMF/ReEnroller/profile.mobileconfig")
+                        } catch {
+                            self.alert_dialog("-Attention-", message: "Could not copy config profile.  If there are spaces in the profile name try removing them. Unable to create pkg - exiting.")
+                            self.writeToLog(theMessage: "Could not copy config profile.  If there are spaces in the profile name try removing them. Unable to create pkg - exiting.")
+                            exit(1)
+                        }
+                        // add config profile values to settings - start
+                        do {
+                            let one = try String(contentsOf: self.profile_PathControl.url! as URL, encoding: String.Encoding.ascii).components(separatedBy: "</string><key>PayloadType</key>")
+                            let PayloadUUID = one[0].components(separatedBy: "<key>PayloadUUID</key><string>")
+                            //                    print ("\(PayloadUUID[1])")
+                            self.plistData["profileUUID"] = "\(PayloadUUID[1])" as AnyObject
+                            if self.removeProfile_Button.state == 0 {
+                                self.plistData["removeProfile"] = "false" as AnyObject
+                            } else {
+                                self.plistData["removeProfile"] = "true" as AnyObject
+                            }
+                        } catch {
+                            print("unable to read file")
+                        }
+                    }
+                }   // add config profile values to settings - end
+                
+                // configure all profile removal - start
+                if self.removeAllProfiles_Button.state == 0 {
+                    self.plistData["removeAllProfiles"] = "false" as AnyObject
+                } else {
+                    self.plistData["removeAllProfiles"] = "true" as AnyObject
+                }
+                // configure all profile removal - end
+                
+                // configure ReEnroller folder removal - start
+                if self.removeReEnroller_Button.state == 0 {
+                    self.plistData["removeReEnroller"] = "no" as AnyObject
+                } else {
+                    self.plistData["removeReEnroller"] = "yes" as AnyObject
+                }
+                // configure ReEnroller folder removal - end
+                
+                // configure mdm check - start
+                if self.skipMdmCheck_Button.state == 0 {
+                    self.plistData["skipMdmCheck"] = "no" as AnyObject
+                } else {
+                    self.plistData["skipMdmCheck"] = "yes" as AnyObject
+                }
+                // configure mdm - end
+                
+                // postInstallPolicyId - start
+                if self.runPolicy_Button.state == 0 {
+                    self.plistData["postInstallPolicyId"] = "" as AnyObject
+                } else {
+                    let policyId = self.policyId_Textfield.stringValue
+                    // verify we have a valid number
+                    if policyId.rangeOfCharacter(from: CharacterSet.decimalDigits.inverted) != nil {
+                        self.plistData["postInstallPolicyId"] = "" as AnyObject
+                    } else {
+                        self.plistData["postInstallPolicyId"] = self.policyId_Textfield.stringValue as AnyObject
+                    }
+                }
+                // postInstallPolicyId - end
+                
+                // set retry interval in launchd - start
+                if let retryInterval = Int(self.retry_TextField.stringValue) {
+                    if retryInterval >= 5 {
+                        self.StartInterval = retryInterval*60    // convert minutes to seconds
+                        //                print("Setting custon retry interval: \(StartInterval)")
+                    }
+                } else {
+                    self.spinner.stopAnimation(self)
+                    self.alert_dialog("-Attention-", message: "Invalid value entered for the retry interval.")
+                    return
+                }
+                // set retry interval in launchd - end
+                
+                // prepare postinstall script if option is checked - start
+                if self.separatePackage_button.state == 0 {
+                    buildFolderd = buildFolder
+                } else {
+                    buildFolderd = "/private/tmp/reEnrollerd-"+self.getDateTime(x: 1)
+                    self.includesMsg = "does not include"
+                    self.includesMsg2 = "  The launch daemons are packaged in: ReEnrollerDaemon-\(self.shortHostname).pkg."
+                }
+                
+                do {
+                    try self.fm.createDirectory(atPath: buildFolderd+"/Library/LaunchDaemons", withIntermediateDirectories: true, attributes: nil)
+                    do {
+                        try self.fm.copyItem(atPath: self.myBundlePath+"/Contents/Resources/com.jamf.ReEnroller.plist", toPath: buildFolderd+"/Library/LaunchDaemons/com.jamf.ReEnroller.plist")
+                    } catch {
+                        self.writeToLog(theMessage: "Could not copy launchd, unable to create pkg")
+                        self.alert_dialog("-Attention-", message: "Could not copy launchd to build folder - exiting.")
+                        exit(1)
+                    }
+                    
+                } catch {
+                    self.writeToLog(theMessage: "Unable to place launch daemon.")
+                    self.alert_dialog("-Attention-", message: "Could not LaunchDeamons folder in build folder - exiting.")
+                    exit(1)
+                }
+                // put launch daemon in place - end
+                
+                let launchdFile = buildFolderd+"/Library/LaunchDaemons/com.jamf.ReEnroller.plist"
+                if self.fm.fileExists(atPath: launchdFile) {
+                    let launchdPlistXML = self.fm.contents(atPath: launchdFile)!
+                    do{
+                        self.writeToLog(theMessage: "Reading settings from: \(launchdFile)")
+                        self.launchdPlistData = try PropertyListSerialization.propertyList(from: launchdPlistXML,
+                                                                                      options: .mutableContainersAndLeaves,
+                                                                                      format: &self.format)
+                            as! [String : AnyObject]
+                    }
+                    catch{
+                        self.writeToLog(theMessage: "Error launchd plist: \(error), format: \(self.format)")
+                    }
+                }
+                
+                self.launchdPlistData["StartInterval"] = self.StartInterval as AnyObject
+                
+                // Write values to launchd plist - start
+                (self.launchdPlistData as NSDictionary).write(toFile: launchdFile, atomically: false)
+                // Write values to launchd plist - end
+                
+                
+                //            do {
+                //    //            try fm.createDirectory(atPath: buildFolderd+"/Library/Application Support/JAMF/ReEnroller/scripts", withIntermediateDirectories: true, attributes: nil)
+                //                do {
+                //                    if separatePackage_button.state == 0 {
+                //    //                    try fm.copyItem(atPath: myBundlePath+"/Contents/Resources/1/postinstall", toPath: buildFolderd+"/Library/Application Support/JAMF/ReEnroller/scripts/postinstall")
+                //                    }
+                //
+                //                } catch {
+                //                    writeToLog(theMessage: "Could not copy postinstall script.")
+                //                    alert_dialog("-Attention-", message: "Could not copy post install script to build location - exiting.")
+                //                    exit(1)
+                //                }
+                //
+                //            } catch {
+                //                writeToLog(theMessage: "Unable to place postinstall script.")
+                //                alert_dialog("-Attention-", message: "Could not create scripts directory for post install task in build location - exiting.")
+                //                exit(1)
+                //            }
+                // prepare postinstall script if option is checked - end
+                
+                // Write settings from GUI to settings.plist
+                (self.plistData as NSDictionary).write(toFile: settingsPlistPath, atomically: false)
+                
+                // rename existing ReEnroller.pkg if it exists - start
+                if self.fm.fileExists(atPath: NSHomeDirectory()+"/Desktop/ReEnroller-\(self.shortHostname).pkg") {
+                    do {
+                        try self.fm.moveItem(atPath: NSHomeDirectory()+"/Desktop/ReEnroller-\(self.shortHostname).pkg", toPath: NSHomeDirectory()+"/Desktop/ReEnroller-\(self.shortHostname)-"+self.getDateTime(x: 1)+".pkg")
+                    } catch {
+                        self.alert_dialog("Alert", message: "Unable to rename an existing ReEnroller-\(self.shortHostname).pkg file on the Desktop.  Try renaming/removing it manually: sudo mv ~/Desktop/ReEnroller-\(self.shortHostname).pkg ~/Desktop/ReEnroller-\(self.shortHostname)-old.pkg.")
+                        exit(1)
+                    }
+                }
+                // rename existing ReEnroller.pkg if it exists - end
+                
+                
+                // Create pkg of app and launchd - start
+                if self.separatePackage_button.state == 0 {
+                    self.pkgBuildResult = self.myExitCode(cmd: "/usr/bin/pkgbuild", args: "--identifier", "com.jamf.ReEnroller", "--root", buildFolder, "--scripts", self.myBundlePath+"/Contents/Resources/1", NSHomeDirectory()+"/Desktop/ReEnroller-\(self.shortHostname).pkg")
+                    
+                } else {
+                    self.pkgBuildResult = self.myExitCode(cmd: "/usr/bin/pkgbuild", args: "--identifier", "com.jamf.ReEnroller", "--root", buildFolder, "--scripts", self.myBundlePath+"/Contents/Resources/2", NSHomeDirectory()+"/Desktop/ReEnroller-\(self.shortHostname).pkg")
+                    self.pkgBuildResult = self.myExitCode(cmd: "/usr/bin/pkgbuild", args: "--identifier", "com.jamf.ReEnrollerd", "--root", buildFolderd, "--scripts", self.myBundlePath+"/Contents/Resources/1", NSHomeDirectory()+"/Desktop/ReEnrollerDaemon-\(self.shortHostname).pkg")
+                }
+                if self.pkgBuildResult != 0 {
+                    self.alert_dialog("-Attention-", message: "Could not create the ReEnroller(Daemon) package - exiting.")
+                    exit(1)
+                }
+                // Create pkg of app and launchd - end
+                
+                self.spinner.stopAnimation(self)
+                
+                if self.createPolicy_Button.state == 1 {
+                    self.policyMsg = "\n\nVerify the Migration Complete policy was created on the new server.  "
+                    if self.randomPassword_button.state == 0 {
+                        self.policyMsg.append("The policy should contain a 'Files and Processes' payload.  Modify if needed.")
+                    } else {
+                        self.policyMsg.append("The policy should contain a 'Files and Processes' payload along with a 'Management Account' payload.  Modify if needed.")
+                    }
+                } else {
+                    self.policyMsg = "\n\nBe sure to create a migration complete policy before starting to migrate, see help or more information."
+                }
+                
+                // alert the user, we're done
+                self.alert_dialog("Attention:", message: "A package (ReEnroller-\(self.shortHostname).pkg) has been created on your desktop which is ready to be deployed with your current Jamf server.\n\nThe package \(self.includesMsg) a postinstall script to load the launch daemon and start the ReEnroller app.\(self.includesMsg2)\(self.policyMsg)")
+                // Create pkg of app and launchd - end
+                
+                //        do {
+                //            try fm.removeItem(atPath: "/private/tmp/reEnroller-"+"(.*)")
+                //        } catch {
+                //            print("unable to remove build folder")
+                //        }
+                let _ = self.myExitCode(cmd: "/bin/bash", args: "-c", "/bin/rm -fr /private/tmp/reEnroller-*")
 
-//        exit(0)
+            }
+        }
+       
     }
     // process function - end
     
@@ -806,123 +819,148 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
 
     func beginMigration() {
         writeToLog(theMessage: "Starting the enrollment process for the new Jamf Pro server.")
-
-        // ensure we still have network connectivity - start
-        var connectivityCounter = 0
-        while !connectedToNetwork() {
-            sleep(2)
-            if connectivityCounter > 30 {
-                writeToLog(theMessage: "There was a problem after removing old MDM configuration, network connectivity was lost. Will attempt to fall back to old settings and exiting!")
-                unverifiedFallback()
-                exit(1)
-            }
-            connectivityCounter += 1
-            writeToLog(theMessage: "Waiting for network connectivity.")
-        }
-        // ensure we still have network connectivity - end
-        
-        // connectivity to new Jamf Pro server - start
-        writeToLog(theMessage: "Attempting to connect to new Jamf Server at "+newJSSHostname)
-        
-        if myExitCode(cmd: "/usr/bin/nc", args: "-z", "-G", "10", "\(newJSSHostname)", "\(newJSSPort)") == 0 {
-            writeToLog(theMessage: "Success connecting to new Jamf Server URL at \(newJSSHostname) on port \(newJSSPort)")
-        } else {
-            writeToLog(theMessage: "There was a problem connecting to new Jamf Server URL at \(newJSSHostname) on port \(newJSSPort). Exiting.")
-            // remove config profile if one was installed
-            if profileUuid != "" {
-                if !profileRemove() {
-                    writeToLog(theMessage: "Unable to remove included configuration profile")
+        startMigrationQ.maxConcurrentOperationCount = 1
+        startMigrationQ.addOperation {
+            // ensure we still have network connectivity - start
+            var connectivityCounter = 0
+            while !self.connectedToNetwork() {
+                sleep(2)
+                if connectivityCounter > 30 {
+                   self.writeToLog(theMessage: "There was a problem after removing old MDM configuration, network connectivity was lost. Will attempt to fall back to old settings and exiting!")
+                    self.unverifiedFallback()
+                    exit(1)
                 }
+                connectivityCounter += 1
+                self.writeToLog(theMessage: "Waiting for network connectivity.")
             }
-            exit(1)
-        }
-        // connectivity to new Jamf Pro server - end
-        
-
-        // get jamf binary from new server and replace current binary - start
-//        print("curl -m 30 -sk \(newJssMgmtUrl)/bin/jamf.gz -o '/Library/Application Support/JAMF/ReEnroller/jamf.gz'")
-        if myExitCode(cmd: "/bin/bash", args: "-c", "curl -m 60 -sk \(newJssMgmtUrl)/bin/jamf.gz -o '/Library/Application Support/JAMF/ReEnroller/jamf.gz'") != 0 &&
-            myExitCode(cmd: "/bin/bash", args: "-c", "curl -m 60 -sk \(newJssMgmtUrl)/bin/level1/jamf.gz -o '/Library/Application Support/JAMF/ReEnroller/jamf.gz'") != 0 {
-            writeToLog(theMessage: "Could not copy jamf binary from new server(\(newJssMgmtUrl)), will rely on existing jamf binary.")
-        } else {
-            writeToLog(theMessage: "Downloaded jamf binary from new server(\(newJssMgmtUrl)).")
-            if fm.fileExists(atPath: "/Library/Application Support/JAMF/ReEnroller/jamf.gz") {
-                if backup(operation: "copy", source: origBinary, destination: bakBinary) {
-                    if myExitCode(cmd: "/bin/bash", args: "-c", "gunzip /Library/Application Support/JAMF/ReEnroller/jamf.gz") == 0 {
-                        do {
-                            try fm.moveItem(atPath: "/Library/Application Support/JAMF/ReEnroller/jamf", toPath: origBinary)
-                            writeToLog(theMessage: "Using jamf binary from the new server.")
-                            // set permissions to read and execute
-                            attributes[.posixPermissions] = 0o555
-                            do {
-                                try fm.setAttributes(attributes, ofItemAtPath: origBinary)
-                            }
-                            if fm.fileExists(atPath: "/usr/local/jamf/bin/jamfAgent") {
-                                try fm.removeItem(atPath: "/usr/local/jamf/bin/jamfAgent")
-                            }
-                        } catch {
-                            writeToLog(theMessage: "Unable to remove existing jamf binary, will rely on existing one.")
+            // ensure we still have network connectivity - end
+            
+            // connectivity to new Jamf Pro server - start
+            self.writeToLog(theMessage: "Attempting to connect to new Jamf Server (\(self.newJSSHostname)) and download the jamf binary.")
+            
+            self.healthCheck(server: self.newJssMgmtUrl) {
+                (result: [String]) in
+                if ( result[1] != "[]" ) {
+                    self.writeToLog(theMessage: "The new server, \(self.newJssMgmtUrl), does not appear ready for enrollments.\n\t\tResult of healthCheck: \(result[1])\n\t\tResponse code: \(result[0])")
+                    //              remove config profile if one was installed
+                    if self.profileUuid != "" {
+                        if !self.profileRemove() {
+                            self.writeToLog(theMessage: "Unable to remove included configuration profile")
                         }
                     }
+                    if self.myExitCode(cmd: "/usr/local/jamf/bin/jamf", args: "mdm") == 0 {
+                        self.writeToLog(theMessage: "Re-enabled MDM.")
+                    }
+                    exit(1)
                 } else {
-                    writeToLog(theMessage: "Unable to unzip new jamf binary, will rely on existing one.")
-                }
-            }
-        }
-        // get jamf binary from new server and replace current binary - end
-        
-        
-        //exit(0)   // for testing
-        
-        // backup existing jamf keychain - start
-        if backup(operation: "move", source: origKeychainFile, destination: bakKeychainFile) {
-            writeToLog(theMessage: "Successfully backed up jamf keychain")
-        } else {
-            writeToLog(theMessage: "Failed to backup jamf keychain")
-            unverifiedFallback()
-            exit(1)
-        }
-        // backup existing jamf keychain - end
-        
-        // backup existing jamf plist, if it exists - start
-        if backup(operation: "copy", source: jamfPlistPath, destination: bakjamfPlistPath) {
-            writeToLog(theMessage: "Successfully backed up jamf plist")
-        } else {
-            writeToLog(theMessage: "Failed to backup jamf plist, rollback is not possible")
-//            unverifiedFallback()
-//            exit(1)
-        }
-        // backup existing jamf plist, if it exists - end
-        
-        // backup existing ConfigurationProfiles dir, if present - start
-        if os.minorVersion < 13 {
-            if backup(operation: "copy", source: origProfilesDir, destination: bakProfilesDir) {
-                writeToLog(theMessage: "Successfully backed up current ConfigurationProfiles")
-            } else {
-                writeToLog(theMessage: "Failed to backup current ConfigurationProfiles")
-                unverifiedFallback()
-                exit(1)
-            }
-        } else {
-            writeToLog(theMessage: "ConfigurationProfiles is not backed up on machines with High Sierra or later due to SIP.")
-        }
-        // backup existing ConfigurationProfiles dir, if present - end
-        
-        // rename management account if present - start
-        
-        // rename management account if present - end
-        
-        // Let's enroll
-        enrollNewJss(newServer: newJssMgmtUrl, newInvite: theNewInvite)
-        
-        // Verify the enrollment
-        verifyNewEnrollment()
-        
-        // verify cleanup
-        verifiedCleanup()
-        exit(0)
-        
-    }
+                    // passed health check, let's migrate
+                    self.writeToLog(theMessage: "health check result: \(result[1]), looks good.")
+                    
+                    // get jamf binary from new server and replace current binary - start
+                    self.download(source: "\(self.newJssMgmtUrl)/bin/jamf.gz", destination: "/Library/Application%20Support/JAMF/ReEnroller/jamf.gz") {
+                        (result: String) in
+                        self.writeToLog(theMessage: "download result: \(result)")
+                        
+                        if ( "\(result)" == "binary downloaded" ) {
+                            if self.fm.fileExists(atPath: "/Library/Application Support/JAMF/ReEnroller/jamf.gz") {
+                                self.writeToLog(theMessage: "Downloaded jamf binary from new server (\(self.newJssMgmtUrl)).")
+                                if self.backup(operation: "move", source: self.origBinary, destination: self.bakBinary) {
+                                    if self.myExitCode(cmd: "/bin/bash", args: "-c", "gunzip -f '/Library/Application Support/JAMF/ReEnroller/jamf.gz'") == 0 {
+                                        do {
+                                            try self.fm.moveItem(atPath: "/Library/Application Support/JAMF/ReEnroller/jamf", toPath: self.origBinary)
+                                            self.writeToLog(theMessage: "Using jamf binary from the new server.")
+                                            // set permissions to read and execute
+                                            self.attributes[.posixPermissions] = 0o555
+                                            if self.fm.fileExists(atPath: "/usr/local/bin/jamf") {
+                                                try self.fm.removeItem(atPath: "/usr/local/bin/jamf")
+                                            }
+                                            if self.myExitCode(cmd: "/bin/bash", args: "-c", "ln -s /usr/local/jamf/bin/jamf /usr/local/bin/jamf") == 0 {
+                                                self.writeToLog(theMessage: "Re-created alias for jamf binary in /usr/local/bin.")
+                                            } else {
+                                                self.writeToLog(theMessage: "Failed to re-created alias for jamf binary in /usr/local/bin.")
+                                            }
+                                            do {
+                                                try self.fm.setAttributes(self.attributes, ofItemAtPath: self.origBinary)
+                                            }
+                                            if self.fm.fileExists(atPath: "/usr/local/jamf/bin/jamfAgent") {
+                                                try self.fm.removeItem(atPath: "/usr/local/jamf/bin/jamfAgent")
+                                            }
+                                        } catch {
+                                            self.writeToLog(theMessage: "Unable to remove existing jamf binary, will rely on existing one.")
+                                        }
+                                    } else {
+                                        self.writeToLog(theMessage: "Unable to unzip new jamf binary.")
+                                    }
+                                } else {
+                                    self.writeToLog(theMessage: "Unable to backup existing jamf binary.")
+                                }
+                            }
+                        } else {
+                            self.unverifiedFallback()
+                            exit(1)
+                        }
+                        
+                        
+                        // backup existing jamf keychain - start
+                        if self.backup(operation: "move", source: self.origKeychainFile, destination: self.bakKeychainFile) {
+                            self.writeToLog(theMessage: "Successfully backed up jamf keychain")
+                        } else {
+                            self.writeToLog(theMessage: "Failed to backup jamf keychain")
+                            self.unverifiedFallback()
+                            exit(1)
+                        }
+                        // backup existing jamf keychain - end
+                        
+                        // backup existing jamf plist, if it exists - start
+                        if self.backup(operation: "copy", source: self.jamfPlistPath, destination: self.bakjamfPlistPath) {
+                            self.writeToLog(theMessage: "Successfully backed up jamf plist")
+                        } else {
+                            self.writeToLog(theMessage: "Failed to backup jamf plist, rollback is not possible")
+                            //            unverifiedFallback()
+                            //            exit(1)
+                        }
+                        // backup existing jamf plist, if it exists - end
+                        
+                        // backup existing ConfigurationProfiles dir, if present - start
+                        if self.os.minorVersion < 13 {
+                            if self.backup(operation: "copy", source: self.origProfilesDir, destination: self.bakProfilesDir) {
+                                self.writeToLog(theMessage: "Successfully backed up current ConfigurationProfiles")
+                            } else {
+                                self.writeToLog(theMessage: "Failed to backup current ConfigurationProfiles")
+                                self.unverifiedFallback()
+                                exit(1)
+                            }
+                        } else {
+                            self.writeToLog(theMessage: "ConfigurationProfiles is not backed up on machines with High Sierra or later due to SIP.")
+                        }
+                        // backup existing ConfigurationProfiles dir, if present - end
+                        
+                        // rename management account if present - start
+                        
+                        // rename management account if present - end
+                        
+                        // Let's enroll
+                        //                    self.enrollNewJss(newServer: self.newJssMgmtUrl, newInvite: self.theNewInvite)
+                        self.enrollNewJps(newServer: self.newJssMgmtUrl, newInvite: self.theNewInvite) {
+                            (enrolled: String) in
+                            if ( enrolled == "failed" ) {
+                                self.unverifiedFallback()
+                                exit(1)
+                            } else {
+                                // Verify the enrollment
+                                self.verifyNewEnrollment()
+                            }
+                        }
+                        
+                        
+                        // verify cleanup
+                        self.verifiedCleanup()
+                        exit(0)
+                    }   //self.download(source: - end
+                }   // passed health check, let's migrate - end
+            }   // healthCheck(server: newJssMgmtUrl) - end
+        }   // startMigrationQ.addOperation - end
+    }   // func beginMigration() - end
     
     // backup up item - start
     func backup(operation: String, source: String, destination: String) -> Bool {
@@ -1101,7 +1139,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
         var node = server + "/casper.jxml"
         node = node.replacingOccurrences(of: "//casper.jxml", with: "/casper.jxml")
         
-        print("node: \(node)")
+//        print("node: \(node)")
         
         let pipe    = Pipe()
         let task    = Process()
@@ -1276,28 +1314,32 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
     
     // function to mdm status - end
     
-    func enrollNewJss(newServer: String, newInvite: String) {
+    func enrollNewJps(newServer: String, newInvite: String, completion: @escaping (_ enrolled: String) -> Void) {
+//        func enrollNewJss(newServer: String, newInvite: String) {
         writeToLog(theMessage: "Starting the new enrollment.")
         
         // remove mdm profile - start
         if os.minorVersion < 13 {
             if removeAllProfiles == "false" {
                 writeToLog(theMessage: "Attempting to remove mdm")
-                if myExitCode(cmd: "/usr/local/bin/jamf", args: "removemdmprofile") == 0 {
+                if myExitCode(cmd: "/usr/local/jamf/bin/jamf", args: "removemdmprofile") == 0 {
                     writeToLog(theMessage: "Removed old MDM profile")
                 } else {
                     writeToLog(theMessage: "There was a problem removing old MDM info. Falling back to old settings and Falling back to old settings and exiting!")
-                    unverifiedFallback()
-                    exit(1)
+//                    unverifiedFallback()
+//                    exit(1)
+                    completion("failed")
                 }
             } else {
-                // os.minorVersion < 13 {
+                // os.minorVersion < 13 - remove all profiles
                 if myExitCode(cmd: "/bin/rm", args: "-fr", "/private/var/db/ConfigurationProfiles") == 0 {
                     writeToLog(theMessage: "Removed all configuration profiles")
                 } else {
                     writeToLog(theMessage: "There was a problem removing all configuration profiles. Falling back to old settings and Falling back to old settings and exiting!")
-                    unverifiedFallback()
-                    exit(1)
+                    //                    unverifiedFallback()
+                    //                    exit(1)
+                    completion("failed")
+
                 }
             }
         } else {
@@ -1315,8 +1357,9 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
                 sleep(10)
                 if counter > 6 {
                     writeToLog(theMessage: "Failed to remove MDM through remote command - exiting")
-                    unverifiedFallback()
-                    exit(1)
+                    //                    unverifiedFallback()
+                    //                    exit(1)
+                    completion("failed")
                 } else {
                     writeToLog(theMessage: "Attempt \(counter) to remove MDM through remote command.")
                 }
@@ -1331,8 +1374,9 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
         
         // Install profile if present - start
         if !profileInstall() {
-            unverifiedFallback()
-            exit(1)
+            //                    unverifiedFallback()
+            //                    exit(1)
+            completion("failed")
         }
         // Install profile if present - end
         
@@ -1342,8 +1386,9 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
             sleep(2)
             if connectivityCounter > 30 {
                 writeToLog(theMessage: "There was a problem after removing old MDM configuration, network connectivity was lost. Will attempt to fall back to old settings and exiting!")
-                unverifiedFallback()
-                exit(1)
+                //                    unverifiedFallback()
+                //                    exit(1)
+                completion("failed")
             }
             connectivityCounter += 1
             writeToLog(theMessage: "Waiting for network connectivity.")
@@ -1357,19 +1402,20 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
             writeToLog(theMessage: "Created JAMF config file for \(newServer)")
         } else {
             writeToLog(theMessage: "There was a problem creating JAMF config file for \(newServer). Falling back to old settings and exiting.")
-            unverifiedFallback()
-            exit(1)
+            //                    unverifiedFallback()
+            //                    exit(1)
+            completion("failed")
         }
         
-        // verify the new server is listening
-        if myExitCode(cmd: "/usr/bin/nc", args: "-z", "-G", "10", "\(newJSSHostname)", "\(newJSSPort)") == 0 {
-            writeToLog(theMessage: "New server: \(newJSSHostname) is listening on port: \(newJSSPort)")
-        } else {
-            writeToLog(theMessage: "Unable to connect to new server: \(newServer) on port: \(newJSSPort)")
-            writeToLog(theMessage: "Failure to enroll looks highly probable.")
-            // perform nslookup on new server
-            myNslookup(server: newJSSHostname)
-        }
+        // verify the new server is listening - not needed?
+//        if myExitCode(cmd: "/usr/bin/nc", args: "-z", "-G", "10", "\(newJSSHostname)", "\(newJSSPort)") == 0 {
+//            writeToLog(theMessage: "New server: \(newJSSHostname) is listening on port: \(newJSSPort)")
+//        } else {
+//            writeToLog(theMessage: "Unable to connect to new server: \(newServer) on port: \(newJSSPort)")
+//            writeToLog(theMessage: "Failure to enroll looks highly probable.")
+//            // perform nslookup on new server
+//            myNslookup(server: newJSSHostname)
+//        }
 
         // enroll with the new server using an invitation
         if myExitCode(cmd: "/usr/local/bin/jamf", args: "enroll", "-invitation", "\(newInvite)", "-noRecon", "-noPolicy", "-noManage") == 0 {
@@ -1378,8 +1424,9 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
         } else {
             writeToLog(theMessage: "There was a problem enrolling to new Jamf Server: \(newServer). Falling back to old settings and exiting!")
 //            writeToLog(theMessage: "/usr/local/bin/jamf enroll -invitation \(newInvite) -noRecon -noPolicy -noManage")
-            unverifiedFallback()
-            exit(1)
+            //                    unverifiedFallback()
+            //                    exit(1)
+            completion("failed")
         }
         
         // verity connectivity to the new Jamf Pro server
@@ -1387,27 +1434,31 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
             writeToLog(theMessage: "checkjssconnection for \(newServer) was successful")
         } else {
             writeToLog(theMessage: "There was a problem checking the Jamf Server Connection to \(newServer). Falling back to old settings and exiting!")
-            unverifiedFallback()
-            exit(1)
+            //                    unverifiedFallback()
+            //                    exit(1)
+            completion("failed")
         }
         
         // enable mdm
         if skipMdmCheck == "no" {
             if myExitCode(cmd: "/usr/local/bin/jamf", args: "mdm") == 0 {
-                writeToLog(theMessage: "MDM Enrolled - getting MDM profiles from new JSS.")
+                writeToLog(theMessage: "MDM Enrolled - getting MDM profiles from new JPS.")
             } else {
-                writeToLog(theMessage: "There was a problem getting MDM profiles from new JSS.")
+                writeToLog(theMessage: "There was a problem getting MDM profiles from new JPS.")
             }
             sleep(2)
         } else {
             writeToLog(theMessage: "Skipping MDM check.")
         }
+        writeToLog(theMessage: "Calling jamf manage to update framework.")
         if myExitCode(cmd: "/usr/local/bin/jamf", args: "manage") == 0 {
-            writeToLog(theMessage: "Enrolled - getting management framework from new JSS.")
+            writeToLog(theMessage: "Enrolled - received management framework from new JPS.")
+            completion("succeeded")
         } else {
-            writeToLog(theMessage: "There was a problem getting management framework from new JSS. Falling back to old settings and exiting!")
-            unverifiedFallback()
-            exit(1)
+            writeToLog(theMessage: "There was a problem getting management framework from new JPS. Falling back to old settings and exiting!")
+            //                    unverifiedFallback()
+            //                    exit(1)
+            completion("failed")
         }
         
     }
@@ -1697,6 +1748,22 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
             writeToLog(theMessage: "There was a problem submitting full recon to \(newJSSHostname):\(newJSSPort).")
             //exit(1)
         }
+        do {
+            if self.fm.fileExists(atPath: "/usr/local/bin/jamfAgent") {
+                try self.fm.removeItem(atPath: "/usr/local/bin/jamfAgent")
+            }
+            if self.myExitCode(cmd: "/bin/bash", args: "-c", "ln -s /usr/local/jamf/bin/jamfAgent /usr/local/bin/jamfAgent") == 0 {
+                self.writeToLog(theMessage: "Re-created alias for jamfAgent binary in /usr/local/bin.")
+            } else {
+                self.writeToLog(theMessage: "Failed to re-created alias for jamfAgent binary in /usr/local/bin.")
+            }
+        } catch {
+            if self.fm.fileExists(atPath: "/usr/local/bin/jamfAgent") {
+                self.writeToLog(theMessage: "Alias for jamfAgent binary in /usr/local/bin is ok.")
+            } else {
+                self.writeToLog(theMessage: "Alias for jamfAgent binary in /usr/local/bin could not be created.")
+            }
+        }
         // update inventory - end
         
         // remove config profile if marked as such - start
@@ -1782,36 +1849,113 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
         //return true
     }   // func alert_dialog - end
     
-    func checkURL(theUrl: String) -> Int8 {
+    func healthCheck(server: String, completion: @escaping (_ result: [String]) -> Void) {
+        URLCache.shared.removeAllCachedResponses()
+        var responseData = ""
+        var healthCheckUrl = "\(server)/healthCheck.html"
+        healthCheckUrl     = healthCheckUrl.replacingOccurrences(of: "//healthCheck.html", with: "/healthCheck.html")
         
-        var port = ""
-        let task_telnet = Process()
-        var str = theUrl.lowercased().replacingOccurrences(of: "https://", with: "")
-        str = str.lowercased().replacingOccurrences(of: "http://", with: "")
+        let serverUrl = NSURL(string: "\(healthCheckUrl)")
+        let serverRequest = NSMutableURLRequest(url: serverUrl! as URL)
         
-        var str_array = str.components(separatedBy: ":")
+        serverRequest.httpMethod = "GET"
+        let serverConf = URLSessionConfiguration.default
         
-        var fqdn = str_array[0]
+        let session = Foundation.URLSession(configuration: serverConf, delegate: self, delegateQueue: OperationQueue.main)
+        let task = session.dataTask(with: serverRequest as URLRequest, completionHandler: {
+            (data, response, error) -> Void in
+            if let httpResponse = response as? HTTPURLResponse {
+                if let _ = String(data: data!, encoding: .utf8) {
+                    responseData = String(data: data!, encoding: .utf8)!
+                    responseData = responseData.replacingOccurrences(of: "\n", with: "")
+                    print("healthCheck response code: \(httpResponse.statusCode)")
+                    print("healthCheck response: \(responseData)")
+                    completion(["\(httpResponse.statusCode)","\(responseData)"])
+                } else {
+                    print("No data was returned from health check.")
+                    completion(["\(httpResponse.statusCode)",""])
+                }
+                
+            } else {
+                completion(["Unable to reach server.",""])
+            }
+        })
+        task.resume()
+    }
+    
+    // func download - start
+    func download(source: String, destination: String, completion: @escaping (_ result: String) -> Void) {
         
-        if str_array.count > 1 {
-            let port_array = str_array[1].components(separatedBy: "/")
-            port = port_array[0]
-        } else {
-            port = "443"
-            // for multi-context jamf server
-            var fqdn_array = fqdn.components(separatedBy: "/")
-            fqdn = fqdn_array[0]
+        writeToLog(theMessage: "download URL: \(source)")
+
+        // Location to store the file
+        let destinationFileUrl:URL = URL(string: "file://\(destination)")!
+        
+        var filePath = "\(destinationFileUrl)"
+        filePath = String(filePath.dropFirst(7))
+        filePath = filePath.replacingOccurrences(of: "%20", with: " ")
+        
+        let exists = FileManager.default.fileExists(atPath: filePath)
+        if exists {
+            do {
+                try FileManager.default.removeItem(atPath: filePath)
+                writeToLog(theMessage: "removed existing file")
+            } catch {
+                writeToLog(theMessage: "failed to remove existing file")
+                exit(0)
+            }
         }
         
-        task_telnet.launchPath = "/bin/bash"
-        task_telnet.arguments = ["-c", "nc -z -G 10 \(fqdn) \(port)"]
+        //Create URL to the source file you want to download
+        //        let fileURL = URL(string: "https://lhelou.jamfcloud.com/bin/SelfService.tar.gz")
+        let fileURL = URL(string: "\(source)")
         
-        task_telnet.launch()
-        task_telnet.waitUntilExit()
-        let result = task_telnet.terminationStatus
+        let sessionConfig = URLSessionConfiguration.default
+        let session = Foundation.URLSession(configuration: sessionConfig, delegate: self, delegateQueue: OperationQueue.main)
         
-        return(Int8(result))
-    }   // func checkURL - end
+        let request = URLRequest(url:fileURL!)
+        
+        URLCache.shared.removeAllCachedResponses()
+        let task = session.downloadTask(with: request) { (tempLocalUrl, response, error) in
+            if let tempLocalUrl = tempLocalUrl, error == nil {
+                // Success
+                if let statusCode = (response as? HTTPURLResponse)?.statusCode {
+                    self.writeToLog(theMessage: "Response from server - Status code: \(statusCode)")
+                } else {
+                    self.writeToLog(theMessage: "No response from the server.")
+                    completion("No response from the server.")
+                }
+                
+                switch (response as? HTTPURLResponse)?.statusCode {
+                case 200:
+                    self.writeToLog(theMessage: "File successfully downloaded.")
+                case 401:
+                    self.writeToLog(theMessage: "Authentication failed.")
+                    completion("Authentication failed.")
+                case 404:
+                    self.writeToLog(theMessage: "server / file not found.")
+                    completion("not found")
+                default:
+                    self.writeToLog(theMessage: "An error took place while downloading a file. Error description: \(String(describing: error!.localizedDescription))")
+                    completion("unknown error")
+                }
+                
+                do {
+                    try FileManager.default.copyItem(at: tempLocalUrl, to: destinationFileUrl)
+                } catch (let writeError) {
+                    self.writeToLog(theMessage: "Error creating a file \(destinationFileUrl) : \(writeError)")
+                    completion("Error creating file.")
+                }
+
+                completion("binary downloaded")
+            } else {
+                self.writeToLog(theMessage: "An error took place while downloading a file. Error description: \(String(describing: error!.localizedDescription))")
+                completion("Error took place while downloading a file.")
+            }
+        }
+        task.resume()
+    }
+    // func download - end
     
     func dropTrailingSlash(theSentString: String) -> String {
         var theString = theSentString
@@ -1974,9 +2118,8 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
         
     }
     
-    //    --------------------------------------- grab sites - start ---------------------------------------
-    
-    func getSites(completion: @escaping (Dictionary<String, Int>) -> Dictionary<String, Int>) {
+//    --------------------------------------- grab sites - start ---------------------------------------
+        func getSites(completion: @escaping (Dictionary<String, Int>) -> Dictionary<String, Int>) {
         var local_allSites = Dictionary<String, Int>()
         
         let serverEncodedURL = NSURL(string: resourcePath)
@@ -2033,8 +2176,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
         })  // let task = - end
         task.resume()
     }
-    
-    //    --------------------------------------- grab sites - end ---------------------------------------
+//    --------------------------------------- grab sites - end ---------------------------------------
     
     func xmlEncode(rawString: String) -> String {
         var encodedString = rawString
@@ -2050,6 +2192,13 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
         // Insert code here to initialize your application
         // bring app to the foreground
         jssUrl_TextField.becomeFirstResponder()
+        
+        // set tab order for text fields
+        jssUrl_TextField.nextKeyView = jssUsername_TextField
+        jssUsername_TextField.nextKeyView = jssPassword_TextField
+        jssPassword_TextField.nextKeyView = mgmtAccount_TextField
+        mgmtAccount_TextField.nextKeyView = mgmtAcctPwd_TextField
+        mgmtAcctPwd_TextField.nextKeyView = mgmtAcctPwd2_TextField
 
         NSApplication.shared().activate(ignoringOtherApps: true)
     }
@@ -2059,4 +2208,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
     }
     
     
+    func urlSession(_ session: URLSession, didReceive challenge: URLAuthenticationChallenge, completionHandler: @escaping(  URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
+        completionHandler(.useCredential, URLCredential(trust: challenge.protectionSpace.serverTrust!))
+    }
 }

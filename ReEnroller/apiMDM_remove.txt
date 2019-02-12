@@ -50,9 +50,10 @@
 #
 # HISTORY
 #
-#	Version: 1.0
+#	Version: 1.2
 #
 #	- Created by Leslie Helou, Professional Services Engineer, JAMF Software on December 12, 2017
+#   - updated 190124: Provide additional feedback as it runs
 #
 ####################################################################################################
 
@@ -84,14 +85,16 @@ udid=$(system_profiler SPHardwareDataType | awk '/UUID/ { print $3; }')
 if [ "$udid" == "" ];then
     echo "unable to determine UUID of computer - exiting."
     exit 1
+else
+    echo "computer UUID: $udid"
 fi
 
 ## get computer ID from Jamf server
-compXml=$(/usr/bin/curl -sku jssadmin:n0ve11 "$server"JSSResource/computers/udid/64D845E-566C-AB7C-4E5E-0972799D7B81/subset/general -H "Accept: application/xml")
+compXml=$(/usr/bin/curl -sku ${uname}:${pwd} ${server}JSSResource/computers/udid/"$udid"/subset/general -H "Accept: application/xml")
 
-if [[ $(echo $compXml | grep "The server has not found anything matching the request URI") == "" ]];then
-    compId=$(echo "$compXml" | /usr/bin/xpath "//computer/general/id/text()")
-    echo "compId: $compId"
+if [[ $(echo "${compXml}" | grep "The server has not found anything matching the request URI") == "" ]];then
+    compId=$(echo "${compXml}" | /usr/bin/xpath "//computer/general/id/text()")
+    echo "computer ID: $compId"
 else
     echo "computer was not found on $server - exiting."
     exit 1
