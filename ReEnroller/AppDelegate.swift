@@ -1079,12 +1079,16 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
     // get verify SSL settings from new server - start
     func getSslVerify(action: String, endpoint: String, name: String, password: String, completion: @escaping (_ result: [Any]) -> Void) {
         URLCache.shared.removeAllCachedResponses()
+        let safeCharSet  = CharacterSet.alphanumerics
         var responseData = ""
         var sslSetting   = ""
         
+        let encodedUsername = name.addingPercentEncoding(withAllowedCharacters: safeCharSet)!
+        let encodedPassword = password.addingPercentEncoding(withAllowedCharacters: safeCharSet)!
+        
         let serverUrl = NSURL(string: "\(endpoint)")
         let serverRequest = NSMutableURLRequest(url: serverUrl! as URL)
-        let body = "source=ReEnroller&username=\(name)&password=\(password)"
+        let body = "source=ReEnroller&username=\(encodedUsername)&password=\(encodedPassword)"
         
         serverRequest.httpMethod = "\(action)"
         serverRequest.httpBody = Data(body.utf8)
