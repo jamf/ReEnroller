@@ -1773,6 +1773,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
                 if let _ = String(data: data!, encoding: .utf8) {
                     responseData = String(data: data!, encoding: .utf8)!
                     responseData = responseData.replacingOccurrences(of: "\n", with: "")
+                    responseData = responseData.replacingOccurrences(of: "\r", with: "")
                     print("healthCheck response code: \(httpResponse.statusCode)")
                     print("healthCheck response: \(responseData)")
                     completion(["\(httpResponse.statusCode)","\(responseData)"])
