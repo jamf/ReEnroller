@@ -185,7 +185,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
         help_Window.titleVisibility = .hidden
         
         self.help_Window.makeKeyAndOrderFront(self)
-        self.help_Window.collectionBehavior = NSWindowCollectionBehavior.moveToActiveSpace
+        self.help_Window.collectionBehavior = NSWindow.CollectionBehavior.moveToActiveSpace
         
         let helpFilePath = Bundle.main.path(forResource: "index", ofType: "html")
         help_WebView.mainFrameURL = helpFilePath
@@ -235,10 +235,10 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
     }
     
     @IBAction func randomPassword(_ sender: Any) {
-        if randomPassword_button.state == 1 {
+        if randomPassword_button.state.rawValue == 1 {
             mgmtAcctPwd_TextField.isEnabled = false
             mgmtAcctPwd2_TextField.isEnabled = false
-            createPolicy_Button.state = 1
+            createPolicy_Button.state = convertToNSControlStateValue(1)
             createPolicy_Button.isEnabled = false
             rndPwdLen_TextField?.isEnabled = true
             mgmtAcctPwd_TextField.stringValue = ""
@@ -253,7 +253,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
     }
     
     @IBAction func runPolicy_Function(_ sender: Any) {
-        if runPolicy_Button.state == 1 {
+        if runPolicy_Button.state.rawValue == 1 {
             policyId_Textfield.isEnabled = true
         } else {
             policyId_Textfield.isEnabled = false
@@ -263,7 +263,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
     
 //    @IBAction func fetchSites_Button(_ sender: Any) {
     func fetchSites() {
-        if enableSites_Button.state == 1 {
+        if enableSites_Button.state.rawValue == 1 {
             // get site info - start
             var siteArray = [String]()
             let jssUrl = jssUrl_TextField.stringValue
@@ -272,13 +272,13 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
             
             if "\(jssUrl)" == "" {
                 alert_dialog(header: "Attention:", message: "Jamf server is required.")
-                enableSites_Button.state = 0
+                enableSites_Button.state = convertToNSControlStateValue(0)
                 return
             }
             
             if "\(jssUsername)" == "" || "\(jssPassword)" == "" {
                 alert_dialog(header: "Attention:", message: "Jamf server username and password are required in order to use Sites.")
-                enableSites_Button.state = 0
+                enableSites_Button.state = convertToNSControlStateValue(0)
                 return
             }
             jssCredentials = "\(jssUsername):\(jssPassword)"
@@ -317,13 +317,13 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
     
     @IBAction func siteToggle_button(_ sender: NSButton) {
 //        print("\(String(describing: sender.identifier!))")
-        if (sender.identifier! == "selectSite") && (enableSites_Button.state == 1) {
-            retainSite_Button.state = 0
+        if (convertFromOptionalNSUserInterfaceItemIdentifier(sender.identifier)! == "selectSite") && (enableSites_Button.state.rawValue == 1) {
+            retainSite_Button.state = convertToNSControlStateValue(0)
             fetchSites()
-        } else if (sender.identifier! == "existingSite") && (retainSite_Button.state == 1) {
-            enableSites_Button.state = 0
+        } else if (convertFromOptionalNSUserInterfaceItemIdentifier(sender.identifier)! == "existingSite") && (retainSite_Button.state.rawValue == 1) {
+            enableSites_Button.state = convertToNSControlStateValue(0)
             self.site_Button.isEnabled = false
-        } else if (enableSites_Button.state == 0) {
+        } else if (enableSites_Button.state.rawValue == 0) {
             self.site_Button.isEnabled = false
         }
     }
@@ -347,7 +347,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
         // fix special characters in management account name
         let mgmtAcctNameXml = xmlEncode(rawString: mgmtAcct)
         
-        if randomPassword_button.state == 0 {
+        if randomPassword_button.state.rawValue == 0 {
             let mgmtAcctPwd = mgmtAcctPwd_TextField.stringValue
             let mgmtAcctPwd2 = mgmtAcctPwd2_TextField.stringValue
             if "\(mgmtAcctPwd)" == "" {
@@ -442,13 +442,13 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
                     }
                   
                     // get SSL verification settings from new server - end
-                    self.retainSite_Button.state == 1 ? (self.retainSite = "true") : (self.retainSite = "false")
-                    self.mgmtAcctCreate_button.state == 1 ? (self.mgmtAcctCreate = "true") : (self.mgmtAcctCreate = "false")
-                    self.mgmtAcctHide_button.state == 1 ? (self.mgmtAcctHide = "true") : (self.mgmtAcctHide = "false")
+                    self.retainSite_Button.state.rawValue == 1 ? (self.retainSite = "true") : (self.retainSite = "false")
+                    self.mgmtAcctCreate_button.state.rawValue == 1 ? (self.mgmtAcctCreate = "true") : (self.mgmtAcctCreate = "false")
+                    self.mgmtAcctHide_button.state.rawValue == 1 ? (self.mgmtAcctHide = "true") : (self.mgmtAcctHide = "false")
                 
                     self.theNewInvite = ""
                 
-                    let invite_request = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?><computer_invitation><lifetime>2147483647</lifetime><multiple_uses_allowed>true</multiple_uses_allowed><ssh_username>" + mgmtAcctNameXml + "</ssh_username><ssh_password_method>\(self.randomPassword_button.state)</ssh_password_method>\(self.mgmtAcctPwdXml)<enroll_into_site><id>" + self.siteId + "</id></enroll_into_site><keep_existing_site_membership>" + self.retainSite + "</keep_existing_site_membership><create_account_if_does_not_exist>\(self.mgmtAcctCreate)</create_account_if_does_not_exist><hide_account>\(self.mgmtAcctHide)</hide_account><lock_down_ssh>false</lock_down_ssh></computer_invitation>"
+                    let invite_request = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?><computer_invitation><lifetime>2147483647</lifetime><multiple_uses_allowed>true</multiple_uses_allowed><ssh_username>" + mgmtAcctNameXml + "</ssh_username><ssh_password_method>\(convertFromNSControlStateValue(self.randomPassword_button.state))</ssh_password_method>\(self.mgmtAcctPwdXml)<enroll_into_site><id>" + self.siteId + "</id></enroll_into_site><keep_existing_site_membership>" + self.retainSite + "</keep_existing_site_membership><create_account_if_does_not_exist>\(self.mgmtAcctCreate)</create_account_if_does_not_exist><hide_account>\(self.mgmtAcctHide)</hide_account><lock_down_ssh>false</lock_down_ssh></computer_invitation>"
     //                print("invite request: " + invite_request)
                 
                     // get invitation code
@@ -464,7 +464,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
                             print("full reply for invitiation code request:\n\t\(responseMesage)\n")
                             if let start = responseMesage.range(of: "<invitation>"),
                                 let end  = responseMesage.range(of: "</invitation>", range: start.upperBound..<(responseMesage.endIndex)) {
-                                self.theNewInvite.append((responseMesage[start.upperBound..<end.lowerBound]))
+                                self.theNewInvite.append((String(responseMesage[start.upperBound..<end.lowerBound])))
                                 if "\(self.theNewInvite)" == "" {
                                     self.alert_dialog(header: "Alert", message: "Unable to create invitation.  Verify the account, \(self.jssUsername), has been assigned permissions to do so.")
                                     self.spinner.stopAnimation(self)
@@ -472,7 +472,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
                                 } else {
                                     print("Found invitation code: \(self.theNewInvite)")
                                     
-                                    if self.createPolicy_Button.state == 1 {
+                                    if self.createPolicy_Button.state.rawValue == 1 {
                                         
                                         let migrationCheckPolicy = "<?xml version='1.0' encoding='UTF-8' standalone='no'?><policy><general><name>Migration Complete v4</name><enabled>true</enabled><trigger>EVENT</trigger><trigger_checkin>false</trigger_checkin><trigger_enrollment_complete>false</trigger_enrollment_complete><trigger_login>false</trigger_login><trigger_logout>false</trigger_logout><trigger_network_state_changed>false</trigger_network_state_changed><trigger_startup>false</trigger_startup><trigger_other>jpsmigrationcheck</trigger_other><frequency>Ongoing</frequency><location_user_only>false</location_user_only><target_drive>/</target_drive><offline>false</offline><network_requirements>Any</network_requirements><site><name>None</name></site></general><scope><all_computers>true</all_computers></scope><files_processes><run_command>touch /Library/Application\\ Support/JAMF/ReEnroller/Complete</run_command></files_processes></policy>"
                                         
@@ -585,7 +585,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
                                                 let PayloadUUID = one[0].components(separatedBy: "<key>PayloadUUID</key><string>")
                                                 //                    print ("\(PayloadUUID[1])")
                                                 self.plistData["profileUUID"] = "\(PayloadUUID[1])" as AnyObject
-                                                if self.removeProfile_Button.state == 0 {
+                                                if self.removeProfile_Button.state.rawValue == 0 {
                                                     self.plistData["removeProfile"] = "false" as AnyObject
                                                 } else {
                                                     self.plistData["removeProfile"] = "true" as AnyObject
@@ -597,7 +597,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
                                     }   // add config profile values to settings - end
                                     
                                     // configure all profile removal - start
-                                    if self.removeAllProfiles_Button.state == 0 {
+                                    if self.removeAllProfiles_Button.state.rawValue == 0 {
                                         self.plistData["removeAllProfiles"] = "false" as AnyObject
                                     } else {
                                         self.plistData["removeAllProfiles"] = "true" as AnyObject
@@ -605,7 +605,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
                                     // configure all profile removal - end
                                     
                                     // configure ReEnroller folder removal - start
-                                    if self.removeReEnroller_Button.state == 0 {
+                                    if self.removeReEnroller_Button.state.rawValue == 0 {
                                         self.plistData["removeReEnroller"] = "no" as AnyObject
                                     } else {
                                         self.plistData["removeReEnroller"] = "yes" as AnyObject
@@ -613,7 +613,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
                                     // configure ReEnroller folder removal - end
                                     
                                     // configure mdm check - start
-                                    if self.skipMdmCheck_Button.state == 0 {
+                                    if self.skipMdmCheck_Button.state.rawValue == 0 {
                                         self.plistData["skipMdmCheck"] = "no" as AnyObject
                                     } else {
                                         self.plistData["skipMdmCheck"] = "yes" as AnyObject
@@ -621,7 +621,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
                                     // configure mdm - end
                                     
                                     // postInstallPolicyId - start
-                                    if self.runPolicy_Button.state == 0 {
+                                    if self.runPolicy_Button.state.rawValue == 0 {
                                         self.plistData["postInstallPolicyId"] = "" as AnyObject
                                     } else {
                                         let policyId = self.policyId_Textfield.stringValue
@@ -648,7 +648,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
                                     // set retry interval in launchd - end
                                     
                                     // prepare postinstall script if option is checked - start
-                                    if self.separatePackage_button.state == 0 {
+                                    if self.separatePackage_button.state.rawValue == 0 {
                                         buildFolderd = buildFolder
                                     } else {
                                         buildFolderd = "/private/tmp/reEnrollerd-"+self.getDateTime(x: 1)
@@ -709,7 +709,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
                                     // rename existing ReEnroller.pkg if it exists - end
                                     
                                     // Create pkg of app and launchd - start
-                                    if self.separatePackage_button.state == 0 {
+                                    if self.separatePackage_button.state.rawValue == 0 {
                                         self.pkgBuildResult = self.myExitCode(cmd: "/usr/bin/pkgbuild", args: "--identifier", "com.jamf.ReEnroller", "--root", buildFolder, "--scripts", self.myBundlePath+"/Contents/Resources/1", NSHomeDirectory()+"/Desktop/ReEnroller-\(self.shortHostname).pkg")
                                         
                                     } else {
@@ -724,9 +724,9 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
                                     
                                     self.spinner.stopAnimation(self)
                                     
-                                    if self.createPolicy_Button.state == 1 {
+                                    if self.createPolicy_Button.state.rawValue == 1 {
                                         self.policyMsg = "\n\nVerify the Migration Complete policy was created on the new server.  "
-                                        if self.randomPassword_button.state == 0 {
+                                        if self.randomPassword_button.state.rawValue == 0 {
                                             self.policyMsg.append("The policy should contain a 'Files and Processes' payload.  Modify if needed.")
                                         } else {
                                             self.policyMsg.append("The policy should contain a 'Files and Processes' payload along with a 'Management Account' payload.  Modify if needed.")
@@ -1105,7 +1105,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
                     
                     if let start = responseData.range(of: "<verifySSLCert>"),
                         let end  = responseData.range(of: "</verifySSLCert>", range: start.upperBound..<(responseData.endIndex)) {
-                        sslSetting.append((responseData[start.upperBound..<end.lowerBound]))
+                        sslSetting.append((String(responseData[start.upperBound..<end.lowerBound])))
                     }   // let end  = responseMesage.range - end
 
                     print("response code: \(httpResponse.statusCode)")
@@ -1714,7 +1714,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
         let dialog: NSAlert = NSAlert()
         dialog.messageText = header
         dialog.informativeText = message
-        dialog.alertStyle = NSAlertStyle.warning
+        dialog.alertStyle = NSAlert.Style.warning
         dialog.addButton(withTitle: "OK")
         dialog.runModal()
         //return true
@@ -1999,12 +1999,12 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
                 
                 showReenroll_fn(self)
                 retry_TextField.stringValue = "30"
-                removeReEnroller_Button.state = 1
+                removeReEnroller_Button.state = convertToNSControlStateValue(1)
                 rndPwdLen_TextField?.isEnabled = false
                 rndPwdLen_TextField?.stringValue = "8"
                 
                 ReEnroller_window.backgroundColor = NSColor(red: 0x9F/255.0, green:0xB9/255.0, blue:0xCC/255.0, alpha: 1.0)
-                NSApplication.shared().setActivationPolicy(NSApplicationActivationPolicy.regular)
+                NSApplication.shared.setActivationPolicy(NSApplication.ActivationPolicy.regular)
                 ReEnroller_window.setIsVisible(true)
             }
             
@@ -2013,12 +2013,14 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
             
             showReenroll_fn(self)
             retry_TextField.stringValue = "30"
-            removeReEnroller_Button.state = 1
+            removeReEnroller_Button.state = convertToNSControlStateValue(1)
             rndPwdLen_TextField?.isEnabled = false
             rndPwdLen_TextField?.stringValue = "8"
 
-            ReEnroller_window.backgroundColor = NSColor(red: 0x9F/255.0, green:0xB9/255.0, blue:0xCC/255.0, alpha: 1.0)
-            NSApplication.shared().setActivationPolicy(NSApplicationActivationPolicy.regular)
+            // [NSColor colorWithCalibratedRed:0x6C/255.0 green:0x82/255.0 blue:0x94/255.0 alpha:0xFF/255.0]/* 6C8294FF */
+//            ReEnroller_window.backgroundColor = NSColor(red: 0x9F/255.0, green:0xB9/255.0, blue:0xCC/255.0, alpha: 1.0)
+            ReEnroller_window.backgroundColor = NSColor(red: 0x6c/255.0, green:0x82/255.0, blue:0x94/255.0, alpha: 1.0)
+            NSApplication.shared.setActivationPolicy(NSApplication.ActivationPolicy.regular)
             ReEnroller_window.setIsVisible(true)
         }
         
@@ -2072,7 +2074,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
                     print("status code: \(httpResponse.statusCode)")
                         self.alert_dialog(header: "Alert", message: "Unable to look up Sites.  Verify the account being used is able to login and view Sites.\nStatus Code: \(httpResponse.statusCode)")
                     
-                    self.enableSites_Button.state = 0
+                    self.enableSites_Button.state = convertToNSControlStateValue(0)
                     self.site_Button.isEnabled = false
                     completion([:])
                     
@@ -2086,11 +2088,11 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
     
     func xmlEncode(rawString: String) -> String {
         var encodedString = rawString
-        encodedString = encodedString.replacingOccurrences(of: "&", with: "&amp;")
-        encodedString = encodedString.replacingOccurrences(of: "\"", with: "&quot;")
-        encodedString = encodedString.replacingOccurrences(of: "'", with: "&apos;")
-        encodedString = encodedString.replacingOccurrences(of: ">", with: "&gt;")
-        encodedString = encodedString.replacingOccurrences(of: "<", with: "&lt;")
+        encodedString     = encodedString.replacingOccurrences(of: "&", with: "&amp;")
+        encodedString     = encodedString.replacingOccurrences(of: "\"", with: "&quot;")
+        encodedString     = encodedString.replacingOccurrences(of: "'", with: "&apos;")
+        encodedString     = encodedString.replacingOccurrences(of: ">", with: "&gt;")
+        encodedString     = encodedString.replacingOccurrences(of: "<", with: "&lt;")
         return encodedString
     }
 
@@ -2100,13 +2102,13 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
         jssUrl_TextField.becomeFirstResponder()
         
         // set tab order for text fields
-        jssUrl_TextField.nextKeyView = jssUsername_TextField
+        jssUrl_TextField.nextKeyView      = jssUsername_TextField
         jssUsername_TextField.nextKeyView = jssPassword_TextField
         jssPassword_TextField.nextKeyView = mgmtAccount_TextField
         mgmtAccount_TextField.nextKeyView = mgmtAcctPwd_TextField
         mgmtAcctPwd_TextField.nextKeyView = mgmtAcctPwd2_TextField
 
-        NSApplication.shared().activate(ignoringOtherApps: true)
+        NSApplication.shared.activate(ignoringOtherApps: true)
     }
     
     func applicationWillTerminate(_ aNotification: Notification) {
@@ -2117,4 +2119,20 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
     func urlSession(_ session: URLSession, didReceive challenge: URLAuthenticationChallenge, completionHandler: @escaping(  URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
         completionHandler(.useCredential, URLCredential(trust: challenge.protectionSpace.serverTrust!))
     }
+}
+
+// Helper function inserted by Swift 4.2 migrator.
+fileprivate func convertToNSControlStateValue(_ input: Int) -> NSControl.StateValue {
+	return NSControl.StateValue(rawValue: input)
+}
+
+// Helper function inserted by Swift 4.2 migrator.
+fileprivate func convertFromOptionalNSUserInterfaceItemIdentifier(_ input: NSUserInterfaceItemIdentifier?) -> String? {
+	guard let input = input else { return nil }
+	return input.rawValue
+}
+
+// Helper function inserted by Swift 4.2 migrator.
+fileprivate func convertFromNSControlStateValue(_ input: NSControl.StateValue) -> Int {
+	return input.rawValue
 }

@@ -19,6 +19,7 @@
 		B5A43ED42043359A0012CB53 /* 2 in Resources */ = {isa = PBXBuildFile; fileRef = B5A43ED32043359A0012CB53 /* 2 */; };
 		B5A43ED6204335F30012CB53 /* 1 in Resources */ = {isa = PBXBuildFile; fileRef = B5A43ED5204335F30012CB53 /* 1 */; };
 		B5AC202B1F23108D00C16EAA /* ReEnrollerImage1.png in Resources */ = {isa = PBXBuildFile; fileRef = B5AC202A1F23108D00C16EAA /* ReEnrollerImage1.png */; };
+		B5BFAFD7228B309C00E58326 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B5BFAFD6228B309C00E58326 /* WebKit.framework */; };
 		B5DBA04F1E5FCA2A00FA52CE /* com.jamf.ReEnroller.plist in Resources */ = {isa = PBXBuildFile; fileRef = B5DBA04E1E5FCA2A00FA52CE /* com.jamf.ReEnroller.plist */; };
 		B5F155801F4BE303002241A3 /* images in Resources */ = {isa = PBXBuildFile; fileRef = B5F1557E1F4BE303002241A3 /* images */; };
 /* End PBXBuildFile section */
@@ -38,6 +39,8 @@
 		B5A43ED32043359A0012CB53 /* 2 */ = {isa = PBXFileReference; lastKnownFileType = folder; path = 2; sourceTree = "<group>"; };
 		B5A43ED5204335F30012CB53 /* 1 */ = {isa = PBXFileReference; lastKnownFileType = folder; path = 1; sourceTree = "<group>"; };
 		B5AC202A1F23108D00C16EAA /* ReEnrollerImage1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = ReEnrollerImage1.png; sourceTree = "<group>"; };
+		B5BFAFD4228B0BEC00E58326 /* ReEnroller.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ReEnroller.entitlements; sourceTree = "<group>"; };
+		B5BFAFD6228B309C00E58326 /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
 		B5DBA04E1E5FCA2A00FA52CE /* com.jamf.ReEnroller.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = com.jamf.ReEnroller.plist; path = ../com.jamf.ReEnroller.plist; sourceTree = "<group>"; };
 		B5F1557E1F4BE303002241A3 /* images */ = {isa = PBXFileReference; lastKnownFileType = folder; path = images; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -47,6 +50,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B5BFAFD7228B309C00E58326 /* WebKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -58,6 +62,7 @@
 			children = (
 				B50831031E5A87F900133D1B /* ReEnroller */,
 				B50831021E5A87F900133D1B /* Products */,
+				B5BFAFD5228B309C00E58326 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -72,6 +77,7 @@
 		B50831031E5A87F900133D1B /* ReEnroller */ = {
 			isa = PBXGroup;
 			children = (
+				B5BFAFD4228B0BEC00E58326 /* ReEnroller.entitlements */,
 				B50831041E5A87F900133D1B /* AppDelegate.swift */,
 				B541FD51215D79CB004D6B6C /* command.swift */,
 				B562410E215B1991007F8144 /* mgmtAccount.swift */,
@@ -107,6 +113,14 @@
 			name = help;
 			sourceTree = "<group>";
 		};
+		B5BFAFD5228B309C00E58326 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				B5BFAFD6228B309C00E58326 /* WebKit.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -140,7 +154,13 @@
 					B50831001E5A87F900133D1B = {
 						CreatedOnToolsVersion = 8.2.1;
 						DevelopmentTeam = PS2F6S478M;
+						LastSwiftMigration = 1010;
 						ProvisioningStyle = Automatic;
+						SystemCapabilities = {
+							com.apple.HardenedRuntime = {
+								enabled = 1;
+							};
+						};
 					};
 				};
 			};
@@ -149,6 +169,7 @@
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
 			knownRegions = (
+				English,
 				en,
 				Base,
 			);
@@ -321,12 +342,14 @@
 				CODE_SIGN_IDENTITY = "Mac Developer";
 				COMBINE_HIDPI_IMAGES = YES;
 				DEVELOPMENT_TEAM = PS2F6S478M;
+				ENABLE_HARDENED_RUNTIME = YES;
 				INFOPLIST_FILE = ReEnroller/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.11;
 				PRODUCT_BUNDLE_IDENTIFIER = com.jamf.pse.ReEnroller;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 3.0;
+				SWIFT_SWIFT3_OBJC_INFERENCE = On;
+				SWIFT_VERSION = 4.2;
 			};
 			name = Debug;
 		};
@@ -337,12 +360,14 @@
 				CODE_SIGN_IDENTITY = "Mac Developer";
 				COMBINE_HIDPI_IMAGES = YES;
 				DEVELOPMENT_TEAM = PS2F6S478M;
+				ENABLE_HARDENED_RUNTIME = YES;
 				INFOPLIST_FILE = ReEnroller/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.11;
 				PRODUCT_BUNDLE_IDENTIFIER = com.jamf.pse.ReEnroller;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 3.0;
+				SWIFT_SWIFT3_OBJC_INFERENCE = On;
+				SWIFT_VERSION = 4.2;
 			};
 			name = Release;
 		};
