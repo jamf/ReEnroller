@@ -59,6 +59,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
     @IBOutlet weak var quickAdd_PathControl: NSPathControl!
     @IBOutlet weak var profile_PathControl: NSPathControl!
     @IBOutlet weak var removeProfile_Button: NSButton!  // removeProfile_Button.state == 1 if checked
+    @IBOutlet weak var newEnrollment_Button: NSButton!
     @IBOutlet weak var removeAllProfiles_Button: NSButton!
     
     // non recon fields
@@ -106,6 +107,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
     
     let configProfilePath = "/Library/Application Support/JAMF/ReEnroller/profile.mobileconfig"
     let verificationFile = "/Library/Application Support/JAMF/ReEnroller/Complete"
+    
     var plistData:[String:AnyObject] = [:]  //our plist data format
     var jamfPlistData:[String:AnyObject] = [:]  //jamf plist data format
     var launchdPlistData:[String:AnyObject] = [:]  //com.jamf.ReEnroller plist data format
@@ -140,10 +142,12 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
     var mgmtAcctPwdLen      = 8
     var mgmtAcctCreate      = "true"
     var mgmtAcctHide        = "true"
-    var pkgBuildResult: Int8 = 0
+    var pkgBuildResult:Int8 = 0
     
     var newJssArray         = [String]()
     var shortHostname       = ""
+    
+    var newEnrollment       = false
     
     // read this from Jamf server
     var createConfSwitches  = ""
@@ -611,6 +615,14 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
                                         self.plistData["removeReEnroller"] = "yes" as AnyObject
                                     }
                                     // configure ReEnroller folder removal - end
+                                    
+                                    // configure new enrollment check - start
+                                    if self.newEnrollment_Button.state.rawValue == 0 {
+                                        self.plistData["newEnrollment"] = "false" as AnyObject
+                                    } else {
+                                        self.plistData["newEnrollment"] = "true" as AnyObject
+                                    }
+                                    // configure new enrollment check - end
                                     
                                     // configure mdm check - start
                                     if self.skipMdmCheck_Button.state.rawValue == 0 {
@@ -1891,6 +1903,12 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
         LogFileW?.write(LogText!)
     }
     
+    // quit the app if the window is closed - start
+    func applicationShouldTerminateAfterLastWindowClosed(_ app: NSApplication) -> Bool {
+        return true
+    }
+    // quit the app if the window is closed - end
+    
     func applicationWillFinishLaunching(_ notification: Notification) {
         
         LogFileW = FileHandle(forUpdatingAtPath: (logFilePath))
@@ -1928,6 +1946,13 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
                 theNewInvite = plistData["theNewInvite"]! as! String
                 newJssMgmtUrl = "https://\(newJSSHostname):\(newJSSPort)"
                 writeToLog(theMessage: "newServer: \(newJSSHostname)\nnewPort: \(newJSSPort)")
+                
+                // read new enrollment setting
+                if plistData["newEnrollment"] != nil {
+                    newEnrollment = plistData["newEnrollment"] as! Bool
+                } else {
+                    newEnrollment = false
+                }
                 
                 // read management account
                 if plistData["mgmtAccount"] != nil {
@@ -1999,6 +2024,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
                 
                 showReenroll_fn(self)
                 retry_TextField.stringValue = "30"
+                newEnrollment_Button.state = convertToNSControlStateValue(0)
                 removeReEnroller_Button.state = convertToNSControlStateValue(1)
                 rndPwdLen_TextField?.isEnabled = false
                 rndPwdLen_TextField?.stringValue = "8"
@@ -2013,6 +2039,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
             
             showReenroll_fn(self)
             retry_TextField.stringValue = "30"
+            newEnrollment_Button.state = convertToNSControlStateValue(0)
             removeReEnroller_Button.state = convertToNSControlStateValue(1)
             rndPwdLen_TextField?.isEnabled = false
             rndPwdLen_TextField?.stringValue = "8"
