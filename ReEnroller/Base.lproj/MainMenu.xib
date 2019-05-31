@@ -194,16 +194,17 @@
                     <box horizontalHuggingPriority="249" verticalHuggingPriority="750" boxType="separator" translatesAutoresizingMaskIntoConstraints="NO" id="jeR-4K-TT4">
                         <rect key="frame" x="0.0" y="306" width="592" height="5"/>
                     </box>
-                    <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" translatesAutoresizingMaskIntoConstraints="NO" id="lPT-4U-O1R">
-                        <rect key="frame" x="0.0" y="0.0" width="95" height="308"/>
+                    <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="lPT-4U-O1R">
+                        <rect key="frame" x="0.0" y="1" width="95" height="307"/>
                         <constraints>
                             <constraint firstAttribute="height" constant="308" id="iHY-Xg-GnL"/>
                             <constraint firstAttribute="width" constant="95" id="vvk-HK-E8a"/>
                         </constraints>
-                        <textFieldCell key="cell" controlSize="mini" sendsActionOnEndEditing="YES" alignment="center" drawsBackground="YES" id="5ie-wN-k9s">
+                        <textFieldCell key="cell" controlSize="mini" sendsActionOnEndEditing="YES" alignment="center" drawsBackground="YES" id="5ie-wN-k9s" userLabel="Distribution Method">
                             <font key="font" metaFont="system"/>
                             <string key="title">Distribution
-Method</string>
+Method
+</string>
                             <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
                             <color key="backgroundColor" red="1" green="1" blue="1" alpha="0.10316780821917808" colorSpace="custom" customColorSpace="sRGB"/>
                         </textFieldCell>
@@ -632,10 +633,10 @@ Method</string>
                         <constraints>
                             <constraint firstAttribute="height" constant="22" id="HEh-g4-I3O"/>
                         </constraints>
-                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" placeholderString="https://new.jamf.server:port" drawsBackground="YES" id="Tbx-Db-vwS">
+                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" placeholderString="https://new.jamf.server:port" drawsBackground="YES" id="Tbx-Db-vwS">
                             <font key="font" metaFont="system"/>
                             <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
-                            <color key="backgroundColor" name="systemGrayColor" catalog="System" colorSpace="catalog"/>
+                            <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                         </textFieldCell>
                     </textField>
                     <textField toolTip="Account should have administrative rights on the new Jamf server" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="eId-ZF-pBs">
@@ -755,20 +756,10 @@ Method</string>
                         </textFieldCell>
                     </textField>
                     <box verticalHuggingPriority="750" boxType="separator" translatesAutoresizingMaskIntoConstraints="NO" id="MTy-hr-Ks3">
-                        <rect key="frame" x="0.0" y="272" width="95" height="5"/>
+                        <rect key="frame" x="0.0" y="268" width="95" height="5"/>
                     </box>
-                    <button identifier="clientTab" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="wJP-CG-6T5" userLabel="enroll_button">
-                        <rect key="frame" x="-1" y="199" width="96" height="38"/>
-                        <buttonCell key="cell" type="smallSquare" title="    Client" bezelStyle="smallSquare" alignment="left" imageScaling="proportionallyUpOrDown" inset="2" id="Kra-Nh-dXS" userLabel="Client">
-                            <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
-                            <font key="font" metaFont="system"/>
-                        </buttonCell>
-                        <connections>
-                            <action selector="showEnroll_fn:" target="Voe-Tx-rLC" id="MoT-eJ-Jd1"/>
-                        </connections>
-                    </button>
                     <button identifier="PolicyTab" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="GmY-Y9-Ct1" userLabel="reEnroll_button">
-                        <rect key="frame" x="-1" y="237" width="96" height="38"/>
+                        <rect key="frame" x="0.0" y="245" width="95" height="26"/>
                         <buttonCell key="cell" type="smallSquare" title="    Policy" bezelStyle="smallSquare" alignment="left" imageScaling="proportionallyUpOrDown" inset="2" id="Wp7-mH-ovU" userLabel="Policy">
                             <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
                             <font key="font" metaFont="system"/>
@@ -777,8 +768,18 @@ Method</string>
                             <action selector="showReenroll_fn:" target="Voe-Tx-rLC" id="AUN-kx-upo"/>
                         </connections>
                     </button>
+                    <button identifier="clientTab" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="wJP-CG-6T5" userLabel="enroll_button">
+                        <rect key="frame" x="0.0" y="219" width="95" height="26"/>
+                        <buttonCell key="cell" type="smallSquare" title="    Client" bezelStyle="smallSquare" alignment="left" imageScaling="proportionallyUpOrDown" inset="2" id="Kra-Nh-dXS" userLabel="Client">
+                            <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
+                            <font key="font" metaFont="system"/>
+                        </buttonCell>
+                        <connections>
+                            <action selector="showEnroll_fn:" target="Voe-Tx-rLC" id="MoT-eJ-Jd1"/>
+                        </connections>
+                    </button>
                     <button verticalHuggingPriority="750" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="F5l-IS-zHa">
-                        <rect key="frame" x="421" y="392" width="138" height="42"/>
+                        <rect key="frame" x="421" y="390" width="138" height="42"/>
                         <buttonCell key="cell" type="check" bezelStyle="regularSquare" imagePosition="left" controlSize="small" state="on" inset="2" id="2Kw-Yb-PEx">
                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                             <string key="title">Create the account 
@@ -787,7 +788,7 @@ if it does not exist</string>
                         </buttonCell>
                     </button>
                     <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="IYF-P1-Ed6">
-                        <rect key="frame" x="421" y="379" width="119" height="20"/>
+                        <rect key="frame" x="421" y="377" width="119" height="20"/>
                         <constraints>
                             <constraint firstAttribute="height" constant="14" id="ztd-nz-7yB"/>
                         </constraints>
@@ -810,7 +811,7 @@ if it does not exist</string>
                     <constraint firstItem="lPT-4U-O1R" firstAttribute="trailing" secondItem="wJP-CG-6T5" secondAttribute="trailing" id="5Xj-hw-AY9"/>
                     <constraint firstItem="sex-gw-Xbu" firstAttribute="leading" secondItem="eId-ZF-pBs" secondAttribute="leading" id="5va-as-2cX"/>
                     <constraint firstItem="Z02-vI-8rr" firstAttribute="trailing" secondItem="F77-XY-iu0" secondAttribute="trailing" id="6Td-3l-9MY"/>
-                    <constraint firstItem="sex-gw-Xbu" firstAttribute="top" secondItem="F5l-IS-zHa" secondAttribute="top" id="9UE-iQ-vKU"/>
+                    <constraint firstItem="sex-gw-Xbu" firstAttribute="top" secondItem="F5l-IS-zHa" secondAttribute="top" constant="-2" id="9UE-iQ-vKU"/>
                     <constraint firstItem="Mu8-jI-u42" firstAttribute="leading" secondItem="EiT-Mj-1SZ" secondAttribute="leading" constant="162" id="Aev-GN-Qvk"/>
                     <constraint firstItem="Z02-vI-8rr" firstAttribute="leading" secondItem="jNC-35-iyF" secondAttribute="leading" id="Avs-64-Au2"/>
                     <constraint firstItem="Qs5-LQ-egk" firstAttribute="leading" secondItem="QzW-ja-oVb" secondAttribute="trailing" constant="4" id="Azb-DK-TsF"/>
@@ -825,6 +826,7 @@ if it does not exist</string>
                     <constraint firstItem="sex-gw-Xbu" firstAttribute="trailing" secondItem="UeO-ev-3Pi" secondAttribute="trailing" id="GdR-d4-axZ"/>
                     <constraint firstItem="lPT-4U-O1R" firstAttribute="leading" secondItem="tM8-em-yBV" secondAttribute="leading" id="Geg-sA-uD1"/>
                     <constraint firstAttribute="trailing" secondItem="Ix2-v7-KHl" secondAttribute="trailing" constant="15" id="GgB-2Q-i79"/>
+                    <constraint firstAttribute="trailing" secondItem="ARm-RJ-r6Y" secondAttribute="trailing" constant="-1" id="H27-ct-g53"/>
                     <constraint firstItem="sex-gw-Xbu" firstAttribute="leading" secondItem="r33-3e-rFC" secondAttribute="leading" id="HHi-D3-lXc"/>
                     <constraint firstItem="ARm-RJ-r6Y" firstAttribute="leading" secondItem="lPT-4U-O1R" secondAttribute="trailing" constant="8" symbolic="YES" id="HeM-l1-u9T"/>
                     <constraint firstItem="eId-ZF-pBs" firstAttribute="top" secondItem="Ix2-v7-KHl" secondAttribute="bottom" constant="7" id="Jmc-Ps-PAJ"/>
@@ -837,14 +839,14 @@ if it does not exist</string>
                     <constraint firstItem="lPT-4U-O1R" firstAttribute="top" secondItem="ARm-RJ-r6Y" secondAttribute="top" id="PaL-qW-ROv"/>
                     <constraint firstItem="lPT-4U-O1R" firstAttribute="top" secondItem="jeR-4K-TT4" secondAttribute="bottom" id="TgN-CJ-FaQ"/>
                     <constraint firstItem="lPT-4U-O1R" firstAttribute="centerX" secondItem="GmY-Y9-Ct1" secondAttribute="centerX" id="URC-iY-Oh3"/>
-                    <constraint firstItem="wJP-CG-6T5" firstAttribute="top" secondItem="MTy-hr-Ks3" secondAttribute="bottom" constant="37" id="X8o-2J-BD5"/>
+                    <constraint firstItem="wJP-CG-6T5" firstAttribute="top" secondItem="MTy-hr-Ks3" secondAttribute="bottom" constant="25" id="X8o-2J-BD5"/>
                     <constraint firstItem="Ix2-v7-KHl" firstAttribute="top" secondItem="EiT-Mj-1SZ" secondAttribute="top" constant="19" id="XW6-Qj-AzM"/>
                     <constraint firstItem="sex-gw-Xbu" firstAttribute="trailing" secondItem="r33-3e-rFC" secondAttribute="trailing" id="YBZ-dJ-DUX"/>
                     <constraint firstItem="UeO-ev-3Pi" firstAttribute="top" secondItem="sex-gw-Xbu" secondAttribute="bottom" constant="4" id="YGY-Gj-gIK"/>
                     <constraint firstItem="lPT-4U-O1R" firstAttribute="trailing" secondItem="MTy-hr-Ks3" secondAttribute="trailing" id="Z8d-yT-7Lh"/>
                     <constraint firstItem="GU0-8B-3dN" firstAttribute="top" secondItem="EiT-Mj-1SZ" secondAttribute="top" constant="250" id="ZOR-dm-OZo"/>
                     <constraint firstItem="MTy-hr-Ks3" firstAttribute="top" secondItem="GmY-Y9-Ct1" secondAttribute="top" id="ZT5-bX-IEa"/>
-                    <constraint firstItem="bWs-qh-l7v" firstAttribute="top" secondItem="IYF-P1-Ed6" secondAttribute="bottom" constant="18" id="aA2-QN-zPN"/>
+                    <constraint firstItem="bWs-qh-l7v" firstAttribute="top" secondItem="IYF-P1-Ed6" secondAttribute="bottom" constant="16" id="aA2-QN-zPN"/>
                     <constraint firstItem="sex-gw-Xbu" firstAttribute="leading" secondItem="4Mi-ts-Mkb" secondAttribute="leading" id="aNo-rI-bbj"/>
                     <constraint firstItem="sex-gw-Xbu" firstAttribute="leading" secondItem="jNC-35-iyF" secondAttribute="trailing" constant="6" id="aZ9-9h-IDJ"/>
                     <constraint firstAttribute="bottom" secondItem="ozD-B8-xaU" secondAttribute="bottom" constant="9" id="ac6-QH-97d"/>
@@ -876,7 +878,7 @@ if it does not exist</string>
                     <constraint firstItem="Z02-vI-8rr" firstAttribute="leading" secondItem="F77-XY-iu0" secondAttribute="leading" id="rvv-Ys-uj5"/>
                     <constraint firstItem="Z02-vI-8rr" firstAttribute="top" secondItem="F77-XY-iu0" secondAttribute="bottom" constant="10" id="ssT-CR-uk3"/>
                     <constraint firstItem="lPT-4U-O1R" firstAttribute="leading" secondItem="EiT-Mj-1SZ" secondAttribute="leading" id="ude-fL-xnh"/>
-                    <constraint firstItem="MTy-hr-Ks3" firstAttribute="top" secondItem="jeR-4K-TT4" secondAttribute="bottom" constant="33" id="wgB-dr-NJp"/>
+                    <constraint firstItem="MTy-hr-Ks3" firstAttribute="top" secondItem="jeR-4K-TT4" secondAttribute="bottom" constant="37" id="wgB-dr-NJp"/>
                     <constraint firstItem="IYF-P1-Ed6" firstAttribute="leading" secondItem="F5l-IS-zHa" secondAttribute="leading" id="zT1-v6-W1T"/>
                 </constraints>
             </view>

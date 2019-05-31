@@ -125,23 +125,28 @@ a:hover
 <h1 id="Heading1">ReEnroller</h1></div>
 <div id="main_body" style="position:relative;">
 <div style="font-family:Arial;font-size:13px;line-height:15px;color:#000000;">
-<div>Enter the URL and Jamf administrator credentials, or an account with at least enrollment privileges, for the new Jamf server.</div>
-<div>If you wish to retain the existing management account and the password enter those credentials.&nbsp; If you wish to change the management account and or password, or wish to use a random password a new management account must be entered.&nbsp; This must be an account not currently on the machine, it will be created during (re)enrollment.&nbsp;&nbsp; </div>
-<div>If you choose to add a configuration profile either browse to the file or drag it in.&nbsp; A common profile may include a WiFi payload used to maintain network connectivity during the re-enrollment process. Note, 802.1x profiles are not supported.</div>
-<div>For machines that were enrolled through DEP and have &lsquo;Allow MDM Profile Removal&rsquo; unchecked, you need to check the box &lsquo;Remove profiles marked in DEP as not to be removed&rsquo;.  Note, starting with High Sierra (10.13) this option no longer works if SIP is enabled.</div>
-<div>Select appropriate Site options.&nbsp; If the computer account already exists on the destination server with a Site assignemt, the Site may be preserved during re-enrollment.&nbsp; You're also able to select the Site to migrate the system into.</div>
-<div>To automatically create the policy used on the destination server to verity enrollment check the 'Create Migration Complete policy' box.</div>
-<div>If APNs is not being used on the destination server, or you wish to skip the APNs test for some other reason, check the box 'Skip MDM verification'.</div>
-<div>If you'd like to run a specific policy after migration has been verified and recon is complete select the option to do so.  Be sure to use the correct policy id from the policy on the destination server.</div>
-<div>By default the package cleans up once migration is complete.&nbsp; If you'd like to keep things in place uncheck the box for removing the ReEnroller folder.</div>
-<div>Set an interval for the process to retry re-enrollment (5 minutes or greater) in the event it fails, or keep the default of 30 minutes.  You are able to separate the launch daemon/postinstall script from the re-enrollment application by checking the box, 'Create Separate Package'.  With the box checked 2 packages will be created, one with the launchdaemon and postinstall script, the other with the re-enrollment application and settings.  This allows one to stage the application then deploy the launch daemon at a later date, or create a custom launch daemon, say to repair enrollments that have failed over time.</div>
-<div>Once everything is added click Build.</div>
+    <div>Use the ReEnroller app to generate a custom Quickadd package for your clients to (re)enroll the Mac.  Packages can be created to help migrate from one server to another or perform an initial enrollment.</div>
+<ul style="margin-left:17px;line-height: 1.4;">
+    <li>Enter the URL and Jamf administrator credentials, or an account with at least enrollment privileges, for the new Jamf server.</li>
+    <li>If you wish to retain the existing management account and the password enter those credentials.&nbsp; If you wish to change the management account and or password, or wish to use a random password a new management account must be entered.&nbsp; This must be an account not currently on the machine, it will be created during (re)enrollment.&nbsp;&nbsp; </li>
+    <li>If you choose to add a configuration profile either browse to the file or drag it in.&nbsp; A common profile may include a WiFi payload used to maintain network connectivity during the re-enrollment process. Note, 802.1x profiles are not supported.</li>
+    <li>If you wish to generate a package for an initial enrollment check 'Use for new enrollment'.</li>
+    <li>For machines that were enrolled through DEP and have &lsquo;Allow MDM Profile Removal&rsquo; unchecked, you need to check the box &lsquo;Remove profiles marked in DEP as not to be removed&rsquo;.  Note, starting with High Sierra (10.13) this option no longer works if SIP is enabled.</li>
+    <li>Select appropriate Site options.&nbsp; If the computer account already exists on the destination server with a Site assignemt, the Site may be preserved during re-enrollment.&nbsp; You're also able to select the Site to migrate the system into.</li>
+    <li>To automatically create the policy used on the destination server to verity enrollment check the 'Create Migration Complete policy' box.</li>
+    <li>If APNs is not being used on the destination server, or you wish to skip the APNs test for some other reason, check the box 'Skip MDM verification'.</li>
+    <li>If you'd like to run a specific policy after migration has been verified and recon is complete select the option to do so.  Be sure to use the correct policy id from the policy on the destination server.</li>
+    <li>By default the package cleans up once migration is complete.&nbsp; If you'd like to keep things in place uncheck the box for removing the ReEnroller folder.</li>
+    <li>If desired set the number of time the client will try the enrollment process in the event it fails for some reason.  Leaving the field blank will set the client to keep retrying until successful.</li>
+    <li>Set an interval for the process to retry re-enrollment (5 minutes or greater) in the event it fails, or keep the default of 30 minutes.  You are able to separate the launch daemon/postinstall script from the re-enrollment application by checking the box, 'Create Separate Package'.  With the box checked 2 packages will be created, one with the launchdaemon and postinstall script, the other with the re-enrollment application and settings.  This allows one to stage the application then deploy the launch daemon at a later date, or create a custom launch daemon, say to repair enrollments that have failed over time.</li>
+    </ul>
+<div>Once everything is configured click Build.</div>
 </div></div>
 <div id="app_image" style="position:relative;width: 490px;height: auto">
 <img src="images/ReEnroller.png" alt=""></div>
 <div id="main_body" style="position:relative;">
 <div style="font-family:Arial;font-size:13px;line-height:15px;color:#000000;">
-<div>After the process is complete you&rsquo;ll find a package, ReEnroller-&lt;hostname&gt;.pkg, saved to your Desktop.&nbsp; If creating a second package, ReEnrollerDaemon-&lt;hostname&gt;.pkg, will also appear on the Desktop.  Each package is ready to be deployed with a policy on the Jamf Server.</div>
+<div>After the process is complete you&rsquo;ll find a package, (Re)Enroller-&lt;hostname&gt;.pkg, saved to your Desktop.&nbsp; If creating a second package, (Re)EnrollerDaemon-&lt;hostname&gt;.pkg, will also appear on the Desktop.  Each package is ready to be deployed with a policy on the Jamf Server.</div>
 
 </div></div>
 <div id="main_body" style="position:relative;">

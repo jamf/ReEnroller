@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>maxRetries</key>
-	<integer>-1</integer>
+	<string></string>
 	<key>newEnrollment</key>
 	<string></string>
 	<key>mgmtAccount</key>

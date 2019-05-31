@@ -653,13 +653,17 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
                                     
                                     // max retries -  start
                                     let maxRetriesString = self.maxRetries_Textfield.stringValue
-                                    // verify we have a valid number
-                                    if maxRetriesString.rangeOfCharacter(from: CharacterSet.decimalDigits.inverted) != nil {
-                                        self.spinner.stopAnimation(self)
-                                        self.alert_dialog(header: "-Attention-", message: "Invalid value entered for the maximum number of retries.")
-                                        return
+                                    // verify we have a valid number or it was left blank
+                                    if maxRetriesString != "" {
+                                        if maxRetriesString.rangeOfCharacter(from: CharacterSet.decimalDigits.inverted) != nil {
+                                            self.spinner.stopAnimation(self)
+                                            self.alert_dialog(header: "-Attention-", message: "Invalid value entered for the maximum number of retries.")
+                                            return
+                                        } else {
+                                            self.plistData["maxRetries"] = self.maxRetries_Textfield.stringValue as AnyObject
+                                        }
                                     } else {
-                                        self.plistData["maxRetries"] = self.maxRetries_Textfield.stringValue as AnyObject
+                                        self.plistData["maxRetries"] = "-1" as AnyObject
                                     }
                                     // max retries - end
                                     
@@ -726,12 +730,14 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
                                     // Write settings from GUI to settings.plist
                                     (self.plistData as NSDictionary).write(toFile: settingsPlistPath, atomically: false)
                                     
+                                    let packageName = (self.newEnrollment_Button.state.rawValue == 1) ? "Enroller":"ReEnroller"
+                                    
                                     // rename existing ReEnroller.pkg if it exists - start
-                                    if self.fm.fileExists(atPath: NSHomeDirectory()+"/Desktop/ReEnroller-\(self.shortHostname).pkg") {
+                                    if self.fm.fileExists(atPath: NSHomeDirectory()+"/Desktop/\(packageName)-\(self.shortHostname).pkg") {
                                         do {
-                                            try self.fm.moveItem(atPath: NSHomeDirectory()+"/Desktop/ReEnroller-\(self.shortHostname).pkg", toPath: NSHomeDirectory()+"/Desktop/ReEnroller-\(self.shortHostname)-"+self.getDateTime(x: 1)+".pkg")
+                                            try self.fm.moveItem(atPath: NSHomeDirectory()+"/Desktop/\(packageName)-\(self.shortHostname).pkg", toPath: NSHomeDirectory()+"/Desktop/\(packageName)-\(self.shortHostname)-"+self.getDateTime(x: 1)+".pkg")
                                         } catch {
-                                            self.alert_dialog(header: "Alert", message: "Unable to rename an existing ReEnroller-\(self.shortHostname).pkg file on the Desktop.  Try renaming/removing it manually: sudo mv ~/Desktop/ReEnroller-\(self.shortHostname).pkg ~/Desktop/ReEnroller-\(self.shortHostname)-old.pkg.")
+                                            self.alert_dialog(header: "Alert", message: "Unable to rename an existing \(packageName)-\(self.shortHostname).pkg file on the Desktop.  Try renaming/removing it manually: sudo mv ~/Desktop/\(packageName)-\(self.shortHostname).pkg ~/Desktop/\(packageName)-\(self.shortHostname)-old.pkg.")
                                             exit(1)
                                         }
                                     }
@@ -739,14 +745,14 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
                                     
                                     // Create pkg of app and launchd - start
                                     if self.separatePackage_button.state.rawValue == 0 {
-                                        self.pkgBuildResult = self.myExitCode(cmd: "/usr/bin/pkgbuild", args: "--identifier", "com.jamf.ReEnroller", "--root", buildFolder, "--scripts", self.myBundlePath+"/Contents/Resources/1", NSHomeDirectory()+"/Desktop/ReEnroller-\(self.shortHostname).pkg")
+                                        self.pkgBuildResult = self.myExitCode(cmd: "/usr/bin/pkgbuild", args: "--identifier", "com.jamf.ReEnroller", "--root", buildFolder, "--scripts", self.myBundlePath+"/Contents/Resources/1", NSHomeDirectory()+"/Desktop/\(packageName)-\(self.shortHostname).pkg")
                                         
                                     } else {
-                                        self.pkgBuildResult = self.myExitCode(cmd: "/usr/bin/pkgbuild", args: "--identifier", "com.jamf.ReEnroller", "--root", buildFolder, "--scripts", self.myBundlePath+"/Contents/Resources/2", NSHomeDirectory()+"/Desktop/ReEnroller-\(self.shortHostname).pkg")
-                                        self.pkgBuildResult = self.myExitCode(cmd: "/usr/bin/pkgbuild", args: "--identifier", "com.jamf.ReEnrollerd", "--root", buildFolderd, "--scripts", self.myBundlePath+"/Contents/Resources/1", NSHomeDirectory()+"/Desktop/ReEnrollerDaemon-\(self.shortHostname).pkg")
+                                        self.pkgBuildResult = self.myExitCode(cmd: "/usr/bin/pkgbuild", args: "--identifier", "com.jamf.ReEnroller", "--root", buildFolder, "--scripts", self.myBundlePath+"/Contents/Resources/2", NSHomeDirectory()+"/Desktop/\(packageName)-\(self.shortHostname).pkg")
+                                        self.pkgBuildResult = self.myExitCode(cmd: "/usr/bin/pkgbuild", args: "--identifier", "com.jamf.ReEnrollerd", "--root", buildFolderd, "--scripts", self.myBundlePath+"/Contents/Resources/1", NSHomeDirectory()+"/Desktop/\(packageName)Daemon-\(self.shortHostname).pkg")
                                     }
                                     if self.pkgBuildResult != 0 {
-                                        self.alert_dialog(header: "-Attention-", message: "Could not create the ReEnroller(Daemon) package - exiting.")
+                                        self.alert_dialog(header: "-Attention-", message: "Could not create the \(packageName)(Daemon) package - exiting.")
                                         exit(1)
                                     }
                                     // Create pkg of app and launchd - end
@@ -765,7 +771,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
                                     }
                                     
                                     // alert the user, we're done
-                                    self.alert_dialog(header: "Attention:", message: "A package (ReEnroller-\(self.shortHostname).pkg) has been created on your desktop which is ready to be deployed with your current Jamf server.\n\nThe package \(self.includesMsg) a postinstall script to load the launch daemon and start the ReEnroller app.\(self.includesMsg2)\(self.policyMsg)")
+                                    self.alert_dialog(header: "Attention:", message: "A package (\(packageName)-\(self.shortHostname).pkg) has been created on your desktop which is ready to be deployed with your current Jamf server.\n\nThe package \(self.includesMsg) a postinstall script to load the launch daemon and start the \(packageName) app.\(self.includesMsg2)\(self.policyMsg)")
                                     // Create pkg of app and launchd - end
                                     
                                     let _ = self.myExitCode(cmd: "/bin/bash", args: "-c", "/bin/rm -fr /private/tmp/reEnroller-*")
@@ -2005,13 +2011,16 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
             } else {
                 newEnrollment = false
             }
+            writeToLog(theMessage: "New enrollment: \(newEnrollment)")
             
             // read max retries setting
+            // maxRetries was written as a string so it's value could be nil
             if plistData["maxRetries"] != nil {
-                maxRetries = plistData["maxRetries"] as! Int
+                maxRetries = Int(plistData["maxRetries"] as! String)!
             } else {
                 maxRetries = -1
             }
+            writeToLog(theMessage: "Maximum number of retries: \(maxRetries)")
             
             if plistData["newJSSHostname"] != nil && plistData["newJSSPort"] != nil && plistData["theNewInvite"] != nil {
                 writeToLog(theMessage: "Found configuration for new Jamf Pro server: \(String(describing: plistData["newJSSHostname"])), begin migration")
