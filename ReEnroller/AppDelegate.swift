@@ -84,11 +84,12 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
     @IBOutlet weak var runPolicy_Button: NSButton!
     @IBOutlet weak var policyId_Textfield: NSTextField!
     @IBOutlet weak var removeReEnroller_Button: NSButton!
+    @IBOutlet weak var maxRetries_Textfield: NSTextField!
+    @IBOutlet weak var retry_TextField: NSTextField!
+    @IBOutlet weak var separatePackage_button: NSButton!
     
     @IBOutlet weak var processQuickAdd_Button: NSButton!
     @IBOutlet weak var spinner: NSProgressIndicator!
-    @IBOutlet weak var retry_TextField: NSTextField!
-    @IBOutlet weak var separatePackage_button: NSButton!
     
     let origBinary = "/usr/local/jamf/bin/jamf"
     let bakBinary = "/Library/Application Support/JAMF/ReEnroller/backup/jamf.bak"
@@ -172,10 +173,14 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
     var Pipe_pkg            = Pipe()
     var task_pkg            = Process()
     
+    var maxRetries          = -1
+    var retryCount          = 0
+    
     // variables for client deployment
     @IBOutlet weak var enrollmentPackage: NSPathControl!
     @IBOutlet weak var remoteClient_TextField: NSTextField!
     
+    let userDefaults = UserDefaults.standard
     
     // OS version info
     let os = ProcessInfo().operatingSystemVersion
@@ -618,9 +623,9 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
                                     
                                     // configure new enrollment check - start
                                     if self.newEnrollment_Button.state.rawValue == 0 {
-                                        self.plistData["newEnrollment"] = "false" as AnyObject
+                                        self.plistData["newEnrollment"] = 0 as AnyObject
                                     } else {
-                                        self.plistData["newEnrollment"] = "true" as AnyObject
+                                        self.plistData["newEnrollment"] = 1 as AnyObject
                                     }
                                     // configure new enrollment check - end
                                     
@@ -645,6 +650,18 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
                                         }
                                     }
                                     // postInstallPolicyId - end
+                                    
+                                    // max retries -  start
+                                    let maxRetriesString = self.maxRetries_Textfield.stringValue
+                                    // verify we have a valid number
+                                    if maxRetriesString.rangeOfCharacter(from: CharacterSet.decimalDigits.inverted) != nil {
+                                        self.spinner.stopAnimation(self)
+                                        self.alert_dialog(header: "-Attention-", message: "Invalid value entered for the maximum number of retries.")
+                                        return
+                                    } else {
+                                        self.plistData["maxRetries"] = self.maxRetries_Textfield.stringValue as AnyObject
+                                    }
+                                    // max retries - end
                                     
                                     // set retry interval in launchd - start
                                     if let retryInterval = Int(self.retry_TextField.stringValue) {
@@ -774,7 +791,16 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
 //---------------------------------------------------------------------------//
 
     func beginMigration() {
-        writeToLog(theMessage: "Starting the enrollment process for the new Jamf Pro server.")
+        if retryCount > maxRetries && maxRetries > -1 {
+            // retry count has been met, stop retrying and remove the app
+            writeToLog(theMessage: "Retry count has been met, stop retrying and remove the app and related files.")
+            self.verifiedCleanup(type: "partial")
+            NSApplication.shared.terminate(self)
+        }
+        retryCount += 1
+        userDefaults.set(retryCount, forKey: "retryCount")
+        
+        writeToLog(theMessage: "Starting the enrollment process for the new Jamf Pro server.  Attempt: \(retryCount)")
         startMigrationQ.maxConcurrentOperationCount = 1
         startMigrationQ.addOperation {
             // ensure we still have network connectivity - start
@@ -827,9 +853,11 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
                                             self.writeToLog(theMessage: "Using jamf binary from the new server.")
                                             // set permissions to read and execute
                                             self.attributes[.posixPermissions] = 0o555
+                                            // remove existing symlink to jamf binary if present
                                             if self.fm.fileExists(atPath: "/usr/local/bin/jamf") {
                                                 try self.fm.removeItem(atPath: "/usr/local/bin/jamf")
                                             }
+                                            // create new sym link to jamf binary
                                             if self.myExitCode(cmd: "/bin/bash", args: "-c", "ln -s /usr/local/jamf/bin/jamf /usr/local/bin/jamf") == 0 {
                                                 self.writeToLog(theMessage: "Re-created alias for jamf binary in /usr/local/bin.")
                                             } else {
@@ -909,7 +937,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
                         
                         
                         // verify cleanup
-                        self.verifiedCleanup()
+                        self.verifiedCleanup(type: "full")
                         exit(0)
                     }   //self.download(source: - end
                 }   // passed health check, let's migrate - end
@@ -922,28 +950,37 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
         var success = true
         let backupDate = getDateTime(x: 1)
         if fm.fileExists(atPath: source) {
-            if fm.fileExists(atPath: destination) {
-                do {
-                    try fm.moveItem(atPath: destination, toPath: destination+"-"+backupDate)
-                    writeToLog(theMessage: "Backed up existing, \(destination), to "+destination+"-"+backupDate)
-                } catch {
-                    alert_dialog(header: "Alert", message: "Unable to rename existing item, \(destination).")
-                    writeToLog(theMessage: "Failed to rename \(destination).")
-                    success = false
+            if !newEnrollment {
+                if fm.fileExists(atPath: destination) {
+                    do {
+                        try fm.moveItem(atPath: destination, toPath: destination+"-"+backupDate)
+                        writeToLog(theMessage: "Backed up existing, \(destination), to "+destination+"-"+backupDate)
+                    } catch {
+                        alert_dialog(header: "Alert", message: "Unable to rename existing item, \(destination).")
+                        writeToLog(theMessage: "Failed to rename \(destination).")
+                        success = false
+                    }
+                } else {
+                    do {
+                        switch operation {
+                            case "move":
+                                try fm.moveItem(atPath: source, toPath: destination)
+                            case "copy":
+                                try fm.copyItem(atPath: source, toPath: destination)
+                            default: break
+                        }
+                        writeToLog(theMessage: "\(source) backed up to \(destination).")
+                    } catch {
+                        writeToLog(theMessage: "Unable to backup current item, \(source).")
+                        success = false
+                    }
                 }
             } else {
+                // delete existing item
                 do {
-                    switch operation {
-                        case "move":
-                            try fm.moveItem(atPath: source, toPath: destination)
-                        case "copy":
-                            try fm.copyItem(atPath: source, toPath: destination)
-                        default: break
-                    }
-                    writeToLog(theMessage: "\(source) backed up to \(destination).")
+                    try fm.removeItem(atPath: source)
                 } catch {
-                    writeToLog(theMessage: "Unable to backup current item, \(source).")
-                    success = false
+                    writeToLog(theMessage: "Unable to backup current item, \(source).  Will continue to try and enroll.")
                 }
             }
         } else {
@@ -1212,64 +1249,62 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
     func enrollNewJps(newServer: String, newInvite: String, completion: @escaping (_ enrolled: String) -> Void) {
         writeToLog(theMessage: "Starting the new enrollment.")
         
-        // remove mdm profile - start
-        if os.minorVersion < 13 {
-            if removeAllProfiles == "false" {
-                writeToLog(theMessage: "Attempting to remove mdm")
-                if myExitCode(cmd: "/usr/local/jamf/bin/jamf", args: "removemdmprofile") == 0 {
+        if !newEnrollment {
+            // remove mdm profile - start
+            if os.minorVersion < 13 {
+                if removeAllProfiles == "false" {
+                    writeToLog(theMessage: "Attempting to remove mdm")
+                    if myExitCode(cmd: "/usr/local/jamf/bin/jamf", args: "removemdmprofile") == 0 {
+                        writeToLog(theMessage: "Removed old MDM profile")
+                    } else {
+                        writeToLog(theMessage: "There was a problem removing old MDM info. Falling back to old settings and Falling back to old settings and exiting!")
+    //                    unverifiedFallback()
+    //                    exit(1)
+                        completion("failed")
+                    }
+                } else {
+                    // os.minorVersion < 13 - remove all profiles
+                    if myExitCode(cmd: "/bin/rm", args: "-fr", "/private/var/db/ConfigurationProfiles") == 0 {
+                        writeToLog(theMessage: "Removed all configuration profiles")
+                    } else {
+                        writeToLog(theMessage: "There was a problem removing all configuration profiles. Falling back to old settings and Falling back to old settings and exiting!")
+                        completion("failed")
+
+                    }
+                }
+            } else {
+                writeToLog(theMessage: "High Sierra (10.13) or later.  Checking MDM status.")
+                var counter = 0
+                // try to remove mdm with jamf command
+                if myExitCode(cmd: "/usr/local/bin/jamf", args: "removemdmprofile") == 0 {
                     writeToLog(theMessage: "Removed old MDM profile")
                 } else {
-                    writeToLog(theMessage: "There was a problem removing old MDM info. Falling back to old settings and Falling back to old settings and exiting!")
-//                    unverifiedFallback()
-//                    exit(1)
-                    completion("failed")
+                    writeToLog(theMessage: "There was a problem removing current MDM profile. Attempting remote command.")
                 }
-            } else {
-                // os.minorVersion < 13 - remove all profiles
-                if myExitCode(cmd: "/bin/rm", args: "-fr", "/private/var/db/ConfigurationProfiles") == 0 {
-                    writeToLog(theMessage: "Removed all configuration profiles")
+                while mdmInstalled(cmd: "/bin/bash", args: "-c", "/usr/bin/profiles -C | grep 00000000-0000-0000-A000-4A414D460003 | wc -l") {
+                    counter+=1
+                    _ = myExitCode(cmd: "/bin/bash", args: "-c", "killall jamf;/usr/local/bin/jamf policy -trigger apiMDM_remove")
+                    sleep(10)
+                    if counter > 6 {
+                        writeToLog(theMessage: "Failed to remove MDM through remote command - exiting")
+                        //                    unverifiedFallback()
+                        //                    exit(1)
+                        completion("failed")
+                    } else {
+                        writeToLog(theMessage: "Attempt \(counter) to remove MDM through remote command.")
+                    }
+                }
+                if counter == 0 {
+                    writeToLog(theMessage: "High Sierra (10.13) or later.  Checking MDM status shows no MDM.")
                 } else {
-                    writeToLog(theMessage: "There was a problem removing all configuration profiles. Falling back to old settings and Falling back to old settings and exiting!")
-                    //                    unverifiedFallback()
-                    //                    exit(1)
-                    completion("failed")
-
+                    writeToLog(theMessage: "High Sierra (10.13) or later.  MDM has been removed.")
                 }
             }
-        } else {
-            writeToLog(theMessage: "High Sierra (10.13) or later.  Checking MDM status.")
-            var counter = 0
-            // try to remove mdm with jamf command
-            if myExitCode(cmd: "/usr/local/bin/jamf", args: "removemdmprofile") == 0 {
-                writeToLog(theMessage: "Removed old MDM profile")
-            } else {
-                writeToLog(theMessage: "There was a problem removing current MDM profile. Attempting remote command.")
-            }
-            while mdmInstalled(cmd: "/bin/bash", args: "-c", "/usr/bin/profiles -C | grep 00000000-0000-0000-A000-4A414D460003 | wc -l") {
-                counter+=1
-                _ = myExitCode(cmd: "/bin/bash", args: "-c", "killall jamf;/usr/local/bin/jamf policy -trigger apiMDM_remove")
-                sleep(10)
-                if counter > 6 {
-                    writeToLog(theMessage: "Failed to remove MDM through remote command - exiting")
-                    //                    unverifiedFallback()
-                    //                    exit(1)
-                    completion("failed")
-                } else {
-                    writeToLog(theMessage: "Attempt \(counter) to remove MDM through remote command.")
-                }
-            }
-            if counter == 0 {
-                writeToLog(theMessage: "High Sierra (10.13) or later.  Checking MDM status shows no MDM.")
-            } else {
-                writeToLog(theMessage: "High Sierra (10.13) or later.  MDM has been removed.")
-            }
+            // remove mdm profile - end
         }
-        // remove mdm profile - end
         
         // Install profile if present - start
         if !profileInstall() {
-            //                    unverifiedFallback()
-            //                    exit(1)
             completion("failed")
         }
         // Install profile if present - end
@@ -1586,113 +1621,114 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
         }   // for i in 1...10 - end
     }
     
-    func verifiedCleanup() {
-        do {
-            try fm.removeItem(atPath: bakBinary)
-            writeToLog(theMessage: "Removed backup jamf binary.")
-        }
-        catch let error as NSError {
-            writeToLog(theMessage: "There was a problem removing backup jamf binary.  Error: \(error)")
-            //exit(1)
-        }
-        do {
-            try fm.removeItem(atPath: bakKeychainFile)
-            writeToLog(theMessage: "Removed backup jamf keychain.")
-        }
-        catch let error as NSError {
-            writeToLog(theMessage: "There was a problem removing backup jamf keychain.  Error: \(error)")
-            //exit(1)
-        }
-        do {
-            try fm.removeItem(atPath: bakjamfPlistPath)
-            writeToLog(theMessage: "Removed backup jamf plist.")
-        }
-        catch let error as NSError {
-            writeToLog(theMessage: "There was a problem removing backup jamf plist.  Error: \(error)")
-            //exit(1)
-        }
-        if os.minorVersion < 13 {
+    func verifiedCleanup(type: String) {
+        if type == "full" {
             do {
-                try fm.removeItem(atPath: bakProfilesDir)
-                writeToLog(theMessage: "Removed backup ConfigurationProfiles dir.")
+                try fm.removeItem(atPath: bakBinary)
+                writeToLog(theMessage: "Removed backup jamf binary.")
             }
             catch let error as NSError {
-                writeToLog(theMessage: "There was a problem removing backup ConfigurationProfiles dir.  Error: \(error)")
+                writeToLog(theMessage: "There was a problem removing backup jamf binary.  Error: \(error)")
                 //exit(1)
             }
-        }
-        
-        // update inventory - start
-        writeToLog(theMessage: "Launching Recon...")
-        if myExitCode(cmd: "/usr/local/bin/jamf", args: "recon") == 0 {
-            writeToLog(theMessage: "Submitting full recon to \(newJSSHostname):\(newJSSPort).")
-            _ = myExitCode(cmd: "/usr/local/bin/jamf", args: "manage")
-            sleep(10)
-        } else {
-            writeToLog(theMessage: "There was a problem submitting full recon to \(newJSSHostname):\(newJSSPort).")
-            //exit(1)
-        }
-        do {
-            if self.fm.fileExists(atPath: "/usr/local/bin/jamfAgent") {
-                try self.fm.removeItem(atPath: "/usr/local/bin/jamfAgent")
-            }
-            if self.myExitCode(cmd: "/bin/bash", args: "-c", "ln -s /usr/local/jamf/bin/jamfAgent /usr/local/bin/jamfAgent") == 0 {
-                self.writeToLog(theMessage: "Re-created alias for jamfAgent binary in /usr/local/bin.")
-            } else {
-                self.writeToLog(theMessage: "Failed to re-created alias for jamfAgent binary in /usr/local/bin.")
-            }
-        } catch {
-            if self.fm.fileExists(atPath: "/usr/local/bin/jamfAgent") {
-                self.writeToLog(theMessage: "Alias for jamfAgent binary in /usr/local/bin is ok.")
-            } else {
-                self.writeToLog(theMessage: "Alias for jamfAgent binary in /usr/local/bin could not be created.")
-            }
-        }
-        // update inventory - end
-        
-        // remove config profile if marked as such - start
-        writeToLog(theMessage: "Checking if config profile removal is required...")
-        if removeConfigProfile == "true" {
-            if !profileRemove() {
-                writeToLog(theMessage: "Unable to remove configuration profile")
-            }
-        } else {
-            writeToLog(theMessage: "Configuration profile is not marked for removal.")
-        }
-        // remove config profile if marked as such - end
-        
-        // run policy if marked to do so - start
-        if postInstallPolicyId.rangeOfCharacter(from: CharacterSet.decimalDigits.inverted) != nil {
-            writeToLog(theMessage: "There was a problem with the value for the policy id: \(postInstallPolicyId)")
-        } else {
-            if  postInstallPolicyId != "" {
-                writeToLog(theMessage: "Running policy id \(postInstallPolicyId)")
-                if myExitCode(cmd: "/usr/local/bin/jamf", args: "policy", "-id", "\(postInstallPolicyId)") == 0 {
-                    writeToLog(theMessage: "Successfully called policy id \(postInstallPolicyId)")
-                } else {
-                    writeToLog(theMessage: "There was an error calling policy id \(postInstallPolicyId)")
-                    //exit(1)
-                }
-            } else {
-                writeToLog(theMessage: "No post migration policy is set to be called.")
-            }
-        }
-        
-        // run policy if marked to do so - end
-        
-        // Remove ..JAMF/ReEnroller folder - start
-        if removeReEnroller == "yes" {
             do {
-                try fm.removeItem(atPath: "/Library/Application Support/JAMF/ReEnroller")
-                writeToLog(theMessage: "Removed ReEnroller folder.")
+                try fm.removeItem(atPath: bakKeychainFile)
+                writeToLog(theMessage: "Removed backup jamf keychain.")
             }
             catch let error as NSError {
-                writeToLog(theMessage: "There was a problem removing ReEnroller folder.  Error: \(error)")
+                writeToLog(theMessage: "There was a problem removing backup jamf keychain.  Error: \(error)")
+                //exit(1)
             }
-        } else {
-            writeToLog(theMessage: "ReEnroller folder is left intact.")
-        }
-        // Remove ..JAMF/ReEnroller folder - end
+            do {
+                try fm.removeItem(atPath: bakjamfPlistPath)
+                writeToLog(theMessage: "Removed backup jamf plist.")
+            }
+            catch let error as NSError {
+                writeToLog(theMessage: "There was a problem removing backup jamf plist.  Error: \(error)")
+                //exit(1)
+            }
+            if os.minorVersion < 13 {
+                do {
+                    try fm.removeItem(atPath: bakProfilesDir)
+                    writeToLog(theMessage: "Removed backup ConfigurationProfiles dir.")
+                }
+                catch let error as NSError {
+                    writeToLog(theMessage: "There was a problem removing backup ConfigurationProfiles dir.  Error: \(error)")
+                    //exit(1)
+                }
+            }
+        
+            // update inventory - start
+            writeToLog(theMessage: "Launching Recon...")
+            if myExitCode(cmd: "/usr/local/bin/jamf", args: "recon") == 0 {
+                writeToLog(theMessage: "Submitting full recon to \(newJSSHostname):\(newJSSPort).")
+                _ = myExitCode(cmd: "/usr/local/bin/jamf", args: "manage")
+                sleep(10)
+            } else {
+                writeToLog(theMessage: "There was a problem submitting full recon to \(newJSSHostname):\(newJSSPort).")
+                //exit(1)
+            }
+            do {
+                if self.fm.fileExists(atPath: "/usr/local/bin/jamfAgent") {
+                    try self.fm.removeItem(atPath: "/usr/local/bin/jamfAgent")
+                }
+                if self.myExitCode(cmd: "/bin/bash", args: "-c", "ln -s /usr/local/jamf/bin/jamfAgent /usr/local/bin/jamfAgent") == 0 {
+                    self.writeToLog(theMessage: "Re-created alias for jamfAgent binary in /usr/local/bin.")
+                } else {
+                    self.writeToLog(theMessage: "Failed to re-created alias for jamfAgent binary in /usr/local/bin.")
+                }
+            } catch {
+                if self.fm.fileExists(atPath: "/usr/local/bin/jamfAgent") {
+                    self.writeToLog(theMessage: "Alias for jamfAgent binary in /usr/local/bin is ok.")
+                } else {
+                    self.writeToLog(theMessage: "Alias for jamfAgent binary in /usr/local/bin could not be created.")
+                }
+            }
+            // update inventory - end
+        
+            // remove config profile if marked as such - start
+            writeToLog(theMessage: "Checking if config profile removal is required...")
+            if removeConfigProfile == "true" {
+                if !profileRemove() {
+                    writeToLog(theMessage: "Unable to remove configuration profile")
+                }
+            } else {
+                writeToLog(theMessage: "Configuration profile is not marked for removal.")
+            }
+            // remove config profile if marked as such - end
+        
+            // run policy if marked to do so - start
+            if postInstallPolicyId.rangeOfCharacter(from: CharacterSet.decimalDigits.inverted) != nil {
+                writeToLog(theMessage: "There was a problem with the value for the policy id: \(postInstallPolicyId)")
+            } else {
+                if  postInstallPolicyId != "" {
+                    writeToLog(theMessage: "Running policy id \(postInstallPolicyId)")
+                    if myExitCode(cmd: "/usr/local/bin/jamf", args: "policy", "-id", "\(postInstallPolicyId)") == 0 {
+                        writeToLog(theMessage: "Successfully called policy id \(postInstallPolicyId)")
+                    } else {
+                        writeToLog(theMessage: "There was an error calling policy id \(postInstallPolicyId)")
+                        //exit(1)
+                    }
+                } else {
+                    writeToLog(theMessage: "No post migration policy is set to be called.")
+                }
+            }
+            // run policy if marked to do so - end
+        
+            // Remove ..JAMF/ReEnroller folder - start
+            if removeReEnroller == "yes" {
+                do {
+                    try fm.removeItem(atPath: "/Library/Application Support/JAMF/ReEnroller")
+                    writeToLog(theMessage: "Removed ReEnroller folder.")
+                }
+                catch let error as NSError {
+                    writeToLog(theMessage: "There was a problem removing ReEnroller folder.  Error: \(error)")
+                }
+            } else {
+                writeToLog(theMessage: "ReEnroller folder is left intact.")
+            }
+            // Remove ..JAMF/ReEnroller folder - end
+        }   // if type == "full" - end
         
         // remove a previous launchd, if it exists, from /private/tmp
         if fm.fileExists(atPath: "/private/tmp/com.jamf.ReEnroller.plist") {
@@ -1913,6 +1949,32 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
         
         LogFileW = FileHandle(forUpdatingAtPath: (logFilePath))
         
+        retryCount = userDefaults.integer(forKey: "retryCount")
+        
+        var isDir: ObjCBool = true
+        if !fm.fileExists(atPath: "/usr/local/jamf/bin", isDirectory: &isDir) {
+            do {
+                try fm.createDirectory(atPath: "/usr/local/jamf/bin", withIntermediateDirectories: true, attributes: nil)
+                NSLog("Created jamf binary directory: /usr/local/jamf/bin")
+            } catch {
+                NSLog("failed to create jamf binary directory")
+            }
+        }
+        if !fm.fileExists(atPath: "/usr/local/bin", isDirectory: &isDir) {
+            do {
+                try fm.createDirectory(atPath: "/usr/local/bin", withIntermediateDirectories: true, attributes: nil)
+                NSLog("Created binary directory: /usr/local/bin")
+            } catch {
+                NSLog("failed to create /usr/local/bin directory")
+            }
+        }
+        
+        // create jamf log file if not present
+        if !fm.fileExists(atPath: logFilePath) {
+            print("create /private/var/log/jamf.log")
+            let _ = fm.createFile(atPath: logFilePath, contents: nil, attributes: [FileAttributeKey(rawValue: "ownerAccountID"):0, FileAttributeKey(rawValue: "groupOwnerAccountID"):80, FileAttributeKey(rawValue: "posixPermissions"):0o755])
+        }
+        
         var basePlistPath = myBundlePath
         // remove /ReEnroller.app from the basePlistPath to get path to folder
         basePlistPath = basePlistPath.substring(to: basePlistPath.index(basePlistPath.startIndex, offsetBy: (basePlistPath.count-15)))
@@ -1923,7 +1985,8 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
         if fm.fileExists(atPath: settingsFile) {
             // hide the icon from the Dock when running
             //NSApplication.shared().setActivationPolicy(NSApplicationActivationPolicy.prohibited)
-
+            print("read settings from: \(settingsFile)")
+            
             let settingsPlistXML = fm.contents(atPath: settingsFile)!
             do{
                 writeToLog(theMessage: "Reading settings from: \(settingsFile)")
@@ -1936,6 +1999,20 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
                 writeToLog(theMessage: "Error reading plist: \(error), format: \(format)")
             }
             
+            // read new enrollment setting
+            if plistData["newEnrollment"] != nil {
+                newEnrollment = plistData["newEnrollment"] as! Bool
+            } else {
+                newEnrollment = false
+            }
+            
+            // read max retries setting
+            if plistData["maxRetries"] != nil {
+                maxRetries = plistData["maxRetries"] as! Int
+            } else {
+                maxRetries = -1
+            }
+            
             if plistData["newJSSHostname"] != nil && plistData["newJSSPort"] != nil && plistData["theNewInvite"] != nil {
                 writeToLog(theMessage: "Found configuration for new Jamf Pro server: \(String(describing: plistData["newJSSHostname"])), begin migration")
                 
@@ -1946,13 +2023,6 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
                 theNewInvite = plistData["theNewInvite"]! as! String
                 newJssMgmtUrl = "https://\(newJSSHostname):\(newJSSPort)"
                 writeToLog(theMessage: "newServer: \(newJSSHostname)\nnewPort: \(newJSSPort)")
-                
-                // read new enrollment setting
-                if plistData["newEnrollment"] != nil {
-                    newEnrollment = plistData["newEnrollment"] as! Bool
-                } else {
-                    newEnrollment = false
-                }
                 
                 // read management account
                 if plistData["mgmtAccount"] != nil {
@@ -2014,8 +2084,12 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
                     }
                 } else {
                     oldURL = ""
-                    writeToLog(theMessage: "Machine is not currently enrolled, exitting.")
-                    exit(0)
+                    if !newEnrollment {
+                        writeToLog(theMessage: "Machine is not currently enrolled, exitting.")
+                        exit(0)
+                    } else {
+                        writeToLog(theMessage: "Machine is not currently enrolled, starting new enrollment.")
+                    }
                 }
                 
                 beginMigration()
