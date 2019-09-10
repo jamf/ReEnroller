@@ -7,4 +7,8 @@ if [ "$loaded" != "" ];then
     sleep 1
 fi
 
+if [ -e /private/var/root/Library/Preferences/com.jamf.pse.ReEnroller.plist ];then
+    rm /private/var/root/Library/Preferences/com.jamf.pse.ReEnroller.plist
+fi
+
 launchctl load /Library/LaunchDaemons/com.jamf.ReEnroller.plist

@@ -799,7 +799,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
     func beginMigration() {
         if retryCount > maxRetries && maxRetries > -1 {
             // retry count has been met, stop retrying and remove the app
-            writeToLog(theMessage: "Retry count has been met, stop retrying and remove the app and related files.")
+            writeToLog(theMessage: "Retry count: (\(retryCount))\nMaximum retries: \(maxRetries)\nRetry count has been met, stop retrying and remove the app and related files.")
             self.verifiedCleanup(type: "partial")
             NSApplication.shared.terminate(self)
         }
@@ -1736,6 +1736,16 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
             // Remove ..JAMF/ReEnroller folder - end
         }   // if type == "full" - end
         
+        // remove plist containing userDefaults, like the retryCount
+        if fm.fileExists(atPath: "/private/var/root/Library/Preferences/com.jamf.pse.ReEnroller.plist") {
+            do {
+                try fm.removeItem(atPath: "/private/var/root/Library/Preferences/com.jamf.pse.ReEnroller.plist")
+            } catch {
+                writeToLog(theMessage: "Unable to remove /private/var/root/Library/Preferences/com.jamf.pse.ReEnroller.plist")
+            }
+        }
+        
+        
         // remove a previous launchd, if it exists, from /private/tmp
         if fm.fileExists(atPath: "/private/tmp/com.jamf.ReEnroller.plist") {
             do {
@@ -2023,7 +2033,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
             writeToLog(theMessage: "Maximum number of retries: \(maxRetries)")
             
             if plistData["newJSSHostname"] != nil && plistData["newJSSPort"] != nil && plistData["theNewInvite"] != nil {
-                writeToLog(theMessage: "Found configuration for new Jamf Pro server: \(String(describing: plistData["newJSSHostname"])), begin migration")
+                writeToLog(theMessage: "Found configuration for new Jamf Pro server: \(String(describing: plistData["newJSSHostname"]!)), begin migration")
                 
                 // Parameters for the new emvironment
                 newJSSHostname = plistData["newJSSHostname"]! as! String
