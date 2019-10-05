@@ -281,10 +281,10 @@ curl -X POST -sku ${uname}:${pwd} ${server}JSSResource/computercommands/command/
 ?>
 </span></pre></div>
     <div>Create a policy to deploy the script.  The policy must have a custom trigger of apiMDM_remove.  Also set the policy to Ongoing.</div>
-<div id="app_image" style="position:relative;width:800px;height:390px">
+<div id="app_image" style="position:relative;width:800px;">
 <img src="images/mdmRemove_general.png" alt=""></div>
-        <div>The script requires 2 parameters, a Jamf server username and password.  The account must have at least Computers Create and Read (JSS Objects) along with Send Computer Unmanage Command (JSS Actions). A third (optional) parameter may be provided, the current Jamf server the client is enrolled in.  If the parameter is not provided the server will be read from the com.jamfsoftware.jamf.plist.</div>
-<div id="app_image" style="position:relative;width:800px;height:294px">
+        <div>The script requires 2 parameters, a Jamf server username and password.  The account must have at least Computers Create and Read (Jamf Pro Server Objects) along with Send Computer Unmanage Command (Jamf Pro Server Actions). A third (optional) parameter may be provided, the current Jamf server the client is enrolled in.  If the parameter is not provided the server will be read from the com.jamfsoftware.jamf.plist.</div>
+<div id="app_image" style="position:relative;width:800px;">
 <img src="images/mdmRemove_script.png" alt=""></div>
 </div>
 <div><hr></div>

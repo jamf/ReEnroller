@@ -844,112 +844,123 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
                     // passed health check, let's migrate
                     self.writeToLog(theMessage: "health check result: \(result[1]), looks good.")
                     
-                    // get jamf binary from new server and replace current binary - start
-                    self.download(source: "\(self.newJssMgmtUrl)/bin/jamf.gz", destination: "/Library/Application%20Support/JAMF/ReEnroller/jamf.gz") {
-                        (result: String) in
-                        self.writeToLog(theMessage: "download result: \(result)")
-                        
-                        if ( "\(result)" == "binary downloaded" ) {
-                            if self.fm.fileExists(atPath: "/Library/Application Support/JAMF/ReEnroller/jamf.gz") {
-                                self.writeToLog(theMessage: "Downloaded jamf binary from new server (\(self.newJssMgmtUrl)).")
-                                if self.backup(operation: "move", source: self.origBinary, destination: self.bakBinary) {
-                                    if self.myExitCode(cmd: "/bin/bash", args: "-c", "gunzip -f '/Library/Application Support/JAMF/ReEnroller/jamf.gz'") == 0 {
-                                        do {
-                                            try self.fm.moveItem(atPath: "/Library/Application Support/JAMF/ReEnroller/jamf", toPath: self.origBinary)
-                                            self.writeToLog(theMessage: "Using jamf binary from the new server.")
-                                            // set permissions to read and execute
-                                            self.attributes[.posixPermissions] = 0o555
-                                            // remove existing symlink to jamf binary if present
-                                            if self.fm.fileExists(atPath: "/usr/local/bin/jamf") {
-                                                try self.fm.removeItem(atPath: "/usr/local/bin/jamf")
-                                            }
-                                            // create new sym link to jamf binary
-                                            if self.myExitCode(cmd: "/bin/bash", args: "-c", "ln -s /usr/local/jamf/bin/jamf /usr/local/bin/jamf") == 0 {
-                                                self.writeToLog(theMessage: "Re-created alias for jamf binary in /usr/local/bin.")
-                                            } else {
-                                                self.writeToLog(theMessage: "Failed to re-created alias for jamf binary in /usr/local/bin.")
-                                            }
+                    if !self.fm.fileExists(atPath: "/usr/local/jamf/bin/jamf") {
+                        // get jamf binary from new server and replace current binary - start
+                        self.download(source: "\(self.newJssMgmtUrl)/bin/jamf.gz", destination: "/Library/Application%20Support/JAMF/ReEnroller/jamf.gz") {
+                            (result: String) in
+                            self.writeToLog(theMessage: "download result: \(result)")
+                            
+                            if ( "\(result)" == "binary downloaded" ) {
+                                if self.fm.fileExists(atPath: "/Library/Application Support/JAMF/ReEnroller/jamf.gz") {
+                                    self.writeToLog(theMessage: "Downloaded jamf binary from new server (\(self.newJssMgmtUrl)).")
+                                    if self.backup(operation: "move", source: self.origBinary, destination: self.bakBinary) {
+                                        if self.myExitCode(cmd: "/bin/bash", args: "-c", "gunzip -f '/Library/Application Support/JAMF/ReEnroller/jamf.gz'") == 0 {
                                             do {
-                                                try self.fm.setAttributes(self.attributes, ofItemAtPath: self.origBinary)
+                                                try self.fm.moveItem(atPath: "/Library/Application Support/JAMF/ReEnroller/jamf", toPath: self.origBinary)
+                                                self.writeToLog(theMessage: "Using jamf binary from the new server.")
+                                                // set permissions to read and execute
+                                                self.attributes[.posixPermissions] = 0o555
+                                                // remove existing symlink to jamf binary if present
+                                                if self.fm.fileExists(atPath: "/usr/local/bin/jamf") {
+                                                    try self.fm.removeItem(atPath: "/usr/local/bin/jamf")
+                                                }
+                                                // create new sym link to jamf binary
+                                                if self.myExitCode(cmd: "/bin/bash", args: "-c", "ln -s /usr/local/jamf/bin/jamf /usr/local/bin/jamf") == 0 {
+                                                    self.writeToLog(theMessage: "Re-created alias for jamf binary in /usr/local/bin.")
+                                                } else {
+                                                    self.writeToLog(theMessage: "Failed to re-created alias for jamf binary in /usr/local/bin.")
+                                                }
+                                                do {
+                                                    try self.fm.setAttributes(self.attributes, ofItemAtPath: self.origBinary)
+                                                }
+                                                if self.fm.fileExists(atPath: "/usr/local/jamf/bin/jamfAgent") {
+                                                    try self.fm.removeItem(atPath: "/usr/local/jamf/bin/jamfAgent")
+                                                }
+                                            } catch {
+                                                self.writeToLog(theMessage: "Unable to remove existing jamf binary, will rely on existing one.")
                                             }
-                                            if self.fm.fileExists(atPath: "/usr/local/jamf/bin/jamfAgent") {
-                                                try self.fm.removeItem(atPath: "/usr/local/jamf/bin/jamfAgent")
-                                            }
-                                        } catch {
-                                            self.writeToLog(theMessage: "Unable to remove existing jamf binary, will rely on existing one.")
+                                        } else {
+                                            self.writeToLog(theMessage: "Unable to unzip new jamf binary.")
                                         }
                                     } else {
-                                        self.writeToLog(theMessage: "Unable to unzip new jamf binary.")
+                                        self.writeToLog(theMessage: "Unable to backup existing jamf binary.")
                                     }
-                                } else {
-                                    self.writeToLog(theMessage: "Unable to backup existing jamf binary.")
                                 }
-                            }
-                        } else {
-                            self.unverifiedFallback()
-                            exit(1)
-                        }
-                        
-                        
-                        // backup existing jamf keychain - start
-                        if self.backup(operation: "move", source: self.origKeychainFile, destination: self.bakKeychainFile) {
-                            self.writeToLog(theMessage: "Successfully backed up jamf keychain")
-                        } else {
-                            self.writeToLog(theMessage: "Failed to backup jamf keychain")
-                            self.unverifiedFallback()
-                            exit(1)
-                        }
-                        // backup existing jamf keychain - end
-                        
-                        // backup existing jamf plist, if it exists - start
-                        if self.backup(operation: "copy", source: self.jamfPlistPath, destination: self.bakjamfPlistPath) {
-                            self.writeToLog(theMessage: "Successfully backed up jamf plist")
-                        } else {
-                            self.writeToLog(theMessage: "Failed to backup jamf plist, rollback is not possible")
-                            //            unverifiedFallback()
-                            //            exit(1)
-                        }
-                        // backup existing jamf plist, if it exists - end
-                        
-                        // backup existing ConfigurationProfiles dir, if present - start
-                        if self.os.minorVersion < 13 {
-                            if self.backup(operation: "copy", source: self.origProfilesDir, destination: self.bakProfilesDir) {
-                                self.writeToLog(theMessage: "Successfully backed up current ConfigurationProfiles")
                             } else {
-                                self.writeToLog(theMessage: "Failed to backup current ConfigurationProfiles")
                                 self.unverifiedFallback()
                                 exit(1)
                             }
-                        } else {
-                            self.writeToLog(theMessage: "ConfigurationProfiles is not backed up on machines with High Sierra or later due to SIP.")
-                        }
-                        // backup existing ConfigurationProfiles dir, if present - end
-                        
-                        // rename management account if present - start
-                        
-                        // rename management account if present - end
-                        
-                        // Let's enroll
-                        self.enrollNewJps(newServer: self.newJssMgmtUrl, newInvite: self.theNewInvite) {
-                            (enrolled: String) in
-                            if ( enrolled == "failed" ) {
-                                self.unverifiedFallback()
-                                exit(1)
-                            } else {
-                                // Verify the enrollment
-                                self.verifyNewEnrollment()
-                            }
-                        }
-                        
-                        
-                        // verify cleanup
-                        self.verifiedCleanup(type: "full")
-                        exit(0)
-                    }   //self.download(source: - end
+                            self.backupAndEnroll()
+                        }   //self.download(source: - end
+
+                    } else {
+                        // jamf binary already exists - start backup and re-enrollment process
+                        self.backupAndEnroll()
+                    }
+                    
                 }   // passed health check, let's migrate - end
             }   // healthCheck(server: newJssMgmtUrl) - end
         }   // startMigrationQ.addOperation - end
     }   // func beginMigration() - end
+    
+    // backupAndEnroll - start
+    func backupAndEnroll() {
+        // backup existing jamf keychain - start
+        if self.backup(operation: "copy", source: self.origKeychainFile, destination: self.bakKeychainFile) {
+            self.writeToLog(theMessage: "Successfully backed up jamf keychain")
+        } else {
+            self.writeToLog(theMessage: "Failed to backup jamf keychain")
+            self.unverifiedFallback()
+            exit(1)
+        }
+        // backup existing jamf keychain - end
+        
+        // backup existing jamf plist, if it exists - start
+        if self.backup(operation: "copy", source: self.jamfPlistPath, destination: self.bakjamfPlistPath) {
+            self.writeToLog(theMessage: "Successfully backed up jamf plist")
+        } else {
+            self.writeToLog(theMessage: "Failed to backup jamf plist, rollback is not possible")
+            //            unverifiedFallback()
+            //            exit(1)
+        }
+        // backup existing jamf plist, if it exists - end
+        
+        // backup existing ConfigurationProfiles dir, if present - start
+        if self.os.minorVersion < 13 {
+            if self.backup(operation: "copy", source: self.origProfilesDir, destination: self.bakProfilesDir) {
+                self.writeToLog(theMessage: "Successfully backed up current ConfigurationProfiles")
+            } else {
+                self.writeToLog(theMessage: "Failed to backup current ConfigurationProfiles")
+                self.unverifiedFallback()
+                exit(1)
+            }
+        } else {
+            self.writeToLog(theMessage: "ConfigurationProfiles is not backed up on machines with High Sierra or later due to SIP.")
+        }
+        // backup existing ConfigurationProfiles dir, if present - end
+        
+        // rename management account if present - start
+        
+        // rename management account if present - end
+        
+        // Let's enroll
+        self.enrollNewJps(newServer: self.newJssMgmtUrl, newInvite: self.theNewInvite) {
+            (enrolled: String) in
+            if ( enrolled == "failed" ) {
+                self.unverifiedFallback()
+                exit(1)
+            } else {
+                // Verify the enrollment
+                self.verifyNewEnrollment()
+            }
+        }
+        
+        
+        // verify cleanup
+        self.verifiedCleanup(type: "full")
+        exit(0)
+    }
+    // backupAndEnroll - end
     
     // backup up item - start
     func backup(operation: String, source: String, destination: String) -> Bool {
@@ -1282,24 +1293,26 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
                 writeToLog(theMessage: "High Sierra (10.13) or later.  Checking MDM status.")
                 var counter = 0
                 // try to remove mdm with jamf command
-                if myExitCode(cmd: "/usr/local/bin/jamf", args: "removemdmprofile") == 0 {
+                _ = myExitCode(cmd: "/usr/local/bin/jamf", args: "removemdmprofile")
+                if !mdmInstalled(cmd: "/bin/bash", args: "-c", "/usr/bin/profiles -C | grep 00000000-0000-0000-A000-4A414D460003 | wc -l") {
                     writeToLog(theMessage: "Removed old MDM profile")
                 } else {
-                    writeToLog(theMessage: "There was a problem removing current MDM profile. Attempting remote command.")
+                    writeToLog(theMessage: "Unable to remove MDM using the jamf binary, attempting remote command.")
+                    while mdmInstalled(cmd: "/bin/bash", args: "-c", "/usr/bin/profiles -C | grep 00000000-0000-0000-A000-4A414D460003 | wc -l") {
+                        counter+=1
+                        _ = myExitCode(cmd: "/bin/bash", args: "-c", "killall jamf;/usr/local/bin/jamf policy -trigger apiMDM_remove")
+                        sleep(10)
+                        if counter > 6 {
+                            writeToLog(theMessage: "Failed to remove MDM through remote command - exiting")
+                            //                    unverifiedFallback()
+                            //                    exit(1)
+                            completion("failed")
+                        } else {
+                            writeToLog(theMessage: "Attempt \(counter) to remove MDM through remote command.")
+                        }
+                    }   // while mdmInstalled - end
                 }
-                while mdmInstalled(cmd: "/bin/bash", args: "-c", "/usr/bin/profiles -C | grep 00000000-0000-0000-A000-4A414D460003 | wc -l") {
-                    counter+=1
-                    _ = myExitCode(cmd: "/bin/bash", args: "-c", "killall jamf;/usr/local/bin/jamf policy -trigger apiMDM_remove")
-                    sleep(10)
-                    if counter > 6 {
-                        writeToLog(theMessage: "Failed to remove MDM through remote command - exiting")
-                        //                    unverifiedFallback()
-                        //                    exit(1)
-                        completion("failed")
-                    } else {
-                        writeToLog(theMessage: "Attempt \(counter) to remove MDM through remote command.")
-                    }
-                }
+
                 if counter == 0 {
                     writeToLog(theMessage: "High Sierra (10.13) or later.  Checking MDM status shows no MDM.")
                 } else {
@@ -1744,6 +1757,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
                 writeToLog(theMessage: "Unable to remove /private/var/root/Library/Preferences/com.jamf.pse.ReEnroller.plist")
             }
         }
+        userDefaults.set(1, forKey: "retryCount")
         
         
         // remove a previous launchd, if it exists, from /private/tmp
