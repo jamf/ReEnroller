@@ -2,7 +2,6 @@
 
 Download: [ReEnroller](./releases/download/current/ReEnroller.zip)
 
-A tool to migrate data granularly between Jamf Pro servers
 
 ![alt text](https://github.com/BIG-RAT/ReEnroller/blob/master/ReEnroller/images/ReEnroller.png "ReEnroller")
 
