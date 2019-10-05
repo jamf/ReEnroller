@@ -4,7 +4,7 @@ Download: [ReEnroller](./releases/download/current/ReEnroller.zip)
 
 A tool to migrate data granularly between Jamf Pro servers
 
-![alt text](./blob/master/ReEnroller/images/ReEnroller.png "ReEnroller")
+![alt text](https://github.com/BIG-RAT/ReEnroller/blob/master/ReEnroller/images/ReEnroller.png "ReEnroller")
 
 
 Easily migrate a computer from one Jamf server to another.  Use ReEnroller to build a package to take a macOS device enrolled in one Jamf server and enroll it into another.
