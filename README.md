@@ -17,6 +17,8 @@ Use ReEnroller to build a package to take a macOS device enrolled in one Jamf se
 * Select a policy to run after a successful enrollment.
 * Deploy the package with policy or push it to an individual machine from within the app.
 
+Important: After enrolling in the new server the user must approve the MDM profile for macOS 10.13 and above.
+
 **Be sure to view the help for detailed usage instructions.
 
 Thanks @fauxserve for coming up with the idea and initial bash version.
