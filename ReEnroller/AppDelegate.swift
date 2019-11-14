@@ -745,10 +745,10 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
                                     
                                     // Create pkg of app and launchd - start
                                     if self.separatePackage_button.state.rawValue == 0 {
-                                        self.pkgBuildResult = self.myExitCode(cmd: "/usr/bin/pkgbuild", args: "--identifier", "com.jamf.ReEnroller", "--root", buildFolder, "--scripts", self.myBundlePath+"/Contents/Resources/1", NSHomeDirectory()+"/Desktop/\(packageName)-\(self.shortHostname).pkg")
+                                        self.pkgBuildResult = self.myExitCode(cmd: "/usr/bin/pkgbuild", args: "--identifier", "com.jamf.ReEnroller", "--root", buildFolder, "--scripts", self.myBundlePath+"/Contents/Resources/1", "--component-plist", self.myBundlePath+"/Contents/Resources/ReEnroller-component.plist", NSHomeDirectory()+"/Desktop/\(packageName)-\(self.shortHostname).pkg")
                                         
                                     } else {
-                                        self.pkgBuildResult = self.myExitCode(cmd: "/usr/bin/pkgbuild", args: "--identifier", "com.jamf.ReEnroller", "--root", buildFolder, "--scripts", self.myBundlePath+"/Contents/Resources/2", NSHomeDirectory()+"/Desktop/\(packageName)-\(self.shortHostname).pkg")
+                                        self.pkgBuildResult = self.myExitCode(cmd: "/usr/bin/pkgbuild", args: "--identifier", "com.jamf.ReEnroller", "--root", buildFolder, "--scripts", self.myBundlePath+"/Contents/Resources/2", "--component-plist", self.myBundlePath+"/Contents/Resources/ReEnroller-component.plist", NSHomeDirectory()+"/Desktop/\(packageName)-\(self.shortHostname).pkg")
                                         self.pkgBuildResult = self.myExitCode(cmd: "/usr/bin/pkgbuild", args: "--identifier", "com.jamf.ReEnrollerd", "--root", buildFolderd, "--scripts", self.myBundlePath+"/Contents/Resources/1", NSHomeDirectory()+"/Desktop/\(packageName)Daemon-\(self.shortHostname).pkg")
                                     }
                                     if self.pkgBuildResult != 0 {
@@ -1844,6 +1844,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
         serverRequest.httpMethod = "GET"
         let serverConf = URLSessionConfiguration.default
         
+        self.writeToLog(theMessage: "Performing a health check against: \(healthCheckUrl)")
         let session = Foundation.URLSession(configuration: serverConf, delegate: self, delegateQueue: OperationQueue.main)
         let task = session.dataTask(with: serverRequest as URLRequest, completionHandler: {
             (data, response, error) -> Void in
@@ -1852,11 +1853,11 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
                     responseData = String(data: data!, encoding: .utf8)!
                     responseData = responseData.replacingOccurrences(of: "\n", with: "")
                     responseData = responseData.replacingOccurrences(of: "\r", with: "")
-                    print("healthCheck response code: \(httpResponse.statusCode)")
-                    print("healthCheck response: \(responseData)")
+                    self.writeToLog(theMessage: "healthCheck response code: \(httpResponse.statusCode)")
+                    self.writeToLog(theMessage: "healthCheck response: \(responseData)")
                     completion(["\(httpResponse.statusCode)","\(responseData)"])
                 } else {
-                    print("No data was returned from health check.")
+                    self.writeToLog(theMessage: "No data was returned from health check.")
                     completion(["\(httpResponse.statusCode)",""])
                 }
                 

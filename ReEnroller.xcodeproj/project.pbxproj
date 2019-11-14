@@ -10,6 +10,7 @@
 		B50831051E5A87F900133D1B /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B50831041E5A87F900133D1B /* AppDelegate.swift */; };
 		B50831071E5A87F900133D1B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B50831061E5A87F900133D1B /* Assets.xcassets */; };
 		B508310A1E5A87F900133D1B /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = B50831081E5A87F900133D1B /* MainMenu.xib */; };
+		B5100AC9237E0BFA00E4DA40 /* ReEnroller-component.plist in Resources */ = {isa = PBXBuildFile; fileRef = B5100AC8237E0BFA00E4DA40 /* ReEnroller-component.plist */; };
 		B514454D1F7CB187000B4055 /* index.html in Resources */ = {isa = PBXBuildFile; fileRef = B514454C1F7CB187000B4055 /* index.html */; };
 		B5319B211E5F3E9200268E38 /* settings.plist in Resources */ = {isa = PBXBuildFile; fileRef = B5319B201E5F3E9200268E38 /* settings.plist */; };
 		B541FD52215D79CB004D6B6C /* command.swift in Sources */ = {isa = PBXBuildFile; fileRef = B541FD51215D79CB004D6B6C /* command.swift */; };
@@ -30,6 +31,7 @@
 		B50831061E5A87F900133D1B /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		B50831091E5A87F900133D1B /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/MainMenu.xib; sourceTree = "<group>"; };
 		B508310B1E5A87F900133D1B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		B5100AC8237E0BFA00E4DA40 /* ReEnroller-component.plist */ = {isa = PBXFileReference; lastKnownFileType = file.bplist; path = "ReEnroller-component.plist"; sourceTree = "<group>"; };
 		B514454C1F7CB187000B4055 /* index.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = index.html; sourceTree = "<group>"; };
 		B5319B201E5F3E9200268E38 /* settings.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = settings.plist; sourceTree = "<group>"; };
 		B541FD51215D79CB004D6B6C /* command.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = command.swift; sourceTree = "<group>"; };
@@ -87,6 +89,7 @@
 				B508310B1E5A87F900133D1B /* Info.plist */,
 				B5319B201E5F3E9200268E38 /* settings.plist */,
 				B5DBA04E1E5FCA2A00FA52CE /* com.jamf.ReEnroller.plist */,
+				B5100AC8237E0BFA00E4DA40 /* ReEnroller-component.plist */,
 				B5A43ED5204335F30012CB53 /* 1 */,
 				B5A43ED32043359A0012CB53 /* 2 */,
 				B5AC20301F258F4200C16EAA /* help */,
@@ -198,6 +201,7 @@
 				B5319B211E5F3E9200268E38 /* settings.plist in Resources */,
 				B5A43ED42043359A0012CB53 /* 2 in Resources */,
 				B5DBA04F1E5FCA2A00FA52CE /* com.jamf.ReEnroller.plist in Resources */,
+				B5100AC9237E0BFA00E4DA40 /* ReEnroller-component.plist in Resources */,
 				B508310A1E5A87F900133D1B /* MainMenu.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
