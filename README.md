@@ -2,11 +2,7 @@
 
 Download: [ReEnroller](https://github.com/BIG-RAT/ReEnroller/releases/download/current/ReEnroller.zip)
 
-<<<<<<< HEAD
 Easily migrate a computer from one Jamf server to another.
-=======
-Easily migrate a computer from one Jamf server to another.  
->>>>>>> a21411759ae2b5ede828a2a6a626478961307055
 
 ![alt text](https://github.com/BIG-RAT/ReEnroller/blob/master/ReEnroller/images/ReEnroller.png "ReEnroller")
 
