@@ -797,6 +797,9 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
 //---------------------------------------------------------------------------//
 
     func beginMigration() {
+        
+        var binaryExists = false
+        
         if retryCount > maxRetries && maxRetries > -1 {
             // retry count has been met, stop retrying and remove the app
             writeToLog(theMessage: "Retry count: (\(retryCount))\nMaximum retries: \(maxRetries)\nRetry count has been met, stop retrying and remove the app and related files.")
@@ -845,58 +848,68 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
                     self.writeToLog(theMessage: "health check result: \(result[1]), looks good.")
                     
                     if !self.fm.fileExists(atPath: "/usr/local/jamf/bin/jamf") {
-                        // get jamf binary from new server and replace current binary - start
-                        self.download(source: "\(self.newJssMgmtUrl)/bin/jamf.gz", destination: "/Library/Application%20Support/JAMF/ReEnroller/jamf.gz") {
-                            (result: String) in
-                            self.writeToLog(theMessage: "download result: \(result)")
-                            
-                            if ( "\(result)" == "binary downloaded" ) {
-                                if self.fm.fileExists(atPath: "/Library/Application Support/JAMF/ReEnroller/jamf.gz") {
-                                    self.writeToLog(theMessage: "Downloaded jamf binary from new server (\(self.newJssMgmtUrl)).")
-                                    if self.backup(operation: "move", source: self.origBinary, destination: self.bakBinary) {
-                                        if self.myExitCode(cmd: "/bin/bash", args: "-c", "gunzip -f '/Library/Application Support/JAMF/ReEnroller/jamf.gz'") == 0 {
-                                            do {
-                                                try self.fm.moveItem(atPath: "/Library/Application Support/JAMF/ReEnroller/jamf", toPath: self.origBinary)
-                                                self.writeToLog(theMessage: "Using jamf binary from the new server.")
-                                                // set permissions to read and execute
-                                                self.attributes[.posixPermissions] = 0o555
-                                                // remove existing symlink to jamf binary if present
-                                                if self.fm.fileExists(atPath: "/usr/local/bin/jamf") {
-                                                    try self.fm.removeItem(atPath: "/usr/local/bin/jamf")
-                                                }
-                                                // create new sym link to jamf binary
-                                                if self.myExitCode(cmd: "/bin/bash", args: "-c", "ln -s /usr/local/jamf/bin/jamf /usr/local/bin/jamf") == 0 {
-                                                    self.writeToLog(theMessage: "Re-created alias for jamf binary in /usr/local/bin.")
-                                                } else {
-                                                    self.writeToLog(theMessage: "Failed to re-created alias for jamf binary in /usr/local/bin.")
-                                                }
-                                                do {
-                                                    try self.fm.setAttributes(self.attributes, ofItemAtPath: self.origBinary)
-                                                }
-                                                if self.fm.fileExists(atPath: "/usr/local/jamf/bin/jamfAgent") {
-                                                    try self.fm.removeItem(atPath: "/usr/local/jamf/bin/jamfAgent")
-                                                }
-                                            } catch {
-                                                self.writeToLog(theMessage: "Unable to remove existing jamf binary, will rely on existing one.")
+                        self.writeToLog(theMessage: "Existing jamf binary found: /usr/local/jamf/bin/jamf")
+                        binaryExists = true
+                    }
+                    
+                    // get jamf binary from new server and replace current binary - start
+                    self.download(source: "\(self.newJssMgmtUrl)/bin/jamf.gz", destination: "/Library/Application%20Support/JAMF/ReEnroller/jamf.gz") {
+                        (result: String) in
+                        self.writeToLog(theMessage: "download result: \(result)")
+                        
+                        if ( "\(result)" == "binary downloaded" ) {
+                            if self.fm.fileExists(atPath: "/Library/Application Support/JAMF/ReEnroller/jamf.gz") {
+                                self.writeToLog(theMessage: "Downloaded jamf binary from new server (\(self.newJssMgmtUrl)).")
+                                if self.backup(operation: "move", source: self.origBinary, destination: self.bakBinary) {
+                                    if self.myExitCode(cmd: "/bin/bash", args: "-c", "gunzip -f '/Library/Application Support/JAMF/ReEnroller/jamf.gz'") == 0 {
+                                        do {
+                                            try self.fm.moveItem(atPath: "/Library/Application Support/JAMF/ReEnroller/jamf", toPath: self.origBinary)
+                                            self.writeToLog(theMessage: "Using jamf binary from the new server.")
+                                            // set permissions to read and execute
+                                            self.attributes[.posixPermissions] = 0o555
+                                            // remove existing symlink to jamf binary if present
+                                            if self.fm.fileExists(atPath: "/usr/local/bin/jamf") {
+                                                try self.fm.removeItem(atPath: "/usr/local/bin/jamf")
                                             }
-                                        } else {
-                                            self.writeToLog(theMessage: "Unable to unzip new jamf binary.")
+                                            // create new sym link to jamf binary
+                                            if self.myExitCode(cmd: "/bin/bash", args: "-c", "ln -s /usr/local/jamf/bin/jamf /usr/local/bin/jamf") == 0 {
+                                                self.writeToLog(theMessage: "Re-created alias for jamf binary in /usr/local/bin.")
+                                            } else {
+                                                self.writeToLog(theMessage: "Failed to re-created alias for jamf binary in /usr/local/bin.")
+                                            }
+                                            do {
+                                                try self.fm.setAttributes(self.attributes, ofItemAtPath: self.origBinary)
+                                            }
+                                            if self.fm.fileExists(atPath: "/usr/local/jamf/bin/jamfAgent") {
+                                                try self.fm.removeItem(atPath: "/usr/local/jamf/bin/jamfAgent")
+                                            }
+                                            binaryExists = true
+                                        } catch {
+                                            self.writeToLog(theMessage: "Unable to remove existing jamf binary, will rely on existing one.")
                                         }
                                     } else {
-                                        self.writeToLog(theMessage: "Unable to backup existing jamf binary.")
+                                        self.writeToLog(theMessage: "Unable to unzip new jamf binary.")
                                     }
+                                } else {
+                                    self.writeToLog(theMessage: "Unable to backup existing jamf binary.")
                                 }
-                            } else {
-                                self.unverifiedFallback()
-                                exit(1)
                             }
+                        } //else {
+//                            self.unverifiedFallback()
+//                            exit(1)
+//                        }
+                        if binaryExists {
+                            self.writeToLog(theMessage: "Start backing up items.")
                             self.backupAndEnroll()
-                        }   //self.download(source: - end
-
-                    } else {
-                        // jamf binary already exists - start backup and re-enrollment process
-                        self.backupAndEnroll()
-                    }
+                        } else {
+                            self.unverifiedFallback()
+                            exit(1)
+                        }
+                    }  //self.download(source: - end
+//                    } else {
+//                        // jamf binary already exists - start backup and re-enrollment process
+//                        self.backupAndEnroll()
+//                    }
                     
                 }   // passed health check, let's migrate - end
             }   // healthCheck(server: newJssMgmtUrl) - end
@@ -1977,6 +1990,9 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
     // quit the app if the window is closed - end
     
     func applicationWillFinishLaunching(_ notification: Notification) {
+
+        let appInfo = Bundle.main.infoDictionary!
+        let version = appInfo["CFBundleShortVersionString"] as! String
         
         LogFileW = FileHandle(forUpdatingAtPath: (logFilePath))
         
@@ -2036,7 +2052,11 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
             } else {
                 newEnrollment = false
             }
+            writeToLog(theMessage: "================================")
+            writeToLog(theMessage: "ReEnroller Version: \(version)")
+            writeToLog(theMessage: "================================")
             writeToLog(theMessage: "New enrollment: \(newEnrollment)")
+            
             
             // read max retries setting
             // maxRetries was written as a string so it's value could be nil
