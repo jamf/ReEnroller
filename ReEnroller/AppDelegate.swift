@@ -415,7 +415,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
             (result: [String]) in
             print("health check result: \(result)")
             if ( result[1] != "[]" ) {
-                let lightFormat = result[1].replacingOccurrences(of: "><", with: ">\n<")
+                let lightFormat = self.removeTag(xmlString: result[1].replacingOccurrences(of: "><", with: ">\n<"))
                 self.alert_dialog(header: "Attention", message: "The new server, \(jssUrl), does not appear ready for enrollments.\nResult of healthCheck: \(lightFormat)\nResponse code: \(result[0])")
                 return
             } else {
@@ -465,7 +465,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
                         let responseCode = result[0] as! Int
                         let responseMesage = result[1] as! String
                         if !(responseCode > 199 && responseCode < 300) {
-                            let lightFormat = responseMesage.replacingOccurrences(of: "><", with: ">\n<")
+                            let lightFormat = self.removeTag(xmlString: responseMesage.replacingOccurrences(of: "><", with: ">\n<"))
                             self.alert_dialog(header: "Attention", message: "Failed to create invitation code.\nMessage: \(lightFormat)\nResponse code: \(responseCode)")
                             self.spinner.stopAnimation(self)
                             return
@@ -833,7 +833,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
             self.healthCheck(server: self.newJssMgmtUrl) {
                 (result: [String]) in
                 if ( result[1] != "[]" ) {
-                    let lightFormat = result[1].replacingOccurrences(of: "><", with: ">\n<")
+                    let lightFormat = self.removeTag(xmlString: result[1].replacingOccurrences(of: "><", with: ">\n<"))
                     self.writeToLog(theMessage: "The new server, \(self.newJssMgmtUrl), does not appear ready for enrollments.\n\t\tResult of healthCheck: \(lightFormat)\n\t\tResponse code: \(result[0])")
                     //              remove config profile if one was installed
                     if self.profileUuid != "" {
@@ -2244,6 +2244,11 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
         task.resume()
     }
 //    --------------------------------------- grab sites - end ---------------------------------------
+    
+    func removeTag(xmlString: String) -> String {
+        let newString = xmlString.replacingOccurrences(of: "<[^>]+>", with: "", options: .regularExpression, range: nil)
+        return newString
+    }
     
     func xmlEncode(rawString: String) -> String {
         var encodedString = rawString
