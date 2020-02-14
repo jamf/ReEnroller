@@ -305,9 +305,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
                     siteArray = siteArray.sorted()
                 }
 //                print("sorted sites: \(siteArray)")
-                for theSite in siteArray {
-                    self.site_Button.addItems(withTitles: [theSite])
-                }
+
                 return [:]
             }
             // get all the sites - end
@@ -417,7 +415,8 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
             (result: [String]) in
             print("health check result: \(result)")
             if ( result[1] != "[]" ) {
-                self.alert_dialog(header: "Attention", message: "The new server, \(jssUrl), does not appear ready for enrollments.\nResult of healthCheck: \(result[1])\nResponse code: \(result[0])")
+                let lightFormat = result[1].replacingOccurrences(of: "><", with: ">\n<")
+                self.alert_dialog(header: "Attention", message: "The new server, \(jssUrl), does not appear ready for enrollments.\nResult of healthCheck: \(lightFormat)\nResponse code: \(result[0])")
                 return
             } else {
                 // server is reachable
@@ -466,7 +465,8 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
                         let responseCode = result[0] as! Int
                         let responseMesage = result[1] as! String
                         if !(responseCode > 199 && responseCode < 300) {
-                            self.alert_dialog(header: "Attention", message: "Failed to create invitation code.\nMessage: \(responseMesage)\nResponse code: \(responseCode)")
+                            let lightFormat = responseMesage.replacingOccurrences(of: "><", with: ">\n<")
+                            self.alert_dialog(header: "Attention", message: "Failed to create invitation code.\nMessage: \(lightFormat)\nResponse code: \(responseCode)")
                             self.spinner.stopAnimation(self)
                             return
                         } else {
@@ -798,7 +798,8 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
 
     func beginMigration() {
         
-        var binaryExists = false
+        var binaryExists     = false
+        var binaryDownloaded = false
         
         if retryCount > maxRetries && maxRetries > -1 {
             // retry count has been met, stop retrying and remove the app
@@ -832,7 +833,8 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
             self.healthCheck(server: self.newJssMgmtUrl) {
                 (result: [String]) in
                 if ( result[1] != "[]" ) {
-                    self.writeToLog(theMessage: "The new server, \(self.newJssMgmtUrl), does not appear ready for enrollments.\n\t\tResult of healthCheck: \(result[1])\n\t\tResponse code: \(result[0])")
+                    let lightFormat = result[1].replacingOccurrences(of: "><", with: ">\n<")
+                    self.writeToLog(theMessage: "The new server, \(self.newJssMgmtUrl), does not appear ready for enrollments.\n\t\tResult of healthCheck: \(lightFormat)\n\t\tResponse code: \(result[0])")
                     //              remove config profile if one was installed
                     if self.profileUuid != "" {
                         if !self.profileRemove() {
@@ -860,6 +862,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
                         if ( "\(result)" == "binary downloaded" ) {
                             if self.fm.fileExists(atPath: "/Library/Application Support/JAMF/ReEnroller/jamf.gz") {
                                 self.writeToLog(theMessage: "Downloaded jamf binary from new server (\(self.newJssMgmtUrl)).")
+                                binaryDownloaded = true
                                 if self.backup(operation: "move", source: self.origBinary, destination: self.bakBinary) {
                                     if self.myExitCode(cmd: "/bin/bash", args: "-c", "gunzip -f '/Library/Application Support/JAMF/ReEnroller/jamf.gz'") == 0 {
                                         do {
@@ -894,11 +897,12 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
                                     self.writeToLog(theMessage: "Unable to backup existing jamf binary.")
                                 }
                             }
-                        } //else {
-//                            self.unverifiedFallback()
-//                            exit(1)
-//                        }
+                        }
+                        
                         if binaryExists {
+                            if !binaryDownloaded {
+                                self.writeToLog(theMessage: "Failed to download new jamf binary.  Attempting migration with existing binary.")
+                            }
                             self.writeToLog(theMessage: "Start backing up items.")
                             self.backupAndEnroll()
                         } else {
