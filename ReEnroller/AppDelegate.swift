@@ -411,12 +411,16 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
 //            self.alert_dialog(header: "Attention", message: "The new server, \(jssUrl), could not be contacted.")
 //            return
 //        }
+
+        self.spinner.startAnimation(self)
+        
         healthCheck(server: jssUrl) {
             (result: [String]) in
             print("health check result: \(result)")
             if ( result[1] != "[]" ) {
                 let lightFormat = self.removeTag(xmlString: result[1].replacingOccurrences(of: "><", with: ">\n<"))
                 self.alert_dialog(header: "Attention", message: "The new server, \(jssUrl), does not appear ready for enrollments.\nResult of healthCheck: \(lightFormat)\nResponse code: \(result[0])")
+                self.spinner.stopAnimation(self)
                 return
             } else {
                 // server is reachable
@@ -425,13 +429,12 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
                 
                 if "\(self.jssUsername)" == "" || "\(self.jssPassword))" == "" {
                     self.alert_dialog(header: "Alert", message: "Please provide both a username and password for the server.")
+                    self.spinner.stopAnimation(self)
                     return
                 }
                 
                 let jpsCredentials = "\(self.jssUsername):\(self.jssPassword)"
                 let jpsBase64Creds = jpsCredentials.data(using: .utf8)?.base64EncodedString() ?? ""
-                
-                self.spinner.startAnimation(self)
                 
                 // get SSL verification settings from new server - start
 //                self.plistData["createConfSwitches"] =
@@ -448,8 +451,8 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
                         self.plistData["createConfSwitches"] = verifySslSetting as AnyObject
                         print("verifySSLCert setting from server: \(verifySslSetting)")
                     }
-                  
                     // get SSL verification settings from new server - end
+                    
                     self.retainSite_Button.state.rawValue == 1 ? (self.retainSite = "true") : (self.retainSite = "false")
                     self.mgmtAcctCreate_button.state.rawValue == 1 ? (self.mgmtAcctCreate = "true") : (self.mgmtAcctCreate = "false")
                     self.mgmtAcctHide_button.state.rawValue == 1 ? (self.mgmtAcctHide = "true") : (self.mgmtAcctHide = "false")
