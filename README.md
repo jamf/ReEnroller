@@ -24,6 +24,6 @@ Important: After enrolling in the new server the user must approve the MDM profi
 Thanks @fauxserve for coming up with the idea and initial bash version.
 
 ## History
-- 20-02-14: Additional logging, including the version of the app. UI updates to include removal of xml tags in alerts. Modified process of download the jamf binary from the destination server.
+- 20-02-14: Additional logging, including the version of the app. UI updates to include removal of xml tags in alerts. Modified process of downloading the jamf binary from the destination server.
 
 - 19-11-14: Fixed issue that prevented the re-enrollment process from working if the ReEnroller app was on the machine prior to running the package.
