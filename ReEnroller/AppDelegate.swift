@@ -305,6 +305,9 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
                     siteArray = siteArray.sorted()
                 }
 //                print("sorted sites: \(siteArray)")
+                for theSite in siteArray {
+                    self.site_Button.addItems(withTitles: [theSite])
+                }
 
                 return [:]
             }
@@ -2202,13 +2205,14 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
         let task = serverSession.dataTask(with: serverRequest as URLRequest, completionHandler: {
             (data, response, error) -> Void in
             if let httpResponse = response as? HTTPURLResponse {
-                // print("httpResponse: \(String(describing: response))")
+//                print("[getSites] httpResponse: \(String(describing: response))")
                 do {
                     let json = try? JSONSerialization.jsonObject(with: data!, options: .allowFragments)
                     //                    print("\(json)")
                     if let endpointJSON = json as? [String: Any] {
                         if let siteEndpoints = endpointJSON["sites"] as? [Any] {
                             let siteCount = siteEndpoints.count
+//                            print("[getSites] siteCount: \(String(describing: siteCount))")
                             if siteCount > 0 {
                                 for i in (0..<siteCount) {
                                     // print("site \(i): \(siteEndpoints[i])")
@@ -2230,6 +2234,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
                     //print(httpResponse.statusCode)
                     
                     self.site_Button.isEnabled = true
+//                    print("[getSites] local_allSites: \(String(describing: local_allSites))")
                     completion(local_allSites)
                 } else {
                     // something went wrong
