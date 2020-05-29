@@ -128,6 +128,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
     var newJSSURL           = ""
     var newJSSHostname      = ""
     var newJSSPort          = ""
+    var httpProtocol        = ""
     
     let safeCharSet         = CharacterSet.alphanumerics
     var jssUsername         = ""
@@ -144,6 +145,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
     var mgmtAcctCreate      = "true"
     var mgmtAcctHide        = "true"
     var pkgBuildResult:Int8 = 0
+    var localhostname       = ""
     
     var newJssArray         = [String]()
     var shortHostname       = ""
@@ -476,7 +478,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
                             self.spinner.stopAnimation(self)
                             return
                         } else {
-                            print("full reply for invitiation code request:\n\t\(responseMesage)\n")
+                            print("full reply for invitation code request:\n\t\(responseMesage)\n")
                             if let start = responseMesage.range(of: "<invitation>"),
                                 let end  = responseMesage.range(of: "</invitation>", range: start.upperBound..<(responseMesage.endIndex)) {
                                 self.theNewInvite.append((String(responseMesage[start.upperBound..<end.lowerBound])))
@@ -511,6 +513,10 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
                                     
                                     self.plistData["theNewInvite"] = self.theNewInvite as AnyObject
                                     
+                                    // determine if we're communicating securely
+                                    self.httpProtocol = (jssUrl.lowercased().prefix(5) == "https") ? "https":"http"
+                                    self.plistData["httpProtocol"] = self.httpProtocol as AnyObject
+                                    
                                     jssUrl = jssUrl.lowercased().replacingOccurrences(of: "https://", with: "")
                                     jssUrl = jssUrl.lowercased().replacingOccurrences(of: "http://", with: "")
                                     (self.newJSSHostname, self.newJSSPort) = self.getHost_getPort(theURL: jssUrl)
@@ -521,7 +527,8 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
                                     self.newJssArray[0] == "" ? (self.shortHostname = "new") : (self.shortHostname = self.newJssArray[0])
                                     
                                     //        print("newJSSPort: \(newJSSPort)")
-                                    self.newJssMgmtUrl = "https://\(self.newJSSHostname):\(self.newJSSPort)"
+                                    
+                                    self.newJssMgmtUrl = "\(self.httpProtocol)://\(self.newJSSHostname):\(self.newJSSPort)"
                                     //        print("newJssMgmtUrl: \(newJssMgmtUrl)")
                                     
                                     self.plistData["newJSSHostname"] = self.newJSSHostname as AnyObject
@@ -806,6 +813,8 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
         
         var binaryExists     = false
         var binaryDownloaded = false
+        
+        localhostname = Host.current().localizedName ?? ""
         
         if retryCount > maxRetries && maxRetries > -1 {
             // retry count has been met, stop retrying and remove the app
@@ -1135,7 +1144,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
         if x == 1 {
             date_formatter.dateFormat = "YYYYMMdd_HHmmss"
         } else {
-            date_formatter.dateFormat = "E d MMM yyyy HH:mm:ss"
+            date_formatter.dateFormat = "E MMM d HH:mm:ss"
         }
         let stringDate = date_formatter.string(from: date)
         
@@ -1373,8 +1382,6 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
             writeToLog(theMessage: "Created JAMF config file for \(newServer)")
         } else {
             writeToLog(theMessage: "There was a problem creating JAMF config file for \(newServer). Falling back to old settings and exiting.")
-            //                    unverifiedFallback()
-            //                    exit(1)
             completion("failed")
         }
 
@@ -1384,9 +1391,6 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
             writeToLog(theMessage: "Enrolled to new Jamf Server: \(newServer)")
         } else {
             writeToLog(theMessage: "There was a problem enrolling to new Jamf Server: \(newServer). Falling back to old settings and exiting!")
-//            writeToLog(theMessage: "/usr/local/bin/jamf enroll -invitation \(newInvite) -noRecon -noPolicy -noManage")
-            //                    unverifiedFallback()
-            //                    exit(1)
             completion("failed")
         }
         
@@ -1395,8 +1399,6 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
             writeToLog(theMessage: "checkjssconnection for \(newServer) was successful")
         } else {
             writeToLog(theMessage: "There was a problem checking the Jamf Server Connection to \(newServer). Falling back to old settings and exiting!")
-            //                    unverifiedFallback()
-            //                    exit(1)
             completion("failed")
         }
         
@@ -1417,8 +1419,6 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
             completion("succeeded")
         } else {
             writeToLog(theMessage: "There was a problem getting management framework from new JPS. Falling back to old settings and exiting!")
-            //                    unverifiedFallback()
-            //                    exit(1)
             completion("failed")
         }
         
@@ -1915,7 +1915,6 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
         }
         
         //Create URL to the source file you want to download
-        //        let fileURL = URL(string: "https://lhelou.jamfcloud.com/bin/SelfService.tar.gz")
         let fileURL = URL(string: "\(source)")
         
         let sessionConfig = URLSessionConfiguration.default
@@ -1988,7 +1987,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
     
     func writeToLog(theMessage: String) {
         LogFileW?.seekToEndOfFile()
-        let fullMessage = getDateTime(x: 2) + " [ReEnroller]:    " + theMessage + "\n"
+        let fullMessage = getDateTime(x: 2) + " \(localhostname) [ReEnroller]:    " + theMessage + "\n"
         let LogText = (fullMessage as NSString).data(using: String.Encoding.utf8.rawValue)
         LogFileW?.write(LogText!)
     }
@@ -2003,6 +2002,8 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
 
         let appInfo = Bundle.main.infoDictionary!
         let version = appInfo["CFBundleShortVersionString"] as! String
+        
+        localhostname = Host.current().localizedName ?? ""
         
         LogFileW = FileHandle(forUpdatingAtPath: (logFilePath))
         
@@ -2082,11 +2083,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
                 
                 // Parameters for the new emvironment
                 newJSSHostname = plistData["newJSSHostname"]! as! String
-                newJSSPort = plistData["newJSSPort"]! as! String
-
-                theNewInvite = plistData["theNewInvite"]! as! String
-                newJssMgmtUrl = "https://\(newJSSHostname):\(newJSSPort)"
-                writeToLog(theMessage: "newServer: \(newJSSHostname)\nnewPort: \(newJSSPort)")
+                newJSSPort     = plistData["newJSSPort"]! as! String
                 
                 // read management account
                 if plistData["mgmtAccount"] != nil {
@@ -2118,7 +2115,16 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
                 if plistData["postInstallPolicyId"] != nil {
                     postInstallPolicyId = plistData["postInstallPolicyId"]! as! String
                 }
+                if plistData["httpProtocol"] != nil {
+                    httpProtocol = self.plistData["httpProtocol"] as! String
+                } else {
+                    httpProtocol = "https"
+                }
                 
+                theNewInvite = plistData["theNewInvite"]! as! String
+                newJssMgmtUrl = "\(httpProtocol)://\(newJSSHostname):\(newJSSPort)"
+                writeToLog(theMessage: "newServer: \(newJSSHostname)\nnewPort: \(newJSSPort)")
+                                
                 
                 // look for an existing jamf plist file
                 if fm.fileExists(atPath: jamfPlistPath) {
