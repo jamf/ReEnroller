@@ -431,6 +431,10 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
                 // server is reachable
                 self.jssUsername = self.jssUsername_TextField.stringValue //.addingPercentEncoding(withAllowedCharacters: safeCharSet)!
                 self.jssPassword = self.jssPassword_TextField.stringValue //.addingPercentEncoding(withAllowedCharacters: safeCharSet)!
+                // save Jamf Pro URL and user
+                self.userDefaults.set("\(self.jssUrl_TextField.stringValue)", forKey: "jamfProUrl")
+                self.userDefaults.set("\(self.jssUsername_TextField.stringValue)", forKey: "jamfProUser")
+                self.userDefaults.synchronize()
                 
                 if "\(self.jssUsername)" == "" || "\(self.jssPassword))" == "" {
                     self.alert_dialog(header: "Alert", message: "Please provide both a username and password for the server.")
@@ -603,10 +607,17 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
                                             }
                                             // add config profile values to settings - start
                                             do {
-                                                let one = try String(contentsOf: self.profile_PathControl.url! as URL, encoding: String.Encoding.ascii).components(separatedBy: "</string><key>PayloadType</key>")
-                                                let PayloadUUID = one[0].components(separatedBy: "<key>PayloadUUID</key><string>")
-                                                //                    print ("\(PayloadUUID[1])")
-                                                self.plistData["profileUUID"] = "\(PayloadUUID[1])" as AnyObject
+                                                var cleanedProfile = ""
+                                                var payloadUUID    = ""
+                                                let one = try String(contentsOf: self.profile_PathControl.url! as URL, encoding: String.Encoding.ascii)
+                                                let regexClean  = try! NSRegularExpression(pattern: "<array>(.|\n|\r)*?</array>", options:.caseInsensitive)
+                                                cleanedProfile  = regexClean.stringByReplacingMatches(in: one, options: [], range: NSRange(0..<one.utf16.count), withTemplate: "")
+                                                let regexClean2 = try! NSRegularExpression(pattern: "</key>(.|\n|\r)*?<string>", options:.caseInsensitive)
+                                                cleanedProfile  = regexClean2.stringByReplacingMatches(in: cleanedProfile, options: [], range: NSRange(0..<cleanedProfile.utf16.count), withTemplate: "</key><string>")
+                                                let textArray   = cleanedProfile.components(separatedBy: "<key>PayloadUUID</key><string>")
+                                                payloadUUID     = "\(textArray[1].prefix(36))"
+                                                self.plistData["profileUUID"] = "\(payloadUUID)" as AnyObject
+//                                                self.plistData["profileUUID"] = "\(PayloadUUID[1])" as AnyObject
                                                 if self.removeProfile_Button.state.rawValue == 0 {
                                                     self.plistData["removeProfile"] = "false" as AnyObject
                                                 } else {
@@ -2008,6 +2019,9 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
         LogFileW = FileHandle(forUpdatingAtPath: (logFilePath))
         
         retryCount = userDefaults.integer(forKey: "retryCount")
+        
+        jssUrl_TextField.stringValue      = userDefaults.string(forKey: "jamfProUrl") ?? ""
+        jssUsername_TextField.stringValue = userDefaults.string(forKey: "jamfProUser") ?? ""
         
         var isDir: ObjCBool = true
         if !fm.fileExists(atPath: "/usr/local/jamf/bin", isDirectory: &isDir) {
