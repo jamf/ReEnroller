@@ -24,6 +24,8 @@ Important: After enrolling in the new server the user must approve the MDM profi
 Thanks @fauxserve for coming up with the idea and initial bash version.
 
 ## History
+- 20-06-05: Added ability to use unsigned mobileconfig profiles (app no longer crashes).  Jamf Pro URL and user are now saved between launches.  Added ability to enroll using an unsecure (http) URL, provided the server is configured to allow this.
+
 - 20-03-20: Fixed issue where the sites button would not populate.
   
 - 20-02-14: Additional logging, including the version of the app. UI updates to include removal of xml tags in alerts. Modified process of downloading the jamf binary from the destination server.
