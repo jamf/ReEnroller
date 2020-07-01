@@ -949,7 +949,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
     // backupAndEnroll - start
     func backupAndEnroll() {
         // backup existing jamf keychain - start
-        if self.backup(operation: "copy", source: self.origKeychainFile, destination: self.bakKeychainFile) {
+        if self.backup(operation: "move", source: self.origKeychainFile, destination: self.bakKeychainFile) {
             self.writeToLog(theMessage: "Successfully backed up jamf keychain")
         } else {
             self.writeToLog(theMessage: "Failed to backup jamf keychain")
@@ -1677,33 +1677,41 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
     func verifiedCleanup(type: String) {
         if type == "full" {
             do {
-                try fm.removeItem(atPath: bakBinary)
-                writeToLog(theMessage: "Removed backup jamf binary.")
+                if fm.fileExists(atPath: bakBinary) {
+                    try fm.removeItem(atPath: bakBinary)
+                    writeToLog(theMessage: "Removed backup jamf binary.")
+                }
             }
             catch let error as NSError {
                 writeToLog(theMessage: "There was a problem removing backup jamf binary.  Error: \(error)")
                 //exit(1)
             }
             do {
-                try fm.removeItem(atPath: bakKeychainFile)
-                writeToLog(theMessage: "Removed backup jamf keychain.")
+                if fm.fileExists(atPath: bakKeychainFile) {
+                    try fm.removeItem(atPath: bakKeychainFile)
+                    writeToLog(theMessage: "Removed backup jamf keychain.")
+                }
             }
             catch let error as NSError {
                 writeToLog(theMessage: "There was a problem removing backup jamf keychain.  Error: \(error)")
                 //exit(1)
             }
             do {
-                try fm.removeItem(atPath: bakjamfPlistPath)
-                writeToLog(theMessage: "Removed backup jamf plist.")
+                if fm.fileExists(atPath: bakjamfPlistPath) {
+                    try fm.removeItem(atPath: bakjamfPlistPath)
+                    writeToLog(theMessage: "Removed backup jamf plist.")
+                }
             }
             catch let error as NSError {
                 writeToLog(theMessage: "There was a problem removing backup jamf plist.  Error: \(error)")
                 //exit(1)
             }
-            if os.minorVersion < 13 {
+            if os.majorVersion == 10 && os.minorVersion < 13 {
                 do {
-                    try fm.removeItem(atPath: bakProfilesDir)
-                    writeToLog(theMessage: "Removed backup ConfigurationProfiles dir.")
+                    if fm.fileExists(atPath: bakProfilesDir) {
+                        try fm.removeItem(atPath: bakProfilesDir)
+                        writeToLog(theMessage: "Removed backup ConfigurationProfiles dir.")
+                    }
                 }
                 catch let error as NSError {
                     writeToLog(theMessage: "There was a problem removing backup ConfigurationProfiles dir.  Error: \(error)")
@@ -1809,11 +1817,12 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
                 try fm.moveItem(atPath: "/Library/LaunchDaemons/com.jamf.ReEnroller.plist", toPath: "/private/tmp/com.jamf.ReEnroller.plist")
                 writeToLog(theMessage: "Moved launchd to /private/tmp.")
                 
-                // unload the launchd
+                // migration complete - unload the launchd
+                writeToLog(theMessage: "===================================================================")
+                writeToLog(theMessage: "= ReEnrollment Complete - this should be the last message logged! =")
+                writeToLog(theMessage: "===================================================================")
                 if myExitCode(cmd: "/bin/launchctl", args: "unload", "/tmp/com.jamf.ReEnroller.plist") != 0 {
                     writeToLog(theMessage: "There was a problem unloading the launchd.")
-                } else {
-                    writeToLog(theMessage: "Launchd unloaded.")
                 }
                 
             } catch {
