@@ -829,7 +829,9 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
         
         if retryCount > maxRetries && maxRetries > -1 {
             // retry count has been met, stop retrying and remove the app
-            writeToLog(theMessage: "Retry count: (\(retryCount))\nMaximum retries: \(maxRetries)\nRetry count has been met, stop retrying and remove the app and related files.")
+            writeToLog(theMessage: "Retry count: \(retryCount)")
+            writeToLog(theMessage: "Maximum retries: \(maxRetries)")
+            writeToLog(theMessage: "Retry count has been met, stop retrying and remove the app and related files")
             self.verifiedCleanup(type: "partial")
             NSApplication.shared.terminate(self)
         }
@@ -1818,9 +1820,11 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
                 writeToLog(theMessage: "Moved launchd to /private/tmp.")
                 
                 // migration complete - unload the launchd
-                writeToLog(theMessage: "===================================================================")
-                writeToLog(theMessage: "= ReEnrollment Complete - this should be the last message logged! =")
-                writeToLog(theMessage: "===================================================================")
+                if type == "full" {
+                    writeToLog(theMessage: "===================================================================")
+                    writeToLog(theMessage: "= ReEnrollment Complete - this should be the last message logged! =")
+                    writeToLog(theMessage: "===================================================================")
+                }
                 if myExitCode(cmd: "/bin/launchctl", args: "unload", "/tmp/com.jamf.ReEnroller.plist") != 0 {
                     writeToLog(theMessage: "There was a problem unloading the launchd.")
                 }
