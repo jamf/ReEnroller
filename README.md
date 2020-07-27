@@ -24,6 +24,8 @@ Important: After enrolling in the new server the user must approve the MDM profi
 Thanks @fauxserve for coming up with the idea and initial bash version.
 
 ## History
+- 20-07-27: Fixed device signature error that would occur when calling the remove mdm profile policy.
+
 - 20-06-30: Cleaned up logging and added checks to see if backup files exist before attempting to delete them.
 
 - 20-06-05: Added ability to use unsigned mobileconfig profiles (app no longer crashes).  Jamf Pro URL and user are now saved between launches.  Added ability to enroll using an unsecure (http) URL, provided the server is configured to allow this.
