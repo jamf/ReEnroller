@@ -951,7 +951,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
     // backupAndEnroll - start
     func backupAndEnroll() {
         // backup existing jamf keychain - start
-        if self.backup(operation: "move", source: self.origKeychainFile, destination: self.bakKeychainFile) {
+        if self.backup(operation: "copy", source: self.origKeychainFile, destination: self.bakKeychainFile) {
             self.writeToLog(theMessage: "Successfully backed up jamf keychain")
         } else {
             self.writeToLog(theMessage: "Failed to backup jamf keychain")
