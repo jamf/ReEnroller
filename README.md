@@ -19,7 +19,7 @@ Use ReEnroller to build a package to take a macOS device enrolled in one Jamf se
 
 Important: After enrolling in the new server the user must approve the MDM profile for macOS 10.13 and above.<p>
 
-**Be sure to view the help for detailed usage instructions.
+\* **Be sure to view the help for detailed usage instructions.**
 
 Thanks @fauxserve for coming up with the idea and initial bash version.
 
