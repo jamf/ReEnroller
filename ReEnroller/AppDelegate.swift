@@ -59,6 +59,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
     @IBOutlet weak var quickAdd_PathControl: NSPathControl!
     @IBOutlet weak var profile_PathControl: NSPathControl!
     @IBOutlet weak var removeProfile_Button: NSButton!  // removeProfile_Button.state == 1 if checked
+    @IBOutlet weak var jamfSchool_Button: NSButton!
     @IBOutlet weak var newEnrollment_Button: NSButton!
     @IBOutlet weak var removeAllProfiles_Button: NSButton!
     
@@ -70,6 +71,16 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
     @IBOutlet weak var mgmtAcctPwd_TextField: NSSecureTextField!
     @IBOutlet weak var mgmtAcctPwd2_TextField: NSSecureTextField!
     @IBOutlet weak var rndPwdLen_TextField: NSTextField?
+    
+    // For Jamf School
+    @IBOutlet weak var jamfSchoolBgnd_TextField: NSTextField!
+    @IBOutlet weak var jamfSchoolHeader_Label: NSTextField!
+    @IBOutlet weak var jamfSchoolUrl_Label: NSTextField!
+    @IBOutlet weak var jamfSchoolUrl_TextField: NSTextField!
+    @IBOutlet weak var networkId_Label: NSTextField!
+    @IBOutlet weak var apiKey_Label: NSTextField!
+    @IBOutlet weak var networkId_TextField: NSTextField!
+    @IBOutlet weak var apiKey_TextField: NSTextField!
     
     // management account buttons
     @IBOutlet weak var mgmtAcctCreate_button: NSButton!
@@ -170,6 +181,11 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
     var removeConfigProfile = ""
     var removeAllProfiles   = ""
     
+    // Jamf School
+    var jamfSchoolMigration = 0
+    var jamfSchoolUrl       = ""
+    var jamfSchoolToken     = ""
+    
 //    var safePackageURL      = ""
     var safeProfileURL      = ""
     var Pipe_pkg            = Pipe()
@@ -203,12 +219,37 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
         help_Window.setIsVisible(true)
     }
     
+    @IBAction func jamfSchool_fn(_ sender: Any) {
+        DispatchQueue.main.async {
+            if self.jamfSchool_Button.state.rawValue == 1 {
+                self.jamfSchoolBgnd_TextField.isHidden = false
+                self.jamfSchoolHeader_Label.isHidden   = false
+                self.jamfSchoolUrl_Label.isHidden      = false
+                self.jamfSchoolUrl_TextField.isHidden  = false
+                self.networkId_Label.isHidden          = false
+                self.networkId_TextField.isHidden      = false
+                self.apiKey_Label.isHidden             = false
+                self.apiKey_TextField.isHidden         = false
+            } else {
+                self.jamfSchoolBgnd_TextField.isHidden = true
+                self.jamfSchoolHeader_Label.isHidden   = true
+                self.jamfSchoolUrl_Label.isHidden      = true
+                self.jamfSchoolUrl_TextField.isHidden  = true
+                self.networkId_Label.isHidden          = true
+                self.networkId_TextField.isHidden      = true
+                self.apiKey_Label.isHidden             = true
+                self.apiKey_TextField.isHidden         = true
+            }
+        }
+    }
+    
     @IBAction func showReenroll_fn(_ sender: Any) {
         reEnroll_button.isBordered = true
         enroll_button.isBordered = false
         processQuickAdd_Button.isEnabled = true
         reconMode_TabView.selectTabViewItem(at: 0)
     }
+    
     @IBAction func showEnroll_fn(_ sender: NSButton) {
         reEnroll_button.isBordered = false
         enroll_button.isBordered = true
@@ -356,6 +397,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
             mgmtAccount_TextField.becomeFirstResponder()
             return
         }
+        
         // fix special characters in management account name
         let mgmtAcctNameXml = xmlEncode(rawString: mgmtAcct)
         
@@ -416,6 +458,21 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
 //            self.alert_dialog(header: "Attention", message: "The new server, \(jssUrl), could not be contacted.")
 //            return
 //        }
+        
+        // Jamf School check - start
+        if jamfSchool_Button.state.rawValue == 1 {
+            if networkId_TextField.stringValue == "" || apiKey_TextField.stringValue == "" {
+                alert_dialog(header: "Attention:", message: "Migrating from Jamf School requires the server URL, the Network ID, and API key.")
+                return
+            } else {
+               // generate token for Jamf School API
+                let jamfSchoolCreds               = "\(networkId_TextField.stringValue):\(apiKey_TextField.stringValue)"
+                let jamfSchoolBase64Creds         = jamfSchoolCreds.data(using: .utf8)?.base64EncodedString() ?? ""
+                self.plistData["jamfSchoolUrl"]   = jamfSchoolUrl_TextField.stringValue as AnyObject
+                self.plistData["jamfSchoolToken"] = jamfSchoolBase64Creds as AnyObject
+           }
+        }
+        // Jamf School check - start
 
         self.spinner.startAnimation(self)
         
@@ -645,8 +702,16 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
                                     }
                                     // configure ReEnroller folder removal - end
                                     
+                                    // Jamf School migration check - start
+                                    if self.jamfSchool_Button.state.rawValue == 0 {
+                                        self.plistData["jamfSchool"] = 0 as AnyObject
+                                    } else {
+                                        self.plistData["jamfSchool"] = 1 as AnyObject
+                                    }
+                                    // Jamf School migration check - end
+                                    
                                     // configure new enrollment check - start
-                                    if self.newEnrollment_Button.state.rawValue == 0 {
+                                    if self.newEnrollment_Button.state.rawValue == 0 && self.jamfSchool_Button.state.rawValue == 0 {
                                         self.plistData["newEnrollment"] = 0 as AnyObject
                                     } else {
                                         self.plistData["newEnrollment"] = 1 as AnyObject
@@ -1415,6 +1480,24 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
             completion("failed")
         }
         
+        // Handle MDM operations - start
+       // check if we're migrating from Jamf School
+        if jamfSchoolMigration == 1 {
+            var counter = 0
+            while mdmInstalled(cmd: "/bin/bash", args: "-c", "/usr/bin/profiles -C | grep com.apple.mdm | wc -l") {
+                counter+=1
+                _ = myExitCode(cmd: "/bin/bash", args: "-c", "killall jamf;/usr/local/bin/jamf policy -trigger jamfSchoolUnenroll")
+                sleep(10)
+                if counter > 6 {
+                    writeToLog(theMessage: "Failed to remove Jamf School MDM through remote command - exiting")
+                    completion("failed")
+                    return
+                } else {
+                    writeToLog(theMessage: "Attempt \(counter) to remove Jamf School MDM through remote command.")
+                }
+            }   // while mdmInstalled - end
+        }
+        
         // enable mdm
         if skipMdmCheck == "no" {
             if myExitCode(cmd: "/usr/local/bin/jamf", args: "mdm") == 0 {
@@ -1434,6 +1517,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
             writeToLog(theMessage: "There was a problem getting management framework from new JPS. Falling back to old settings and exiting!")
             completion("failed")
         }
+        // Handle MDM operations - end
         
     }
     
@@ -1863,12 +1947,12 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
             if let httpResponse = response as? HTTPURLResponse {
                 if let _ = String(data: data!, encoding: .utf8) {
                     responseData = String(data: data!, encoding: .utf8)!
-                    responseData = responseData.replacingOccurrences(of: "\n", with: "")
+                    responseData = responseData.replacingOccurrences(of: "\n", with: " ")
                     print("response code: \(httpResponse.statusCode)")
                     print("response: \(responseData)")
                     completion([httpResponse.statusCode,"\(responseData)"])
                 } else {
-                    print("No data was returned from health check.")
+                    print("No data was returned from \(action).")
                     completion([httpResponse.statusCode,""])
                 }
                 
@@ -1878,6 +1962,18 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
         })
         task.resume()
     }   // func apiAction - end
+    
+    func getSystemUUID() -> String? {
+        let dev = IOServiceMatching("IOPlatformExpertDevice")
+        let platformExpert: io_service_t = IOServiceGetMatchingService(kIOMasterPortDefault, dev)
+        let serialNumberAsCFString = IORegistryEntryCreateCFProperty(platformExpert, kIOPlatformUUIDKey as CFString, kCFAllocatorDefault, 0)
+        IOObjectRelease(platformExpert)
+        let ser: CFTypeRef = serialNumberAsCFString?.takeUnretainedValue() as CFTypeRef
+        if let result = ser as? String {
+            return result
+        }
+        return nil
+    }
     
     func healthCheck(server: String, completion: @escaping (_ result: [String]) -> Void) {
         URLCache.shared.removeAllCachedResponses()
@@ -2147,6 +2243,14 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
                 } else {
                     httpProtocol = "https"
                 }
+                
+//                jamfSchoolMigration = (plistData["jamfSchool"] ?? "" as AnyObject) as! String
+                jamfSchoolMigration = plistData["jamfSchool"]! as? Int ?? 0
+                
+                writeToLog(theMessage: "jamfSchoolMigration: \(jamfSchoolMigration)")
+                
+                jamfSchoolUrl       = plistData["jamfSchoolUrl"]! as? String ?? ""
+                jamfSchoolToken     = plistData["jamfSchoolToken"]! as? String ?? ""
                 
                 theNewInvite = plistData["theNewInvite"]! as! String
                 newJssMgmtUrl = "\(httpProtocol)://\(newJSSHostname):\(newJSSPort)"
