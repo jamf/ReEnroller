@@ -13,6 +13,7 @@
 		B5100AC9237E0BFA00E4DA40 /* ReEnroller-component.plist in Resources */ = {isa = PBXBuildFile; fileRef = B5100AC8237E0BFA00E4DA40 /* ReEnroller-component.plist */; };
 		B514454D1F7CB187000B4055 /* index.html in Resources */ = {isa = PBXBuildFile; fileRef = B514454C1F7CB187000B4055 /* index.html */; };
 		B51D2F1E24DB88D70024DFEC /* ApiCall.swift in Sources */ = {isa = PBXBuildFile; fileRef = B51D2F1D24DB88D70024DFEC /* ApiCall.swift */; };
+		B51D2F2024DCD60D0024DFEC /* ObjectXML.swift in Sources */ = {isa = PBXBuildFile; fileRef = B51D2F1F24DCD60D0024DFEC /* ObjectXML.swift */; };
 		B5319B211E5F3E9200268E38 /* settings.plist in Resources */ = {isa = PBXBuildFile; fileRef = B5319B201E5F3E9200268E38 /* settings.plist */; };
 		B541FD52215D79CB004D6B6C /* command.swift in Sources */ = {isa = PBXBuildFile; fileRef = B541FD51215D79CB004D6B6C /* command.swift */; };
 		B55A276A1EACE2DD00AF8398 /* build-reenroller.png in Resources */ = {isa = PBXBuildFile; fileRef = B55A27691EACE2DD00AF8398 /* build-reenroller.png */; };
@@ -35,6 +36,7 @@
 		B5100AC8237E0BFA00E4DA40 /* ReEnroller-component.plist */ = {isa = PBXFileReference; lastKnownFileType = file.bplist; path = "ReEnroller-component.plist"; sourceTree = "<group>"; };
 		B514454C1F7CB187000B4055 /* index.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = index.html; sourceTree = "<group>"; };
 		B51D2F1D24DB88D70024DFEC /* ApiCall.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ApiCall.swift; sourceTree = "<group>"; };
+		B51D2F1F24DCD60D0024DFEC /* ObjectXML.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ObjectXML.swift; sourceTree = "<group>"; };
 		B5319B201E5F3E9200268E38 /* settings.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = settings.plist; sourceTree = "<group>"; };
 		B541FD51215D79CB004D6B6C /* command.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = command.swift; sourceTree = "<group>"; };
 		B55A27691EACE2DD00AF8398 /* build-reenroller.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "build-reenroller.png"; sourceTree = "<group>"; };
@@ -86,6 +88,7 @@
 				B50831041E5A87F900133D1B /* AppDelegate.swift */,
 				B541FD51215D79CB004D6B6C /* command.swift */,
 				B562410E215B1991007F8144 /* mgmtAccount.swift */,
+				B51D2F1F24DCD60D0024DFEC /* ObjectXML.swift */,
 				B50831061E5A87F900133D1B /* Assets.xcassets */,
 				B55A27681EACE2BA00AF8398 /* Images */,
 				B50831081E5A87F900133D1B /* MainMenu.xib */,
@@ -216,6 +219,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B51D2F2024DCD60D0024DFEC /* ObjectXML.swift in Sources */,
 				B541FD52215D79CB004D6B6C /* command.swift in Sources */,
 				B562410F215B1992007F8144 /* mgmtAccount.swift in Sources */,
 				B51D2F1E24DB88D70024DFEC /* ApiCall.swift in Sources */,
@@ -360,7 +364,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.11;
-				MARKETING_VERSION = 4.7.0;
+				MARKETING_VERSION = 5.0.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.jamf.pse.ReEnroller;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_SWIFT3_OBJC_INFERENCE = On;
@@ -382,7 +386,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.11;
-				MARKETING_VERSION = 4.7.0;
+				MARKETING_VERSION = 5.0.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.jamf.pse.ReEnroller;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_SWIFT3_OBJC_INFERENCE = On;
