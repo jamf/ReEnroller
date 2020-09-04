@@ -65,7 +65,7 @@ if [ "$6" != "" ];then
 	server="$6"
 else
 	## get current Jamf server
-	server=$(defaults read /Library/Preferences/com.jamfsoftware.jamf.plist jss_url)
+	server=$(/usr/bin/defaults read /Library/Preferences/com.jamfsoftware.jamf.plist jss_url)
 fi
 
 if [ "$server" == "" ];then
@@ -81,7 +81,7 @@ if [ ! "$lastChar" = "/" ];then
 fi
 
 ## get unique identifier for machine
-udid=$(system_profiler SPHardwareDataType | awk '/UUID/ { print $3; }')
+udid=$(/usr/sbin/system_profiler SPHardwareDataType | awk '/UUID/ { print $3; }')
 if [ "$udid" == "" ];then
     echo "unable to determine UUID of computer - exiting."
     exit 1
@@ -90,7 +90,7 @@ else
 fi
 
 ## get computer ID from Jamf server
-compXml=$(/usr/bin/curl -sku ${uname}:${pwd} ${server}JSSResource/computers/udid/"$udid"/subset/general -H "Accept: application/xml")
+compXml=$(/usr/bin/curl -sku "${uname}:${pwd}" ${server}JSSResource/computers/udid/"$udid"/subset/general -H "Accept: application/xml")
 
 if [[ $(echo "${compXml}" | grep "The server has not found anything matching the request URI") == "" ]];then
     compId=$(echo "${compXml}" | /usr/bin/xpath "//computer/general/id/text()")
@@ -102,5 +102,5 @@ fi
 
 ## send unmanage command to machine
 echo "unmanage machine: curl -X POST -sku ${uname}:******** ${server}JSSResource/computercommands/command/UnmanageDevice/id/${compId}"
-curl -X POST -sku "${uname}:${pwd}" ${server}JSSResource/computercommands/command/UnmanageDevice/id/${compId}
+/usr/bin/curl -X POST -sku "${uname}:${pwd}" ${server}JSSResource/computercommands/command/UnmanageDevice/id/${compId}
 
