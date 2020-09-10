@@ -632,15 +632,6 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
                                             do {
                                                 try self.fm.createDirectory(atPath: buildFolder+"/Library/Application Support/JAMF/ReEnroller", withIntermediateDirectories: true, attributes: nil)
                                                 
-                                                // Need to be able to run the app with elevated privileges for this to work
-                                                //            // set permissions and ownership
-                                                //            attributes[.posixPermissions] = 0o750
-                                                //            attributes[.ownerAccountID] = 0
-                                                //            attributes[.groupOwnerAccountID] = 0
-                                                //            do {
-                                                //                try fm.setAttributes(attributes, ofItemAtPath: buildFolder+"/Library/Application Support/JAMF/ReEnroller")
-                                                //            }
-                                                
                                                 // copy the app into the pkg building location
                                                 do {
                                                     try self.fm.copyItem(atPath: self.myBundlePath, toPath: buildFolder+"/Library/Application Support/JAMF/ReEnroller/ReEnroller.app")
@@ -883,7 +874,6 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
                                             
                                             // alert the user, we're done
                                             self.alert_dialog(header: "Attention:", message: "A package (\(packageName)-\(self.shortHostname).pkg) has been created on your desktop which is ready to be deployed with your current Jamf server.\n\nThe package \(self.includesMsg) a postinstall script to load the launch daemon and start the \(packageName) app.\(self.includesMsg2)\(self.policyMsg)")
-                                            // Create pkg of app and launchd - end
                                             
                                             let _ = self.myExitCode(cmd: "/bin/bash", args: "-c", "/bin/rm -fr /private/tmp/reEnroller-*")
 
@@ -922,6 +912,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
             writeToLog(theMessage: "Retry count: \(retryCount)")
             writeToLog(theMessage: "Maximum retries: \(maxRetries)")
             writeToLog(theMessage: "Retry count has been met, stop retrying and remove the app and related files")
+            userDefaults.set(0, forKey: "retryCount")
             self.verifiedCleanup(type: "partial")
             NSApplication.shared.terminate(self)
         }
@@ -1524,23 +1515,28 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
         }
         
         // enable mdm
-        if skipMdmCheck == "no" {
-            if myExitCode(cmd: "/usr/local/bin/jamf", args: "mdm") == 0 {
-                writeToLog(theMessage: "MDM Enrolled - getting MDM profiles from new JPS.")
+        if os.majorVersion < 11 {
+            if skipMdmCheck == "no" {
+                if myExitCode(cmd: "/usr/local/bin/jamf", args: "mdm") == 0 {
+                    writeToLog(theMessage: "MDM Enrolled - getting MDM profiles from new JPS.")
+                } else {
+                    writeToLog(theMessage: "There was a problem getting MDM profiles from new JPS.")
+                }
+                sleep(2)
             } else {
-                writeToLog(theMessage: "There was a problem getting MDM profiles from new JPS.")
+                writeToLog(theMessage: "Skipping MDM check.")
             }
-            sleep(2)
+            writeToLog(theMessage: "Calling jamf manage to update framework.")
+            if myExitCode(cmd: "/usr/local/bin/jamf", args: "manage") == 0 {
+                writeToLog(theMessage: "Enrolled - received management framework from new JPS.")
+                completion("succeeded")
+            } else {
+                writeToLog(theMessage: "There was a problem getting management framework from new JPS. Falling back to old settings and exiting!")
+                completion("failed")
+            }
         } else {
-            writeToLog(theMessage: "Skipping MDM check.")
-        }
-        writeToLog(theMessage: "Calling jamf manage to update framework.")
-        if myExitCode(cmd: "/usr/local/bin/jamf", args: "manage") == 0 {
-            writeToLog(theMessage: "Enrolled - received management framework from new JPS.")
-            completion("succeeded")
-        } else {
-            writeToLog(theMessage: "There was a problem getting management framework from new JPS. Falling back to old settings and exiting!")
-            completion("failed")
+            writeToLog(theMessage: "macOS v\(os) - Skipping enabling of MDM.")
+//            writeToLog(theMessage: "macOS v\(os.majorVersion).\(os.minorVersion).\(os.patchVersion) - Skipping enabling of MDM.")
         }
         // Handle MDM operations - end
         
@@ -2145,9 +2141,12 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
     
     func dropTrailingSlash(theSentString: String) -> String {
         var theString = theSentString
-        if theString.substring(from: theString.index(before: theString.endIndex)) == "/" {
-            theString = theString.substring(to: theString.index(before: theString.endIndex))
+        if ( theString.last == "/" ) {
+            theString = "\(theString.dropLast())"
         }
+//        if theString.substring(from: theString.index(before: theString.endIndex)) == "/" {
+//            theString = theString.substring(to: theString.index(before: theString.endIndex))
+//        }
         return theString
     }
     
