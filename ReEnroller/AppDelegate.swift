@@ -1514,9 +1514,9 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
             }   // while mdmInstalled - end
         }
         
-        // enable mdm
-        if os.majorVersion < 11 {
+        if !(( os.majorVersion > 10 ) || ( os.majorVersion == 10 && os.minorVersion > 15 )) {
             if skipMdmCheck == "no" {
+                // enable mdm
                 if myExitCode(cmd: "/usr/local/bin/jamf", args: "mdm") == 0 {
                     writeToLog(theMessage: "MDM Enrolled - getting MDM profiles from new JPS.")
                 } else {
@@ -1535,8 +1535,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
                 completion("failed")
             }
         } else {
-            writeToLog(theMessage: "macOS v\(os) - Skipping enabling of MDM.")
-//            writeToLog(theMessage: "macOS v\(os.majorVersion).\(os.minorVersion).\(os.patchVersion) - Skipping enabling of MDM.")
+            writeToLog(theMessage: "macOS v\(os.majorVersion).\(os.minorVersion).\(os.patchVersion) - Skipping enabling of MDM.")
         }
         // Handle MDM operations - end
         
@@ -1826,10 +1825,19 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
                 }
             }
         
+//            var uid: uid_t = 0
+//            var gid: gid_t = 0
+            var currentUser = ""
+            if let theResult = SCDynamicStoreCopyConsoleUser(nil, nil, nil) {
+                currentUser = theResult as String
+            } else {
+                writeToLog(theMessage: "No user logged in.")
+            }
+//            let currentUser = NSUserName()
             // update inventory - start
             writeToLog(theMessage: "Launching Recon...")
-            if myExitCode(cmd: "/usr/local/bin/jamf", args: "recon") == 0 {
-                writeToLog(theMessage: "Submitting full recon to \(newJSSHostname):\(newJSSPort).")
+            if myExitCode(cmd: "/usr/local/bin/jamf", args: "recon", "-endUsername", "\(currentUser)") == 0 {
+                writeToLog(theMessage: "Submitting full recon for user \(currentUser) to \(newJSSHostname):\(newJSSPort).")
                 _ = myExitCode(cmd: "/usr/local/bin/jamf", args: "manage")
                 sleep(10)
             } else {
@@ -2246,6 +2254,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
             }
             writeToLog(theMessage: "================================")
             writeToLog(theMessage: "ReEnroller Version: \(version)")
+            writeToLog(theMessage: "     macOS Version: \(os.majorVersion).\(os.minorVersion).\(os.patchVersion)")
             writeToLog(theMessage: "================================")
             writeToLog(theMessage: "New enrollment: \(newEnrollment)")
             
