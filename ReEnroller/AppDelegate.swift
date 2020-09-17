@@ -591,295 +591,12 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
                                                 print("Created new enrollment complete policy")
                                                 print("\(responseMesage)")
                                             }
-
-                                            
-                                            // set variables and build the package
-                                            self.plistData["theNewInvite"] = self.theNewInvite as AnyObject
-                                            
-                                            // determine if we're communicating securely
-                                            self.httpProtocol = (jssUrl.lowercased().prefix(5) == "https") ? "https":"http"
-                                            self.plistData["httpProtocol"] = self.httpProtocol as AnyObject
-                                            
-                                            jssUrl = jssUrl.lowercased().replacingOccurrences(of: "https://", with: "")
-                                            jssUrl = jssUrl.lowercased().replacingOccurrences(of: "http://", with: "")
-                                            (self.newJSSHostname, self.newJSSPort) = self.getHost_getPort(theURL: jssUrl)
-                                            //        print("newJSSHostname: \(newJSSHostname)")
-                                            
-                                            // get server hostname for use in the package name
-                                            self.newJssArray = self.newJSSHostname.components(separatedBy: ".")
-                                            self.newJssArray[0] == "" ? (self.shortHostname = "new") : (self.shortHostname = self.newJssArray[0])
-                                            
-                                            //        print("newJSSPort: \(newJSSPort)")
-                                            
-                                            self.newJssMgmtUrl = "\(self.httpProtocol)://\(self.newJSSHostname):\(self.newJSSPort)"
-                                            //        print("newJssMgmtUrl: \(newJssMgmtUrl)")
-                                            
-                                            self.plistData["newJSSHostname"] = self.newJSSHostname as AnyObject
-                                            self.plistData["newJSSPort"] = self.newJSSPort as AnyObject
-                                            //plistData["createConfSwitches"] = newURL_array[1] as AnyObject
-                                            
-                                            self.plistData["mgmtAccount"] = self.mgmtAccount_TextField.stringValue as AnyObject
-                                            
-                                            // put app in place
-                                            let buildFolder = "/private/tmp/reEnroller-"+self.getDateTime(x: 1)
-                                            
-                                            let _ = self.myExitCode(cmd: "/bin/rm", args: "/private/tmp/reEnroller*")
-                                            
-                                            var buildFolderd = "" // build folder for launchd items, may be outside build folder if separating app from launchd
-                                            let settingsPlistPath = buildFolder+"/Library/Application Support/JAMF/ReEnroller/settings.plist"
-                                            
-                                            // create build location and place items
-                                            do {
-                                                try self.fm.createDirectory(atPath: buildFolder+"/Library/Application Support/JAMF/ReEnroller", withIntermediateDirectories: true, attributes: nil)
-                                                
-                                                // copy the app into the pkg building location
-                                                do {
-                                                    try self.fm.copyItem(atPath: self.myBundlePath, toPath: buildFolder+"/Library/Application Support/JAMF/ReEnroller/ReEnroller.app")
-                                                } catch {
-                                                    self.alert_dialog(header: "-Attention-", message: "Could not copy app to build folder - exiting.")
-                                                    exit(1)
-                                                }
-                                                // put settings.plist into place
-                                                do {
-                                                    try self.fm.copyItem(atPath: self.blankSettingsPlistPath, toPath: settingsPlistPath)
-                                                } catch {
-                                                    self.alert_dialog(header: "-Attention-", message: "Could not copy settings.plist to build folder - exiting.")
-                                                    exit(1)
-                                                }
-                                                
-                                            } catch {
-                                                self.alert_dialog(header: "-Attention-", message: "Could not create build folder - exiting.")
-                                                exit(1)
-                                            }
-                                            
-                                            // create folder to hold backups of exitsing files/folders - start
-                                            do {
-                                                try self.fm.createDirectory(atPath: buildFolder+"/Library/Application Support/JAMF/ReEnroller/backup", withIntermediateDirectories: true, attributes: nil)
-                                            } catch {
-                                                self.alert_dialog(header: "-Attention-", message: "Could not create backup folder - exiting.")
-                                                exit(1)
-                                            }
-                                            // create folder to hold backups of exitsing files/folders - end
-                                            
-                                            // if a config profile is present copy it to the pkg building location
-                                            if let profileURL = self.profile_PathControl.url {
-                                                self.safeProfileURL = "\(profileURL)".replacingOccurrences(of: "%20", with: " ")
-                                                self.safeProfileURL = self.safeProfileURL.replacingOccurrences(of: "file://", with: "")
-                                                //            print("safeProfileURL: \(safeProfileURL)")
-                                                
-                                                if self.safeProfileURL != "/" {
-                                                    do {
-                                                        try self.fm.copyItem(atPath: self.safeProfileURL, toPath: buildFolder+"/Library/Application Support/JAMF/ReEnroller/profile.mobileconfig")
-                                                    } catch {
-                                                        self.alert_dialog(header: "-Attention-", message: "Could not copy config profile.  If there are spaces in the profile name try removing them. Unable to create pkg - exiting.")
-                                                        self.writeToLog(theMessage: "Could not copy config profile.  If there are spaces in the profile name try removing them. Unable to create pkg - exiting.")
-                                                        exit(1)
-                                                    }
-                                                    // add config profile values to settings - start
-                                                    do {
-                                                        var cleanedProfile = ""
-                                                        var payloadUUID    = ""
-                                                        let one = try String(contentsOf: self.profile_PathControl.url! as URL, encoding: String.Encoding.ascii)
-                                                        let regexClean  = try! NSRegularExpression(pattern: "<array>(.|\n|\r)*?</array>", options:.caseInsensitive)
-                                                        cleanedProfile  = regexClean.stringByReplacingMatches(in: one, options: [], range: NSRange(0..<one.utf16.count), withTemplate: "")
-                                                        let regexClean2 = try! NSRegularExpression(pattern: "</key>(.|\n|\r)*?<string>", options:.caseInsensitive)
-                                                        cleanedProfile  = regexClean2.stringByReplacingMatches(in: cleanedProfile, options: [], range: NSRange(0..<cleanedProfile.utf16.count), withTemplate: "</key><string>")
-                                                        let textArray   = cleanedProfile.components(separatedBy: "<key>PayloadUUID</key><string>")
-                                                        payloadUUID     = "\(textArray[1].prefix(36))"
-                                                        self.plistData["profileUUID"] = "\(payloadUUID)" as AnyObject
-        //                                                self.plistData["profileUUID"] = "\(PayloadUUID[1])" as AnyObject
-                                                        if self.removeProfile_Button.state.rawValue == 0 {
-                                                            self.plistData["removeProfile"] = "false" as AnyObject
-                                                        } else {
-                                                            self.plistData["removeProfile"] = "true" as AnyObject
-                                                        }
-                                                    } catch {
-                                                        print("unable to read file")
-                                                    }
-                                                }
-                                            }   // add config profile values to settings - end
-                                            
-                                            // configure all profile removal - start
-                                            if self.removeAllProfiles_Button.state.rawValue == 0 {
-                                                self.plistData["removeAllProfiles"] = "false" as AnyObject
-                                            } else {
-                                                self.plistData["removeAllProfiles"] = "true" as AnyObject
-                                            }
-                                            // configure all profile removal - end
-                                            
-                                            // configure ReEnroller folder removal - start
-                                            if self.removeReEnroller_Button.state.rawValue == 0 {
-                                                self.plistData["removeReEnroller"] = "no" as AnyObject
-                                            } else {
-                                                self.plistData["removeReEnroller"] = "yes" as AnyObject
-                                            }
-                                            // configure ReEnroller folder removal - end
-                                            
-                                            // Jamf School migration check - start
-                                            if self.jamfSchool_Button.state.rawValue == 0 {
-                                                self.plistData["jamfSchool"] = 0 as AnyObject
-                                            } else {
-                                                self.plistData["jamfSchool"] = 1 as AnyObject
-                                            }
-                                            // Jamf School migration check - end
-                                            
-                                            // configure new enrollment check - start
-                                            if self.newEnrollment_Button.state.rawValue == 0 && self.jamfSchool_Button.state.rawValue == 0 {
-                                                self.plistData["newEnrollment"] = 0 as AnyObject
-                                            } else {
-                                                self.plistData["newEnrollment"] = 1 as AnyObject
-                                            }
-                                            // configure new enrollment check - end
-                                            
-                                            // configure mdm check - start
-                                            if self.skipMdmCheck_Button.state.rawValue == 0 {
-                                                self.plistData["skipMdmCheck"] = "no" as AnyObject
-                                            } else {
-                                                self.plistData["skipMdmCheck"] = "yes" as AnyObject
-                                            }
-                                            // configure mdm - end
-                                            
-                                            // postInstallPolicyId - start
-                                            if self.runPolicy_Button.state.rawValue == 0 {
-                                                self.plistData["postInstallPolicyId"] = "" as AnyObject
-                                            } else {
-                                                let policyId = self.policyId_Textfield.stringValue
-                                                // verify we have a valid number
-                                                if policyId.rangeOfCharacter(from: CharacterSet.decimalDigits.inverted) != nil {
-                                                    self.plistData["postInstallPolicyId"] = "" as AnyObject
-                                                } else {
-                                                    self.plistData["postInstallPolicyId"] = self.policyId_Textfield.stringValue as AnyObject
-                                                }
-                                            }
-                                            // postInstallPolicyId - end
-                                            
-                                            // max retries -  start
-                                            let maxRetriesString = self.maxRetries_Textfield.stringValue
-                                            // verify we have a valid number or it was left blank
-                                            if maxRetriesString != "" {
-                                                if maxRetriesString.rangeOfCharacter(from: CharacterSet.decimalDigits.inverted) != nil {
-                                                    self.spinner.stopAnimation(self)
-                                                    self.alert_dialog(header: "-Attention-", message: "Invalid value entered for the maximum number of retries.")
-                                                    return
-                                                } else {
-                                                    self.plistData["maxRetries"] = self.maxRetries_Textfield.stringValue as AnyObject
-                                                }
-                                            } else {
-                                                self.plistData["maxRetries"] = "-1" as AnyObject
-                                            }
-                                            // max retries - end
-                                            
-                                            // set retry interval in launchd - start
-                                            if let retryInterval = Int(self.retry_TextField.stringValue) {
-                                                if retryInterval >= 5 {
-                                                    self.StartInterval = retryInterval*60    // convert minutes to seconds
-                                                    //                print("Setting custon retry interval: \(StartInterval)")
-                                                }
-                                            } else {
-                                                self.spinner.stopAnimation(self)
-                                                self.alert_dialog(header: "-Attention-", message: "Invalid value entered for the retry interval.")
-                                                return
-                                            }
-                                            // set retry interval in launchd - end
-                                            
-                                            // prepare postinstall script if option is checked - start
-                                            if self.separatePackage_button.state.rawValue == 0 {
-                                                buildFolderd = buildFolder
-                                            } else {
-                                                buildFolderd = "/private/tmp/reEnrollerd-"+self.getDateTime(x: 1)
-                                                self.includesMsg = "does not include"
-                                                self.includesMsg2 = "  The launch daemons are packaged in: ReEnrollerDaemon-\(self.shortHostname).pkg."
-                                            }
-                                            
-                                            do {
-                                                try self.fm.createDirectory(atPath: buildFolderd+"/Library/LaunchDaemons", withIntermediateDirectories: true, attributes: nil)
-                                                do {
-                                                    try self.fm.copyItem(atPath: self.myBundlePath+"/Contents/Resources/com.jamf.ReEnroller.plist", toPath: buildFolderd+"/Library/LaunchDaemons/com.jamf.ReEnroller.plist")
-                                                } catch {
-                                                    self.writeToLog(theMessage: "Could not copy launchd, unable to create pkg")
-                                                    self.alert_dialog(header: "-Attention-", message: "Could not copy launchd to build folder - exiting.")
-                                                    exit(1)
-                                                }
-                                                
-                                            } catch {
-                                                self.writeToLog(theMessage: "Unable to place launch daemon.")
-                                                self.alert_dialog(header: "-Attention-", message: "Could not LaunchDeamons folder in build folder - exiting.")
-                                                exit(1)
-                                            }
-                                            // put launch daemon in place - end
-                                            
-                                            let launchdFile = buildFolderd+"/Library/LaunchDaemons/com.jamf.ReEnroller.plist"
-                                            if self.fm.fileExists(atPath: launchdFile) {
-                                                let launchdPlistXML = self.fm.contents(atPath: launchdFile)!
-                                                do{
-                                                    self.writeToLog(theMessage: "Reading settings from: \(launchdFile)")
-                                                    self.launchdPlistData = try PropertyListSerialization.propertyList(from: launchdPlistXML,
-                                                                                                                       options: .mutableContainersAndLeaves,
-                                                                                                                       format: &self.format)
-                                                        as! [String : AnyObject]
-                                                }
-                                                catch{
-                                                    self.writeToLog(theMessage: "Error launchd plist: \(error), format: \(self.format)")
-                                                }
-                                            }
-                                            
-                                            self.launchdPlistData["StartInterval"] = self.StartInterval as AnyObject
-                                            
-                                            // Write values to launchd plist - start
-                                            (self.launchdPlistData as NSDictionary).write(toFile: launchdFile, atomically: false)
-                                            // Write values to launchd plist - end
-                                            
-                                            // Write settings from GUI to settings.plist
-                                            (self.plistData as NSDictionary).write(toFile: settingsPlistPath, atomically: false)
-                                            
-                                            let packageName = (self.newEnrollment_Button.state.rawValue == 1) ? "Enroller":"ReEnroller"
-                                            
-                                            // rename existing ReEnroller.pkg if it exists - start
-                                            if self.fm.fileExists(atPath: NSHomeDirectory()+"/Desktop/\(packageName)-\(self.shortHostname).pkg") {
-                                                do {
-                                                    try self.fm.moveItem(atPath: NSHomeDirectory()+"/Desktop/\(packageName)-\(self.shortHostname).pkg", toPath: NSHomeDirectory()+"/Desktop/\(packageName)-\(self.shortHostname)-"+self.getDateTime(x: 1)+".pkg")
-                                                } catch {
-                                                    self.alert_dialog(header: "Alert", message: "Unable to rename an existing \(packageName)-\(self.shortHostname).pkg file on the Desktop.  Try renaming/removing it manually: sudo mv ~/Desktop/\(packageName)-\(self.shortHostname).pkg ~/Desktop/\(packageName)-\(self.shortHostname)-old.pkg.")
-                                                    exit(1)
-                                                }
-                                            }
-                                            // rename existing ReEnroller.pkg if it exists - end
-                                            
-                                            // Create pkg of app and launchd - start
-                                            if self.separatePackage_button.state.rawValue == 0 {
-                                                self.pkgBuildResult = self.myExitCode(cmd: "/usr/bin/pkgbuild", args: "--identifier", "com.jamf.ReEnroller", "--root", buildFolder, "--scripts", self.myBundlePath+"/Contents/Resources/1", "--component-plist", self.myBundlePath+"/Contents/Resources/ReEnroller-component.plist", NSHomeDirectory()+"/Desktop/\(packageName)-\(self.shortHostname).pkg")
-                                                
-                                            } else {
-                                                self.pkgBuildResult = self.myExitCode(cmd: "/usr/bin/pkgbuild", args: "--identifier", "com.jamf.ReEnroller", "--root", buildFolder, "--scripts", self.myBundlePath+"/Contents/Resources/2", "--component-plist", self.myBundlePath+"/Contents/Resources/ReEnroller-component.plist", NSHomeDirectory()+"/Desktop/\(packageName)-\(self.shortHostname).pkg")
-                                                self.pkgBuildResult = self.myExitCode(cmd: "/usr/bin/pkgbuild", args: "--identifier", "com.jamf.ReEnrollerd", "--root", buildFolderd, "--scripts", self.myBundlePath+"/Contents/Resources/1", NSHomeDirectory()+"/Desktop/\(packageName)Daemon-\(self.shortHostname).pkg")
-                                            }
-                                            if self.pkgBuildResult != 0 {
-                                                self.alert_dialog(header: "-Attention-", message: "Could not create the \(packageName)(Daemon) package - exiting.")
-                                                exit(1)
-                                            }
-                                            // Create pkg of app and launchd - end
-                                            
-                                            self.spinner.stopAnimation(self)
-                                            
-                                            if self.createPolicy_Button.state.rawValue == 1 {
-                                                self.policyMsg = "\n\nVerify the Migration Complete policy was created on the new server.  "
-                                                if self.randomPassword_button.state.rawValue == 0 {
-                                                    self.policyMsg.append("The policy should contain a 'Files and Processes' payload.  Modify if needed.")
-                                                } else {
-                                                    self.policyMsg.append("The policy should contain a 'Files and Processes' payload along with a 'Management Account' payload.  Modify if needed.")
-                                                }
-                                            } else {
-                                                self.policyMsg = "\n\nBe sure to create a migration complete policy before starting to migrate, see help or more information."
-                                            }
-                                            
-                                            // alert the user, we're done
-                                            self.alert_dialog(header: "Attention:", message: "A package (\(packageName)-\(self.shortHostname).pkg) has been created on your desktop which is ready to be deployed with your current Jamf server.\n\nThe package \(self.includesMsg) a postinstall script to load the launch daemon and start the \(packageName) app.\(self.includesMsg2)\(self.policyMsg)")
-                                            
-                                            let _ = self.myExitCode(cmd: "/bin/bash", args: "-c", "/bin/rm -fr /private/tmp/reEnroller-*")
-
-                                        }
-                                        
+                                            self.buildPackage(jssUrl1: "\(jssUrl)")
+                                        }   // self.apiAction - end
+                                    } else {
+                                        self.buildPackage(jssUrl1: "\(jssUrl)")
                                     }
+                                    
                                 }
                             } else {
                                 print("invalid reply from the Jamf server when requesting an invitation code.")
@@ -895,6 +612,292 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
        
     }
     // process function - end
+    func buildPackage(jssUrl1: String) {
+        var jssUrl = jssUrl1
+                                        // set variables and build the package
+                                        self.plistData["theNewInvite"] = self.theNewInvite as AnyObject
+                                        
+                                        // determine if we're communicating securely
+                                        self.httpProtocol = (jssUrl.lowercased().prefix(5) == "https") ? "https":"http"
+                                        self.plistData["httpProtocol"] = self.httpProtocol as AnyObject
+                                        
+                                        jssUrl = jssUrl.lowercased().replacingOccurrences(of: "https://", with: "")
+                                        jssUrl = jssUrl.lowercased().replacingOccurrences(of: "http://", with: "")
+                                        (self.newJSSHostname, self.newJSSPort) = self.getHost_getPort(theURL: jssUrl)
+                                        //        print("newJSSHostname: \(newJSSHostname)")
+                                        
+                                        // get server hostname for use in the package name
+                                        self.newJssArray = self.newJSSHostname.components(separatedBy: ".")
+                                        self.newJssArray[0] == "" ? (self.shortHostname = "new") : (self.shortHostname = self.newJssArray[0])
+                                        
+                                        //        print("newJSSPort: \(newJSSPort)")
+                                        
+                                        self.newJssMgmtUrl = "\(self.httpProtocol)://\(self.newJSSHostname):\(self.newJSSPort)"
+                                        //        print("newJssMgmtUrl: \(newJssMgmtUrl)")
+                                        
+                                        self.plistData["newJSSHostname"] = self.newJSSHostname as AnyObject
+                                        self.plistData["newJSSPort"] = self.newJSSPort as AnyObject
+                                        //plistData["createConfSwitches"] = newURL_array[1] as AnyObject
+                                        
+                                        self.plistData["mgmtAccount"] = self.mgmtAccount_TextField.stringValue as AnyObject
+                                        
+                                        // put app in place
+                                        let buildFolder = "/private/tmp/reEnroller-"+self.getDateTime(x: 1)
+                                        
+                                        let _ = self.myExitCode(cmd: "/bin/rm", args: "/private/tmp/reEnroller*")
+                                        
+                                        var buildFolderd = "" // build folder for launchd items, may be outside build folder if separating app from launchd
+                                        let settingsPlistPath = buildFolder+"/Library/Application Support/JAMF/ReEnroller/settings.plist"
+                                        
+                                        // create build location and place items
+                                        do {
+                                            try self.fm.createDirectory(atPath: buildFolder+"/Library/Application Support/JAMF/ReEnroller", withIntermediateDirectories: true, attributes: nil)
+                                            
+                                            // copy the app into the pkg building location
+                                            do {
+                                                try self.fm.copyItem(atPath: self.myBundlePath, toPath: buildFolder+"/Library/Application Support/JAMF/ReEnroller/ReEnroller.app")
+                                            } catch {
+                                                self.alert_dialog(header: "-Attention-", message: "Could not copy app to build folder - exiting.")
+                                                exit(1)
+                                            }
+                                            // put settings.plist into place
+                                            do {
+                                                try self.fm.copyItem(atPath: self.blankSettingsPlistPath, toPath: settingsPlistPath)
+                                            } catch {
+                                                self.alert_dialog(header: "-Attention-", message: "Could not copy settings.plist to build folder - exiting.")
+                                                exit(1)
+                                            }
+                                            
+                                        } catch {
+                                            self.alert_dialog(header: "-Attention-", message: "Could not create build folder - exiting.")
+                                            exit(1)
+                                        }
+                                        
+                                        // create folder to hold backups of exitsing files/folders - start
+                                        do {
+                                            try self.fm.createDirectory(atPath: buildFolder+"/Library/Application Support/JAMF/ReEnroller/backup", withIntermediateDirectories: true, attributes: nil)
+                                        } catch {
+                                            self.alert_dialog(header: "-Attention-", message: "Could not create backup folder - exiting.")
+                                            exit(1)
+                                        }
+                                        // create folder to hold backups of exitsing files/folders - end
+                                        
+                                        // if a config profile is present copy it to the pkg building location
+                                        if let profileURL = self.profile_PathControl.url {
+                                            self.safeProfileURL = "\(profileURL)".replacingOccurrences(of: "%20", with: " ")
+                                            self.safeProfileURL = self.safeProfileURL.replacingOccurrences(of: "file://", with: "")
+                                            //            print("safeProfileURL: \(safeProfileURL)")
+                                            
+                                            if self.safeProfileURL != "/" {
+                                                do {
+                                                    try self.fm.copyItem(atPath: self.safeProfileURL, toPath: buildFolder+"/Library/Application Support/JAMF/ReEnroller/profile.mobileconfig")
+                                                } catch {
+                                                    self.alert_dialog(header: "-Attention-", message: "Could not copy config profile.  If there are spaces in the profile name try removing them. Unable to create pkg - exiting.")
+                                                    self.writeToLog(theMessage: "Could not copy config profile.  If there are spaces in the profile name try removing them. Unable to create pkg - exiting.")
+                                                    exit(1)
+                                                }
+                                                // add config profile values to settings - start
+                                                do {
+                                                    var cleanedProfile = ""
+                                                    var payloadUUID    = ""
+                                                    let one = try String(contentsOf: self.profile_PathControl.url! as URL, encoding: String.Encoding.ascii)
+                                                    let regexClean  = try! NSRegularExpression(pattern: "<array>(.|\n|\r)*?</array>", options:.caseInsensitive)
+                                                    cleanedProfile  = regexClean.stringByReplacingMatches(in: one, options: [], range: NSRange(0..<one.utf16.count), withTemplate: "")
+                                                    let regexClean2 = try! NSRegularExpression(pattern: "</key>(.|\n|\r)*?<string>", options:.caseInsensitive)
+                                                    cleanedProfile  = regexClean2.stringByReplacingMatches(in: cleanedProfile, options: [], range: NSRange(0..<cleanedProfile.utf16.count), withTemplate: "</key><string>")
+                                                    let textArray   = cleanedProfile.components(separatedBy: "<key>PayloadUUID</key><string>")
+                                                    payloadUUID     = "\(textArray[1].prefix(36))"
+                                                    self.plistData["profileUUID"] = "\(payloadUUID)" as AnyObject
+    //                                                self.plistData["profileUUID"] = "\(PayloadUUID[1])" as AnyObject
+                                                    if self.removeProfile_Button.state.rawValue == 0 {
+                                                        self.plistData["removeProfile"] = "false" as AnyObject
+                                                    } else {
+                                                        self.plistData["removeProfile"] = "true" as AnyObject
+                                                    }
+                                                } catch {
+                                                    print("unable to read file")
+                                                }
+                                            }
+                                        }   // add config profile values to settings - end
+                                        
+                                        // configure all profile removal - start
+                                        if self.removeAllProfiles_Button.state.rawValue == 0 {
+                                            self.plistData["removeAllProfiles"] = "false" as AnyObject
+                                        } else {
+                                            self.plistData["removeAllProfiles"] = "true" as AnyObject
+                                        }
+                                        // configure all profile removal - end
+                                        
+                                        // configure ReEnroller folder removal - start
+                                        if self.removeReEnroller_Button.state.rawValue == 0 {
+                                            self.plistData["removeReEnroller"] = "no" as AnyObject
+                                        } else {
+                                            self.plistData["removeReEnroller"] = "yes" as AnyObject
+                                        }
+                                        // configure ReEnroller folder removal - end
+                                        
+                                        // Jamf School migration check - start
+                                        if self.jamfSchool_Button.state.rawValue == 0 {
+                                            self.plistData["jamfSchool"] = 0 as AnyObject
+                                        } else {
+                                            self.plistData["jamfSchool"] = 1 as AnyObject
+                                        }
+                                        // Jamf School migration check - end
+                                        
+                                        // configure new enrollment check - start
+                                        if self.newEnrollment_Button.state.rawValue == 0 && self.jamfSchool_Button.state.rawValue == 0 {
+                                            self.plistData["newEnrollment"] = 0 as AnyObject
+                                        } else {
+                                            self.plistData["newEnrollment"] = 1 as AnyObject
+                                        }
+                                        // configure new enrollment check - end
+                                        
+                                        // configure mdm check - start
+                                        if self.skipMdmCheck_Button.state.rawValue == 0 {
+                                            self.plistData["skipMdmCheck"] = "no" as AnyObject
+                                        } else {
+                                            self.plistData["skipMdmCheck"] = "yes" as AnyObject
+                                        }
+                                        // configure mdm - end
+                                        
+                                        // postInstallPolicyId - start
+                                        if self.runPolicy_Button.state.rawValue == 0 {
+                                            self.plistData["postInstallPolicyId"] = "" as AnyObject
+                                        } else {
+                                            let policyId = self.policyId_Textfield.stringValue
+                                            // verify we have a valid number
+                                            if policyId.rangeOfCharacter(from: CharacterSet.decimalDigits.inverted) != nil {
+                                                self.plistData["postInstallPolicyId"] = "" as AnyObject
+                                            } else {
+                                                self.plistData["postInstallPolicyId"] = self.policyId_Textfield.stringValue as AnyObject
+                                            }
+                                        }
+                                        // postInstallPolicyId - end
+                                        
+                                        // max retries -  start
+                                        let maxRetriesString = self.maxRetries_Textfield.stringValue
+                                        // verify we have a valid number or it was left blank
+                                        if maxRetriesString != "" {
+                                            if maxRetriesString.rangeOfCharacter(from: CharacterSet.decimalDigits.inverted) != nil {
+                                                self.spinner.stopAnimation(self)
+                                                self.alert_dialog(header: "-Attention-", message: "Invalid value entered for the maximum number of retries.")
+                                                return
+                                            } else {
+                                                self.plistData["maxRetries"] = self.maxRetries_Textfield.stringValue as AnyObject
+                                            }
+                                        } else {
+                                            self.plistData["maxRetries"] = "-1" as AnyObject
+                                        }
+                                        // max retries - end
+                                        
+                                        // set retry interval in launchd - start
+                                        if let retryInterval = Int(self.retry_TextField.stringValue) {
+                                            if retryInterval >= 5 {
+                                                self.StartInterval = retryInterval*60    // convert minutes to seconds
+                                                //                print("Setting custon retry interval: \(StartInterval)")
+                                            }
+                                        } else {
+                                            self.spinner.stopAnimation(self)
+                                            self.alert_dialog(header: "-Attention-", message: "Invalid value entered for the retry interval.")
+                                            return
+                                        }
+                                        // set retry interval in launchd - end
+                                        
+                                        // prepare postinstall script if option is checked - start
+                                        if self.separatePackage_button.state.rawValue == 0 {
+                                            buildFolderd = buildFolder
+                                        } else {
+                                            buildFolderd = "/private/tmp/reEnrollerd-"+self.getDateTime(x: 1)
+                                            self.includesMsg = "does not include"
+                                            self.includesMsg2 = "  The launch daemons are packaged in: ReEnrollerDaemon-\(self.shortHostname).pkg."
+                                        }
+                                        
+                                        do {
+                                            try self.fm.createDirectory(atPath: buildFolderd+"/Library/LaunchDaemons", withIntermediateDirectories: true, attributes: nil)
+                                            do {
+                                                try self.fm.copyItem(atPath: self.myBundlePath+"/Contents/Resources/com.jamf.ReEnroller.plist", toPath: buildFolderd+"/Library/LaunchDaemons/com.jamf.ReEnroller.plist")
+                                            } catch {
+                                                self.writeToLog(theMessage: "Could not copy launchd, unable to create pkg")
+                                                self.alert_dialog(header: "-Attention-", message: "Could not copy launchd to build folder - exiting.")
+                                                exit(1)
+                                            }
+                                            
+                                        } catch {
+                                            self.writeToLog(theMessage: "Unable to place launch daemon.")
+                                            self.alert_dialog(header: "-Attention-", message: "Could not LaunchDeamons folder in build folder - exiting.")
+                                            exit(1)
+                                        }
+                                        // put launch daemon in place - end
+                                        
+                                        let launchdFile = buildFolderd+"/Library/LaunchDaemons/com.jamf.ReEnroller.plist"
+                                        if self.fm.fileExists(atPath: launchdFile) {
+                                            let launchdPlistXML = self.fm.contents(atPath: launchdFile)!
+                                            do{
+                                                self.writeToLog(theMessage: "Reading settings from: \(launchdFile)")
+                                                self.launchdPlistData = try PropertyListSerialization.propertyList(from: launchdPlistXML,
+                                                                                                                   options: .mutableContainersAndLeaves,
+                                                                                                                   format: &self.format)
+                                                    as! [String : AnyObject]
+                                            }
+                                            catch{
+                                                self.writeToLog(theMessage: "Error launchd plist: \(error), format: \(self.format)")
+                                            }
+                                        }
+                                        
+                                        self.launchdPlistData["StartInterval"] = self.StartInterval as AnyObject
+                                        
+                                        // Write values to launchd plist - start
+                                        (self.launchdPlistData as NSDictionary).write(toFile: launchdFile, atomically: false)
+                                        // Write values to launchd plist - end
+                                        
+                                        // Write settings from GUI to settings.plist
+                                        (self.plistData as NSDictionary).write(toFile: settingsPlistPath, atomically: false)
+                                        
+                                        let packageName = (self.newEnrollment_Button.state.rawValue == 1) ? "Enroller":"ReEnroller"
+                                        
+                                        // rename existing ReEnroller.pkg if it exists - start
+                                        if self.fm.fileExists(atPath: NSHomeDirectory()+"/Desktop/\(packageName)-\(self.shortHostname).pkg") {
+                                            do {
+                                                try self.fm.moveItem(atPath: NSHomeDirectory()+"/Desktop/\(packageName)-\(self.shortHostname).pkg", toPath: NSHomeDirectory()+"/Desktop/\(packageName)-\(self.shortHostname)-"+self.getDateTime(x: 1)+".pkg")
+                                            } catch {
+                                                self.alert_dialog(header: "Alert", message: "Unable to rename an existing \(packageName)-\(self.shortHostname).pkg file on the Desktop.  Try renaming/removing it manually: sudo mv ~/Desktop/\(packageName)-\(self.shortHostname).pkg ~/Desktop/\(packageName)-\(self.shortHostname)-old.pkg.")
+                                                exit(1)
+                                            }
+                                        }
+                                        // rename existing ReEnroller.pkg if it exists - end
+                                        
+                                        // Create pkg of app and launchd - start
+                                        if self.separatePackage_button.state.rawValue == 0 {
+                                            self.pkgBuildResult = self.myExitCode(cmd: "/usr/bin/pkgbuild", args: "--identifier", "com.jamf.ReEnroller", "--root", buildFolder, "--scripts", self.myBundlePath+"/Contents/Resources/1", "--component-plist", self.myBundlePath+"/Contents/Resources/ReEnroller-component.plist", NSHomeDirectory()+"/Desktop/\(packageName)-\(self.shortHostname).pkg")
+                                            
+                                        } else {
+                                            self.pkgBuildResult = self.myExitCode(cmd: "/usr/bin/pkgbuild", args: "--identifier", "com.jamf.ReEnroller", "--root", buildFolder, "--scripts", self.myBundlePath+"/Contents/Resources/2", "--component-plist", self.myBundlePath+"/Contents/Resources/ReEnroller-component.plist", NSHomeDirectory()+"/Desktop/\(packageName)-\(self.shortHostname).pkg")
+                                            self.pkgBuildResult = self.myExitCode(cmd: "/usr/bin/pkgbuild", args: "--identifier", "com.jamf.ReEnrollerd", "--root", buildFolderd, "--scripts", self.myBundlePath+"/Contents/Resources/1", NSHomeDirectory()+"/Desktop/\(packageName)Daemon-\(self.shortHostname).pkg")
+                                        }
+                                        if self.pkgBuildResult != 0 {
+                                            self.alert_dialog(header: "-Attention-", message: "Could not create the \(packageName)(Daemon) package - exiting.")
+                                            exit(1)
+                                        }
+                                        // Create pkg of app and launchd - end
+                                        
+                                        self.spinner.stopAnimation(self)
+                                        
+                                        if self.createPolicy_Button.state.rawValue == 1 {
+                                            self.policyMsg = "\n\nVerify the Migration Complete policy was created on the new server.  "
+                                            if self.randomPassword_button.state.rawValue == 0 {
+                                                self.policyMsg.append("The policy should contain a 'Files and Processes' payload.  Modify if needed.")
+                                            } else {
+                                                self.policyMsg.append("The policy should contain a 'Files and Processes' payload along with a 'Management Account' payload.  Modify if needed.")
+                                            }
+                                        } else {
+                                            self.policyMsg = "\n\nBe sure to create a migration complete policy before starting to migrate, see help or more information."
+                                        }
+                                        
+                                        // alert the user, we're done
+                                        self.alert_dialog(header: "Attention:", message: "A package (\(packageName)-\(self.shortHostname).pkg) has been created on your desktop which is ready to be deployed with your current Jamf server.\n\nThe package \(self.includesMsg) a postinstall script to load the launch daemon and start the \(packageName) app.\(self.includesMsg2)\(self.policyMsg)")
+                                        
+                                        let _ = self.myExitCode(cmd: "/bin/bash", args: "-c", "/bin/rm -fr /private/tmp/reEnroller-*")
+                                    }
     
 //---------------------------------------------------------------------------//
 //--------------------------  Start the migration  --------------------------//
