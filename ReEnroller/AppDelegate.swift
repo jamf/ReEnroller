@@ -1878,9 +1878,9 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
             if callEnrollment == "yes" {
                 // launch profiles renew -type enrollment to initiate ADE process
                 if myExitCode(cmd: "/usr/bin/profiles", args: "renew", "-type", "enrollment") == 0 {
-                    writeToLog(theMessage: "Successfully called ADE enrollment renewal")
+                    writeToLog(theMessage: "Successfully called profiles renew -type enrollment")
                 } else {
-                    writeToLog(theMessage: "failed to call ADE enrollment renewal")
+                    writeToLog(theMessage: "call to profiles renew -type enrollment failed")
                     //exit(1)
                 }
             }
