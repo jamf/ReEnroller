@@ -90,10 +90,11 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
     @IBOutlet weak var retainSite_Button: NSButton!
     @IBOutlet weak var enableSites_Button: NSButton!
     @IBOutlet weak var site_Button: NSPopUpButton!
-    @IBOutlet weak var createPolicy_Button: NSButton!
     @IBOutlet weak var skipMdmCheck_Button: NSButton!
+    @IBOutlet weak var createPolicy_Button: NSButton!
     @IBOutlet weak var runPolicy_Button: NSButton!
     @IBOutlet weak var policyId_Textfield: NSTextField!
+    @IBOutlet weak var deviceEnrollment_Button: NSButton!
     @IBOutlet weak var removeReEnroller_Button: NSButton!
     @IBOutlet weak var maxRetries_Textfield: NSTextField!
     @IBOutlet weak var retry_TextField: NSTextField!
@@ -169,6 +170,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
     var newJssMgmtUrl       = ""
     var theNewInvite        = ""
     var removeReEnroller    = "yes"         // by default delete the ReEnroller folder after enrollment
+    var callEnrollment      = "no"          // defaults to not calling automated device enrollment, unless we're Big Sur or above
     var retainSite          = "true"        // by default retain site when re-enrolling
     var skipMdmCheck        = "no"          // by default do not skip mdm check
     var StartInterval       = 1800          // default retry interval is 1800 seconds (30 minutes)
@@ -727,6 +729,14 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
                                             self.plistData["removeAllProfiles"] = "true" as AnyObject
                                         }
                                         // configure all profile removal - end
+                                        
+                                        // configure device enrollment call - start
+                                        if self.removeReEnroller_Button.state.rawValue == 0 {
+                                            self.plistData["callEnrollment"] = "no" as AnyObject
+                                        } else {
+                                            self.plistData["callEnrollment"] = "yes" as AnyObject
+                                        }
+                                        // configure device enrollment call - end
                                         
                                         // configure ReEnroller folder removal - start
                                         if self.removeReEnroller_Button.state.rawValue == 0 {
@@ -1864,6 +1874,16 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
                 }
             }
             // update inventory - end
+            
+            if callEnrollment == "yes" {
+                // launch profiles renew -type enrollment to initiate ADE process
+                if myExitCode(cmd: "/usr/bin/profiles", args: "renew", "-type", "enrollment") == 0 {
+                    writeToLog(theMessage: "Successfully called ADE enrollment renewal")
+                } else {
+                    writeToLog(theMessage: "failed to call ADE enrollment renewal")
+                    //exit(1)
+                }
+            }
         
             // remove config profile if marked as such - start
             writeToLog(theMessage: "Checking if config profile removal is required...")
@@ -2296,6 +2316,9 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
                 if plistData["removeAllProfiles"] != nil {
                     removeAllProfiles = plistData["removeAllProfiles"]! as! String
                 }
+                if plistData["callEnrollment"] != nil {
+                    callEnrollment = plistData["callEnrollment"]! as! String
+                }
                 if plistData["removeReEnroller"] != nil {
                     removeReEnroller = plistData["removeReEnroller"]! as! String
                 }
@@ -2373,6 +2396,9 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
                 removeReEnroller_Button.state = convertToNSControlStateValue(1)
                 rndPwdLen_TextField?.isEnabled = false
                 rndPwdLen_TextField?.stringValue = "8"
+                if (( os.majorVersion > 10 ) || ( os.majorVersion == 10 && os.minorVersion > 15 )) {
+                    deviceEnrollment_Button.state = convertToNSControlStateValue(1)
+                }
                 
                 ReEnroller_window.backgroundColor = NSColor(red: 0x9F/255.0, green:0xB9/255.0, blue:0xCC/255.0, alpha: 1.0)
                 NSApplication.shared.setActivationPolicy(NSApplication.ActivationPolicy.regular)
@@ -2388,6 +2414,9 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
             removeReEnroller_Button.state = convertToNSControlStateValue(1)
             rndPwdLen_TextField?.isEnabled = false
             rndPwdLen_TextField?.stringValue = "8"
+            if (( os.majorVersion > 10 ) || ( os.majorVersion == 10 && os.minorVersion > 15 )) {
+                deviceEnrollment_Button.state = convertToNSControlStateValue(1)
+            }
 
             // [NSColor colorWithCalibratedRed:0x6C/255.0 green:0x82/255.0 blue:0x94/255.0 alpha:0xFF/255.0]/* 6C8294FF */
 //            ReEnroller_window.backgroundColor = NSColor(red: 0x9F/255.0, green:0xB9/255.0, blue:0xCC/255.0, alpha: 1.0)

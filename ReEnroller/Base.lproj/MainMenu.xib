@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="16097.2" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="16097.3" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
     <dependencies>
         <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="16097.2"/>
-        <plugIn identifier="com.apple.WebKitIBPlugin" version="16097.2"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="16097.3"/>
+        <plugIn identifier="com.apple.WebKitIBPlugin" version="16097.3"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
@@ -20,6 +20,7 @@
                 <outlet property="apiKey_Label" destination="kj2-U6-AIS" id="Mqu-hO-egQ"/>
                 <outlet property="apiKey_TextField" destination="s8e-Xc-7W9" id="cAs-UM-TSq"/>
                 <outlet property="createPolicy_Button" destination="FTz-5h-Lwv" id="Yl0-oC-526"/>
+                <outlet property="deviceEnrollment_Button" destination="fM2-Hc-jI3" id="yYT-A7-OmW"/>
                 <outlet property="enableSites_Button" destination="Eej-zN-cME" id="wpl-ig-0By"/>
                 <outlet property="enroll_button" destination="wJP-CG-6T5" id="M55-lV-bbq"/>
                 <outlet property="enrollmentPackage" destination="vZz-Xq-s2M" id="iWj-To-hBh"/>
@@ -360,7 +361,7 @@ Method
                         <rect key="frame" x="159" y="377" width="185" height="18"/>
                         <buttonCell key="cell" type="check" title="Randomly Generated Password" bezelStyle="regularSquare" imagePosition="left" controlSize="small" inset="2" id="fZW-vg-pjp" userLabel="Randomly Generated Password">
                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
-                            <font key="font" metaFont="menu" size="11"/>
+                            <font key="font" metaFont="label" size="11"/>
                         </buttonCell>
                         <connections>
                             <action selector="randomPassword:" target="Voe-Tx-rLC" id="GKP-qm-mCo"/>
@@ -372,7 +373,7 @@ Method
                             <constraint firstAttribute="width" constant="68" id="kKC-zD-kLK"/>
                         </constraints>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="left" title="Characters" id="quu-vQ-CWQ">
-                            <font key="font" metaFont="menu" size="11"/>
+                            <font key="font" metaFont="label" size="11"/>
                             <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                         </textFieldCell>
@@ -383,7 +384,7 @@ Method
                             <constraint firstAttribute="width" constant="34" id="yhl-Ey-ejD"/>
                         </constraints>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" alignment="right" drawsBackground="YES" id="lMn-sP-5Pr">
-                            <font key="font" metaFont="menu" size="11"/>
+                            <font key="font" metaFont="label" size="11"/>
                             <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                             <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                         </textFieldCell>
@@ -423,7 +424,7 @@ Method
                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                             <string key="title">Create the account 
 if it does not exist</string>
-                            <font key="font" metaFont="menu" size="11"/>
+                            <font key="font" metaFont="label" size="11"/>
                         </buttonCell>
                     </button>
                     <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="IYF-P1-Ed6">
@@ -433,7 +434,7 @@ if it does not exist</string>
                         </constraints>
                         <buttonCell key="cell" type="check" title="Hide the account" bezelStyle="regularSquare" imagePosition="left" controlSize="small" state="on" inset="2" id="uOk-Ta-9nv">
                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
-                            <font key="font" metaFont="menu" size="11"/>
+                            <font key="font" metaFont="label" size="11"/>
                         </buttonCell>
                     </button>
                     <progressIndicator wantsLayer="YES" horizontalHuggingPriority="750" verticalHuggingPriority="750" maxValue="100" displayedWhenStopped="NO" bezeled="NO" indeterminate="YES" style="spinning" translatesAutoresizingMaskIntoConstraints="NO" id="bWs-qh-l7v">
@@ -479,14 +480,14 @@ if it does not exist</string>
                                             </constraints>
                                             <buttonCell key="cell" type="check" title="Remove when done" bezelStyle="regularSquare" imagePosition="left" controlSize="small" inset="2" id="diM-MB-cZA">
                                                 <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
-                                                <font key="font" metaFont="menu" size="11"/>
+                                                <font key="font" metaFont="label" size="11"/>
                                             </buttonCell>
                                         </button>
                                         <button translatesAutoresizingMaskIntoConstraints="NO" id="ZHS-IU-wah">
                                             <rect key="frame" x="5" y="272" width="400" height="18"/>
                                             <buttonCell key="cell" type="check" title="Remove profiles marked in DEP as not to be removed - pre macOS 10.13" bezelStyle="regularSquare" imagePosition="left" controlSize="small" inset="2" id="LRI-KW-V9X">
                                                 <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
-                                                <font key="font" metaFont="menu" size="11"/>
+                                                <font key="font" metaFont="label" size="11"/>
                                             </buttonCell>
                                         </button>
                                         <textField verticalHuggingPriority="750" textCompletion="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Ofq-EU-8hD">
@@ -495,7 +496,7 @@ if it does not exist</string>
                                                 <constraint firstAttribute="height" constant="15" id="DDr-kh-irV"/>
                                             </constraints>
                                             <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" allowsUndo="NO" sendsActionOnEndEditing="YES" state="on" title="(This will remove all profiles)" drawsBackground="YES" id="UkO-Ij-f9C">
-                                                <font key="font" metaFont="menu" size="11"/>
+                                                <font key="font" metaFont="label" size="11"/>
                                                 <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
                                                 <color key="backgroundColor" white="1" alpha="0.0" colorSpace="deviceWhite"/>
                                             </textFieldCell>
@@ -504,21 +505,21 @@ if it does not exist</string>
                                             <rect key="frame" x="5" y="80" width="235" height="18"/>
                                             <buttonCell key="cell" type="check" title="Remove ReEnroller folder after migration" bezelStyle="regularSquare" imagePosition="left" controlSize="small" state="on" inset="2" id="Rbv-3I-3pd">
                                                 <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
-                                                <font key="font" metaFont="menu" size="11"/>
+                                                <font key="font" metaFont="label" size="11"/>
                                             </buttonCell>
                                         </button>
                                         <button translatesAutoresizingMaskIntoConstraints="NO" id="FTz-5h-Lwv">
                                             <rect key="frame" x="5" y="140" width="330" height="18"/>
                                             <buttonCell key="cell" type="check" title="Create 'Migration Complete' policy on the new Jamf server" bezelStyle="regularSquare" imagePosition="left" controlSize="small" state="on" inset="2" id="Bzw-xE-KoJ">
                                                 <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
-                                                <font key="font" metaFont="menu" size="11"/>
+                                                <font key="font" metaFont="label" size="11"/>
                                             </buttonCell>
                                         </button>
                                         <button identifier="existingSite" translatesAutoresizingMaskIntoConstraints="NO" id="bmJ-dd-b0c">
                                             <rect key="frame" x="5" y="199" width="177" height="18"/>
                                             <buttonCell key="cell" type="check" title="Use existing site membership" bezelStyle="regularSquare" imagePosition="left" controlSize="small" state="on" inset="2" id="C0A-ig-Cai">
                                                 <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
-                                                <font key="font" metaFont="menu" size="11"/>
+                                                <font key="font" metaFont="label" size="11"/>
                                             </buttonCell>
                                             <connections>
                                                 <action selector="siteToggle_button:" target="Voe-Tx-rLC" id="9HE-hV-oC6"/>
@@ -531,7 +532,7 @@ if it does not exist</string>
                                             </constraints>
                                             <buttonCell key="cell" type="check" title="Enroll in Site:" bezelStyle="regularSquare" imagePosition="left" controlSize="small" inset="2" id="4Oi-w0-b2Q">
                                                 <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
-                                                <font key="font" metaFont="menu" size="11"/>
+                                                <font key="font" metaFont="label" size="11"/>
                                             </buttonCell>
                                             <connections>
                                                 <action selector="siteToggle_button:" target="Voe-Tx-rLC" id="nbH-W3-ktN"/>
@@ -541,7 +542,7 @@ if it does not exist</string>
                                             <rect key="frame" x="108" y="174" width="64" height="22"/>
                                             <popUpButtonCell key="cell" type="push" title="None" bezelStyle="rounded" alignment="left" controlSize="small" lineBreakMode="truncatingTail" enabled="NO" state="on" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" selectedItem="yu1-lM-bcR" id="T5K-Sz-zcn">
                                                 <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
-                                                <font key="font" metaFont="menu" size="11"/>
+                                                <font key="font" metaFont="label" size="11"/>
                                                 <menu key="menu" id="x7K-Le-6Oz">
                                                     <items>
                                                         <menuItem title="None" state="on" id="yu1-lM-bcR"/>
@@ -596,14 +597,14 @@ if it does not exist</string>
                                             <string key="toolTip">Creates a package containing the launch daemon and post install script, separate from the package containing the re-enrollment app</string>
                                             <buttonCell key="cell" type="check" title="Create Separate Packages" bezelStyle="regularSquare" imagePosition="left" controlSize="small" inset="2" id="K2c-hb-rL9">
                                                 <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
-                                                <font key="font" metaFont="menu" size="11"/>
+                                                <font key="font" metaFont="label" size="11"/>
                                             </buttonCell>
                                         </button>
                                         <button translatesAutoresizingMaskIntoConstraints="NO" id="caj-6s-vnd">
                                             <rect key="frame" x="5" y="119" width="268" height="18"/>
                                             <buttonCell key="cell" type="check" title="Run Policy after verifying migration.  Policy ID: " bezelStyle="regularSquare" imagePosition="left" controlSize="small" inset="2" id="Z0J-Xt-gtr">
                                                 <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
-                                                <font key="font" metaFont="menu" size="11"/>
+                                                <font key="font" metaFont="label" size="11"/>
                                             </buttonCell>
                                             <connections>
                                                 <action selector="runPolicy_Function:" target="Voe-Tx-rLC" id="p0p-jZ-Qf0"/>
@@ -623,7 +624,7 @@ if it does not exist</string>
                                         <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="751" translatesAutoresizingMaskIntoConstraints="NO" id="GCs-Lk-xop">
                                             <rect key="frame" x="311" y="119" width="142" height="16"/>
                                             <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" state="on" alignment="center" title="(ID on destination server)" drawsBackground="YES" id="P74-GZ-PcF">
-                                                <font key="font" metaFont="menu" size="11"/>
+                                                <font key="font" metaFont="label" size="11"/>
                                                 <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
                                                 <color key="backgroundColor" white="1" alpha="0.0" colorSpace="deviceWhite"/>
                                             </textFieldCell>
@@ -632,14 +633,14 @@ if it does not exist</string>
                                             <rect key="frame" x="5" y="158" width="137" height="18"/>
                                             <buttonCell key="cell" type="check" title="Skip MDM verification" bezelStyle="regularSquare" imagePosition="left" controlSize="small" inset="2" id="FxC-yG-JUu">
                                                 <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
-                                                <font key="font" metaFont="menu" size="11"/>
+                                                <font key="font" metaFont="label" size="11"/>
                                             </buttonCell>
                                         </button>
                                         <button verticalHuggingPriority="750" verticalCompressionResistancePriority="751" translatesAutoresizingMaskIntoConstraints="NO" id="EzS-fl-a9F">
                                             <rect key="frame" x="5" y="220" width="144" height="18"/>
                                             <buttonCell key="cell" type="check" title="Use for new enrollment" bezelStyle="regularSquare" imagePosition="left" controlSize="small" inset="2" id="jQn-rh-ofg">
                                                 <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
-                                                <font key="font" metaFont="menu" size="11"/>
+                                                <font key="font" metaFont="label" size="11"/>
                                             </buttonCell>
                                             <connections>
                                                 <action selector="jamfSchool_fn:" target="Voe-Tx-rLC" id="yPn-YY-mDE"/>
@@ -649,7 +650,7 @@ if it does not exist</string>
                                             <rect key="frame" x="5" y="241" width="158" height="18"/>
                                             <buttonCell key="cell" type="check" title="Migrate from Jamf School" bezelStyle="regularSquare" imagePosition="left" controlSize="small" inset="2" id="mYJ-NE-GPt">
                                                 <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
-                                                <font key="font" metaFont="menu" size="11"/>
+                                                <font key="font" metaFont="label" size="11"/>
                                             </buttonCell>
                                             <connections>
                                                 <action selector="jamfSchool_fn:" target="Voe-Tx-rLC" id="5o2-ea-nCV"/>
@@ -682,7 +683,7 @@ if it does not exist</string>
                                             <rect key="frame" x="5" y="100" width="344" height="18"/>
                                             <buttonCell key="cell" type="check" title="Call Automated Device Enrollment (requires user interaction)." bezelStyle="regularSquare" imagePosition="left" controlSize="small" inset="2" id="SCA-36-aSO">
                                                 <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
-                                                <font key="font" metaFont="menu" size="11"/>
+                                                <font key="font" metaFont="label" size="11"/>
                                             </buttonCell>
                                         </button>
                                         <textField hidden="YES" verticalHuggingPriority="750" fixedFrame="YES" textCompletion="NO" translatesAutoresizingMaskIntoConstraints="NO" id="B6w-QM-Ff3" userLabel="Jamf School Background">
@@ -705,7 +706,7 @@ if it does not exist</string>
                                         <textField hidden="YES" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="iHU-Zu-t6y">
                                             <rect key="frame" x="228" y="225" width="30" height="14"/>
                                             <textFieldCell key="cell" lineBreakMode="clipping" title="URL:" id="Udd-OM-dDC">
-                                                <font key="font" metaFont="system" size="11"/>
+                                                <font key="font" metaFont="label" size="11"/>
                                                 <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
                                                 <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                             </textFieldCell>
@@ -713,7 +714,7 @@ if it does not exist</string>
                                         <textField hidden="YES" verticalHuggingPriority="750" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="dk6-qh-NYN" userLabel="URL Text Field">
                                             <rect key="frame" x="258" y="222" width="216" height="19"/>
                                             <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" borderStyle="bezel" placeholderString="https://your.jamfcloud.com" drawsBackground="YES" id="73W-Wh-JuC">
-                                                <font key="font" metaFont="system" size="11"/>
+                                                <font key="font" metaFont="label" size="11"/>
                                                 <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                                 <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                             </textFieldCell>
@@ -721,7 +722,7 @@ if it does not exist</string>
                                         <textField hidden="YES" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="QeQ-CZ-htk">
                                             <rect key="frame" x="192" y="204" width="66" height="14"/>
                                             <textFieldCell key="cell" lineBreakMode="clipping" title="Network ID:" id="1vh-A4-Xtb">
-                                                <font key="font" metaFont="menu" size="11"/>
+                                                <font key="font" metaFont="label" size="11"/>
                                                 <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
                                                 <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                             </textFieldCell>
@@ -729,7 +730,7 @@ if it does not exist</string>
                                         <textField hidden="YES" verticalHuggingPriority="750" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="iUK-xY-lMW" userLabel="Network ID Text Field">
                                             <rect key="frame" x="258" y="201" width="151" height="19"/>
                                             <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" borderStyle="bezel" placeholderString="Devices -&gt; Enroll Device(s)" drawsBackground="YES" id="K4b-Gp-bus">
-                                                <font key="font" metaFont="menu" size="11"/>
+                                                <font key="font" metaFont="label" size="11"/>
                                                 <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                                 <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                             </textFieldCell>
@@ -737,7 +738,7 @@ if it does not exist</string>
                                         <textField hidden="YES" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="kj2-U6-AIS">
                                             <rect key="frame" x="210" y="183" width="48" height="14"/>
                                             <textFieldCell key="cell" lineBreakMode="clipping" title="API Key:" id="Bs3-TJ-ACB">
-                                                <font key="font" metaFont="menu" size="11"/>
+                                                <font key="font" metaFont="label" size="11"/>
                                                 <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
                                                 <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                             </textFieldCell>
@@ -745,7 +746,7 @@ if it does not exist</string>
                                         <textField hidden="YES" verticalHuggingPriority="750" ambiguous="YES" textCompletion="NO" translatesAutoresizingMaskIntoConstraints="NO" id="s8e-Xc-7W9" userLabel="API Key Text Field">
                                             <rect key="frame" x="258" y="180" width="216" height="19"/>
                                             <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" borderStyle="bezel" alignment="left" placeholderString="Org. -&gt; Settings -&gt; API" id="YW0-e0-4yd">
-                                                <font key="font" metaFont="menu" size="11"/>
+                                                <font key="font" metaFont="label" size="11"/>
                                                 <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                                 <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                             </textFieldCell>
