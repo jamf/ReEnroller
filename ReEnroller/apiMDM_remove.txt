@@ -54,7 +54,7 @@
 #
 #	- Created by Leslie Helou, Professional Services Engineer, JAMF Software on December 12, 2017
 #   - updated 20190124: Provide additional feedback as it runs
-#   - updated 20200918: Changes to xpath for Big Sur
+#   - updated 20200918: Updates due to changes in xpath for Big Sur
 #
 ####################################################################################################
 
