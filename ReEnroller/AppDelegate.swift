@@ -1436,20 +1436,27 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
                 if !mdmInstalled(cmd: "/bin/bash", args: "-c", "/usr/bin/profiles -C | grep 00000000-0000-0000-A000-4A414D460003 | wc -l") {
                     writeToLog(theMessage: "Removed old MDM profile")
                 } else {
+                    var attempt = 1
                     writeToLog(theMessage: "Unable to remove MDM using the jamf binary, attempting remote command.")
                     while mdmInstalled(cmd: "/bin/bash", args: "-c", "/usr/bin/profiles -C | grep 00000000-0000-0000-A000-4A414D460003 | wc -l") {
+
                         counter+=1
-                        _ = myExitCode(cmd: "/bin/bash", args: "-c", "killall jamf;/usr/local/bin/jamf policy -trigger apiMDM_remove")
-                        sleep(10)
-                        if counter > 6 {
+                        if (counter-1) % 20 == 0 {
+                            writeToLog(theMessage: "Attempt \(attempt) to remove MDM through remote command.")
+                            _ = myExitCode(cmd: "/bin/bash", args: "-c", "killall jamf")
+                            _ = myExitCode(cmd: "/bin/bash", args: "-c", "/usr/local/bin/jamf policy -trigger apiMDM_remove")
+                            attempt+=1
+                        }
+
+                        sleep(1)
+                        if attempt > 7 {
                             writeToLog(theMessage: "Failed to remove MDM through remote command - exiting")
                             //                    unverifiedFallback()
                             //                    exit(1)
                             completion("failed")
-                        } else {
-                            writeToLog(theMessage: "Attempt \(counter) to remove MDM through remote command.")
                         }
                     }   // while mdmInstalled - end
+                    writeToLog(theMessage: "Attempt \(attempt-1) removed the MDM profile.")
                 }
 
                 if counter == 0 {
