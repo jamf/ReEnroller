@@ -90,6 +90,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
     @IBOutlet weak var retainSite_Button: NSButton!
     @IBOutlet weak var enableSites_Button: NSButton!
     @IBOutlet weak var site_Button: NSPopUpButton!
+    @IBOutlet weak var skipHealthCheck_Button: NSButton!
     @IBOutlet weak var skipMdmCheck_Button: NSButton!
     @IBOutlet weak var createPolicy_Button: NSButton!
     @IBOutlet weak var runPolicy_Button: NSButton!
@@ -172,6 +173,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
     var removeReEnroller    = "yes"         // by default delete the ReEnroller folder after enrollment
     var callEnrollment      = "no"          // defaults to not calling automated device enrollment, unless we're Big Sur or above
     var retainSite          = "true"        // by default retain site when re-enrolling
+    var skipHealthCheck     = "no"          // by default do not skip mdm check
     var skipMdmCheck        = "no"          // by default do not skip mdm check
     var StartInterval       = 1800          // default retry interval is 1800 seconds (30 minutes)
     var includesMsg         = "includes"
@@ -488,8 +490,8 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
                 return
             } else {
                 // server is reachable
-                self.jssUsername = self.jssUsername_TextField.stringValue //.addingPercentEncoding(withAllowedCharacters: safeCharSet)!
-                self.jssPassword = self.jssPassword_TextField.stringValue //.addingPercentEncoding(withAllowedCharacters: safeCharSet)!
+                self.jssUsername = self.jssUsername_TextField.stringValue
+                self.jssPassword = self.jssPassword_TextField.stringValue
                 // save Jamf Pro URL and user
                 self.userDefaults.set("\(self.jssUrl_TextField.stringValue)", forKey: "jamfProUrl")
                 self.userDefaults.set("\(self.jssUsername_TextField.stringValue)", forKey: "jamfProUser")
@@ -761,6 +763,14 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
                                             self.plistData["newEnrollment"] = 1 as AnyObject
                                         }
                                         // configure new enrollment check - end
+
+                                        // configure healthCheck - start
+                                        if self.skipHealthCheck_Button.state.rawValue == 0 {
+                                            self.plistData["skipHealthCheck"] = "no" as AnyObject
+                                        } else {
+                                            self.plistData["skipHealthCheck"] = "yes" as AnyObject
+                                        }
+                                        // configure healthCheck - end
                                         
                                         // configure mdm check - start
                                         if self.skipMdmCheck_Button.state.rawValue == 0 {
@@ -2069,39 +2079,45 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
     }
     
     func healthCheck(server: String, completion: @escaping (_ result: [String]) -> Void) {
-        URLCache.shared.removeAllCachedResponses()
-        var responseData = ""
-        var healthCheckUrl = "\(server)/healthCheck.html"
-        healthCheckUrl     = healthCheckUrl.replacingOccurrences(of: "//healthCheck.html", with: "/healthCheck.html")
-        
-        let serverUrl = NSURL(string: "\(healthCheckUrl)")
-        let serverRequest = NSMutableURLRequest(url: serverUrl! as URL)
-        
-        serverRequest.httpMethod = "GET"
-        let serverConf = URLSessionConfiguration.default
-        
-        self.writeToLog(theMessage: "Performing a health check against: \(healthCheckUrl)")
-        let session = Foundation.URLSession(configuration: serverConf, delegate: self, delegateQueue: OperationQueue.main)
-        let task = session.dataTask(with: serverRequest as URLRequest, completionHandler: {
-            (data, response, error) -> Void in
-            if let httpResponse = response as? HTTPURLResponse {
-                if let _ = String(data: data!, encoding: .utf8) {
-                    responseData = String(data: data!, encoding: .utf8)!
-                    responseData = responseData.replacingOccurrences(of: "\n", with: "")
-                    responseData = responseData.replacingOccurrences(of: "\r", with: "")
-                    self.writeToLog(theMessage: "healthCheck response code: \(httpResponse.statusCode)")
-                    self.writeToLog(theMessage: "healthCheck response: \(responseData)")
-                    completion(["\(httpResponse.statusCode)","\(responseData)"])
+        if skipHealthCheck == "no" {
+            URLCache.shared.removeAllCachedResponses()
+            var responseData = ""
+            var healthCheckUrl = "\(server)/healthCheck.html"
+            healthCheckUrl     = healthCheckUrl.replacingOccurrences(of: "//healthCheck.html", with: "/healthCheck.html")
+
+            let serverUrl = NSURL(string: "\(healthCheckUrl)")
+            let serverRequest = NSMutableURLRequest(url: serverUrl! as URL)
+
+            serverRequest.httpMethod = "GET"
+            let serverConf = URLSessionConfiguration.default
+
+            self.writeToLog(theMessage: "Performing a health check against: \(healthCheckUrl)")
+            let session = Foundation.URLSession(configuration: serverConf, delegate: self, delegateQueue: OperationQueue.main)
+            let task = session.dataTask(with: serverRequest as URLRequest, completionHandler: {
+                (data, response, error) -> Void in
+                if let httpResponse = response as? HTTPURLResponse {
+                    if let _ = String(data: data!, encoding: .utf8) {
+                        responseData = String(data: data!, encoding: .utf8)!
+                        responseData = responseData.replacingOccurrences(of: "\n", with: "")
+                        responseData = responseData.replacingOccurrences(of: "\r", with: "")
+                        self.writeToLog(theMessage: "healthCheck response code: \(httpResponse.statusCode)")
+                        self.writeToLog(theMessage: "healthCheck response: \(responseData)")
+                        completion(["\(httpResponse.statusCode)","\(responseData)"])
+                    } else {
+                        self.writeToLog(theMessage: "No data was returned from health check.")
+                        completion(["\(httpResponse.statusCode)",""])
+                    }
+
                 } else {
-                    self.writeToLog(theMessage: "No data was returned from health check.")
-                    completion(["\(httpResponse.statusCode)",""])
+                    completion(["Unable to reach server.",""])
                 }
-                
-            } else {
-                completion(["Unable to reach server.",""])
-            }
-        })
-        task.resume()
+            })
+            task.resume()
+        } else {
+            writeToLog(theMessage: "Skipping health check on \(server).")
+            writeToLog(theMessage: "Marking the server as reachable.")
+            completion(["200","[]"])
+        }
     }
     
     // func download - start
@@ -2331,6 +2347,9 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
                 }
                 if plistData["createConfSwitches"] != nil {
                     createConfSwitches = plistData["createConfSwitches"]! as! String
+                }
+                if plistData["skipHealthCheck"] != nil {
+                    skipHealthCheck = plistData["skipHealthCheck"]! as! String
                 }
                 if plistData["skipMdmCheck"] != nil {
                     skipMdmCheck = plistData["skipMdmCheck"]! as! String
