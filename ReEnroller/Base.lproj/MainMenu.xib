@@ -194,7 +194,7 @@
             <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES"/>
             <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
             <rect key="contentRect" x="526" y="510" width="592" height="617"/>
-            <rect key="screenRect" x="0.0" y="0.0" width="1440" height="877"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="1680" height="1027"/>
             <view key="contentView" wantsLayer="YES" id="EiT-Mj-1SZ">
                 <rect key="frame" x="0.0" y="0.0" width="592" height="617"/>
                 <autoresizingMask key="autoresizingMask"/>
@@ -524,7 +524,7 @@ if it does not exist</string>
                                             </buttonCell>
                                         </button>
                                         <button identifier="existingSite" translatesAutoresizingMaskIntoConstraints="NO" id="bmJ-dd-b0c">
-                                            <rect key="frame" x="5" y="199" width="177" height="18"/>
+                                            <rect key="frame" x="5" y="200" width="177" height="18"/>
                                             <buttonCell key="cell" type="check" title="Use existing site membership" bezelStyle="regularSquare" imagePosition="left" controlSize="small" state="on" inset="2" id="C0A-ig-Cai">
                                                 <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                                 <font key="font" metaFont="label" size="11"/>
@@ -619,7 +619,7 @@ if it does not exist</string>
                                             </textFieldCell>
                                         </textField>
                                         <button translatesAutoresizingMaskIntoConstraints="NO" id="8ad-QF-Yau">
-                                            <rect key="frame" x="5" y="180" width="115" height="18"/>
+                                            <rect key="frame" x="5" y="179" width="115" height="18"/>
                                             <buttonCell key="cell" type="check" title="Skip health check" bezelStyle="regularSquare" imagePosition="left" controlSize="small" inset="2" id="DTT-Ld-BS5">
                                                 <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                                 <font key="font" metaFont="label" size="11"/>
@@ -813,7 +813,7 @@ if it does not exist</string>
                                         <constraint firstItem="Ofq-EU-8hD" firstAttribute="top" secondItem="ZHS-IU-wah" secondAttribute="bottom" id="ebr-42-lBN"/>
                                         <constraint firstItem="7JJ-OT-pIq" firstAttribute="baseline" secondItem="aEv-Vd-e1p" secondAttribute="baseline" id="fPv-nT-vQ6"/>
                                         <constraint firstItem="XUD-Au-zbw" firstAttribute="leading" secondItem="izB-J4-owE" secondAttribute="trailing" constant="13" id="fgA-Ph-uXT"/>
-                                        <constraint firstItem="bmJ-dd-b0c" firstAttribute="top" secondItem="EzS-fl-a9F" secondAttribute="bottom" constant="9" id="gFx-eC-ako"/>
+                                        <constraint firstItem="bmJ-dd-b0c" firstAttribute="top" secondItem="EzS-fl-a9F" secondAttribute="bottom" constant="8" id="gFx-eC-ako"/>
                                         <constraint firstItem="EzS-fl-a9F" firstAttribute="top" secondItem="Kwg-Ff-HNv" secondAttribute="bottom" constant="9" id="gPs-29-cBL"/>
                                         <constraint firstItem="ZHS-IU-wah" firstAttribute="leading" secondItem="bdq-oV-CNv" secondAttribute="leading" constant="8" id="h5o-4n-Mgm"/>
                                         <constraint firstItem="FTz-5h-Lwv" firstAttribute="top" secondItem="iWt-oG-JTf" secondAttribute="bottom" constant="6" symbolic="YES" id="hoC-4h-Sji"/>
@@ -832,7 +832,7 @@ if it does not exist</string>
                                         <constraint firstItem="caj-6s-vnd" firstAttribute="baseline" secondItem="GCs-Lk-xop" secondAttribute="baseline" id="v7Q-Qz-8ho"/>
                                         <constraint firstItem="TW3-EU-Ev3" firstAttribute="leading" secondItem="QeQ-CZ-htk" secondAttribute="leading" id="w8X-Ow-XGQ"/>
                                         <constraint firstItem="Eej-zN-cME" firstAttribute="leading" secondItem="caj-6s-vnd" secondAttribute="leading" id="wrz-Bt-zGm"/>
-                                        <constraint firstItem="iWt-oG-JTf" firstAttribute="top" secondItem="8ad-QF-Yau" secondAttribute="bottom" constant="8" id="xpY-No-tOc"/>
+                                        <constraint firstItem="iWt-oG-JTf" firstAttribute="top" secondItem="8ad-QF-Yau" secondAttribute="bottom" constant="7" id="xpY-No-tOc"/>
                                         <constraint firstItem="iUK-xY-lMW" firstAttribute="leading" secondItem="s8e-Xc-7W9" secondAttribute="leading" id="z7x-dr-uWN"/>
                                     </constraints>
                                 </view>
@@ -999,7 +999,7 @@ if it does not exist</string>
             <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
             <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
             <rect key="contentRect" x="163" y="199" width="916" height="481"/>
-            <rect key="screenRect" x="0.0" y="0.0" width="1440" height="877"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="1680" height="1027"/>
             <view key="contentView" id="2IQ-8e-ug6">
                 <rect key="frame" x="0.0" y="0.0" width="916" height="481"/>
                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
