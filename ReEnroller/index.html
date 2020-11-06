@@ -81,20 +81,29 @@ a:hover
 {
    text-align: left;
 }
-#app_image
+#appImage img
 {
     border: 0px #000000 solid;
-    padding: 10px 0px 10px 0px;
+    padding: 10px 0px 10px 50px;
     margin: auto;
+    width:490px;
+    position: relative
 }
-#Image2
+#jpsImage img
 {
-   border: 0px #000000 solid;
-   padding: 0px 0px 0px 0px;
-   left: 0;
-   top: 0;
-   width: 100%;
-   height: 100%;
+    border: 0px #000000 solid;
+    padding: 10px 0px 10px 50px;
+    margin: auto;
+    width:494px;
+    position: relative
+}
+#jpsImage2 img
+{
+    border: 0px #000000 solid;
+    padding: 10px 0px 10px 50px;
+    margin: auto;
+    width:640px;
+    position: relative
 }
 #wb_Text3
 {
@@ -142,7 +151,7 @@ a:hover
     </ul>
 <div>Once everything is configured click Build.</div>
 </div></div>
-<div id="app_image" style="position:relative;width: 490px;height: auto">
+<div id="appImage">
 <img src="images/ReEnroller.png" alt=""></div>
 <div id="main_body" style="position:relative;">
 <div style="font-family:Arial;font-size:13px;line-height:15px;color:#000000;">
@@ -153,7 +162,7 @@ a:hover
     <div style="font-family:Arial;font-size:13px;line-height:15px;color:#000000;">
 <div>Once a package is built, and profiles are in place, it can be deployed from the Jamf Pro server via a policy or from the app itself.  Pushing the package requires credentials for an account able to remotely login (ssh) to the remote machine and the machine having ssh enabled on port 22.</div>
 </div></div>
-<div id="app_image" style="position:relative;width: 490px;height: auto">
+<div id="appImage" style="position:relative;width: 490px;height: auto;">
     <img src="images/ReEnroller2.png" alt=""></div>
 
 
@@ -164,25 +173,58 @@ a:hover
 <div>To verify the machine successfully migrated a 'Migration Complete' policy must exist on the new server, scoped to all managed clients.&nbsp; As mentioned earlier this policy may be created automatically.&nbsp; If you wish to create it manually it must, at a minimum, contain a Files and Processes payload.&nbsp; On the policy General tab configure a Custom Event (jpsmigrationcheck) and Execution Frequency (Ongoing) as illustrated below:</div>
 </div>
 </div>
-<div id="app_image" style="position:relative;width:494px;height:124px;">
+<div id="jpsImage">
 <img src="images/general.png" alt=""></div>
 <div id="main_body" style="position:relative;">
 <div style="font-family:Arial;font-size:13px;line-height:15px;color:#000000;">
-<div>The Files and Processes payload must contain the following in the Execute Command section: <br><span style="font-family:'Courier New';">touch /Library/Application\ Support/JAMF/ReEnroller/Complete</span></div>
-<div id="app_image" style="position:relative;width:494px;height:64px;">
+<div>The Files and Processes payload must contain the following in the Execute Command section: <br><span style="font-family:'Courier New';">touch /Library/Application\ Support/JAMF/ReEnroller/Complete</span>
+    </div>
+</div>
+</div>
+<div id="jpsImage">
 <img src="images/executeCommand.png" alt=""></div>
-</div>
-</div>
 <div id="main_body" style="position:relative;">
 <div style="font-family:Arial;font-size:13px;line-height:15px;color:#000000;">
 <div>If utilizing a random password for the management account we also need a Management Account payload with (minimum) settings as shown:</div>
 </div>
 </div>
-<div id="app_image" style="position:relative;width:494px;height:251px">
+<div id="jpsImage">
 <img src="images/managementAccount.png" alt=""></div>
 <div id="main_body" style="position:relative;">
 <div style="font-family:Arial;font-size:13px;line-height:15px;color:#000000;"></div>
 <div><hr></div>
+    
+<div><strong>Jamf School Migrations</strong></div>
+<div id="jpsImage">
+<img src="images/reEnrollerJamfSchool.png" alt=""></div>    
+    
+    
+<div id="main_body" style="position:relative;">
+<div style="font-family:Arial;font-size:13px;line-height:15px;color:#000000;">
+<div>Jamf School migrations require the following information from your Jamf School instance:
+<ul style="margin-left:17px;line-height: 1.4;">
+    <li>Jamf School URL</li>
+    <li>Network ID.  Found under Devices → Enroll Devices(s)</li>
+    <div id="jpsImage2">
+<img src="images/jamfSchoolNetworkId.png" alt=""></div>  
+    <li>An API key with Add permission.  Found under Organization → Settings → API</li>
+    <div id="jpsImage2">
+<img src="images/JamfSchoolApiKey.png" alt=""></div>  
+    </ul>
+    </div>
+</div>
+</div> 
+<div id="main_body" style="position:relative;">
+<div style="font-family:Arial;font-size:13px;line-height:15px;color:#000000;">
+<div>As the ReEnroller package is built the following will be created on the destination Jamf Server, if they don’t exist, to perform unenrollment from Jamf School.
+    <ul>
+<li>Category - Name: Jamf School Unenroll</li>
+<li>Script - Name: Jamf School Unenroll</li>
+<li>Policy - Name: Jamf School Unenroll</li>
+    </ul>
+Note, these objects are not updated when new packages are built and must be deleted from Jamf Pro if say you change the API key.
+<div><hr></div>    
+    
 <div><strong>High Sierra (10.13) and later:</strong></div>
 <div id="main_body" style="position:relative;">
 <div style="font-family:Arial;font-size:13px;line-height:15px;color:#000000;">
@@ -242,11 +284,18 @@ a:hover
 #
 # HISTORY
 #
-#	Version: 1.0
+#	Version: 1.3
 #
 #	- Created by Leslie Helou, Professional Services Engineer, JAMF Software on December 12, 2017
+#   - updated 20190124: Provide additional feedback as it runs
+#   - updated 20200918: Updates due to changes in xpath for Big Sur
 #
 ####################################################################################################
+
+## get macOS version
+macOS_Version=$(sw_vers -productVersion)
+majorVer=$( /bin/echo "$macOS_Version" | /usr/bin/awk -F. '{print $1}' )
+minorVer=$( /bin/echo "$macOS_Version" | /usr/bin/awk -F. '{print $2}' )
 
 ## account with computer create and read (JSS Objects), Send Computer Unmanage Command (JSS Actions)
 uname="$4"
@@ -256,35 +305,61 @@ if [ "$6" != "" ];then
 	server="$6"
 else
 	## get current Jamf server
-	server=$(defaults read /Library/Preferences/com.jamfsoftware.jamf.plist jss_url)
+	server=$(/usr/bin/defaults read /Library/Preferences/com.jamfsoftware.jamf.plist jss_url)
 fi
-    
+
+if [ "$server" == "" ];then
+    echo "unable to determine current Jamf server - exiting."
+    exit 1
+fi
+
 ## ensure the server URL ends with a /
 strLen=$((${#server}-1))
 lastChar="${server:$strLen:1}"
 if [ ! "$lastChar" = "/" ];then
     server="${server}/"
 fi
-    
+
 ## get unique identifier for machine
-udid=$(system_profiler SPHardwareDataType | awk '/UUID/ { print $3; }')
+udid=$(/usr/sbin/system_profiler SPHardwareDataType | awk '/UUID/ { print $3; }')
+if [ "$udid" == "" ];then
+    echo "unable to determine UUID of computer - exiting."
+    exit 1
+else
+    echo "computer UUID: $udid"
+fi
 
 ## get computer ID from Jamf server
-compId=$(/usr/bin/curl -sku ${uname}:${pwd} ${server}JSSResource/computers/udid/${udid}/subset/general -H "Accept: application/xml" | /usr/bin/xpath "//computer/general/id/text()" )
+compXml=$(/usr/bin/curl -sku "${uname}:${pwd}" ${server}JSSResource/computers/udid/"$udid"/subset/general -H "Accept: application/xml")
+
+if [[ $(echo "${compXml}" | grep "The server has not found anything matching the request URI") == "" ]];then
+    if [ $majorVer -gt 10 ] || ([ $majorVer eq 10 ] && [ $majorMinor -gt 15 ]);then
+        compId=$(echo "${compXml}" | /usr/bin/xpath -q -e "//computer/general/id/text()")
+    else
+        compId=$(echo "${compXml}" | /usr/bin/xpath "//computer/general/id/text()")
+    fi
+    echo "computer ID: $compId"
+else
+    echo "computer was not found on $server - exiting."
+    exit 1
+fi
 
 ## send unmanage command to machine
-curl -X POST -sku ${uname}:${pwd} ${server}JSSResource/computercommands/command/UnmanageDevice/id/${compId}
+echo "unmanage machine: curl -X POST -sku ${uname}:******** ${server}JSSResource/computercommands/command/UnmanageDevice/id/${compId}"
+/usr/bin/curl -X POST -sku "${uname}:${pwd}" ${server}JSSResource/computercommands/command/UnmanageDevice/id/${compId}
+
+
 <br><hr>
 <?php
     copy("./apiMDM_remove.txt","/tmp/apiMDM_remove.txt");
     echo getcwd();
 ?>
 </span></pre></div>
-    <div>Create a policy to deploy the script.  The policy must have a custom trigger of apiMDM_remove.  Also set the policy to Ongoing.</div>
-<div id="app_image" style="position:relative;width:800px;">
+    <div>Create a policy to deploy the script on the source server (server you are migrating from).  <b>The policy must have a custom trigger of apiMDM_remove</b>.  Also set the policy to Ongoing.</div>
+<div id="jpsImage2">
 <img src="images/mdmRemove_general.png" alt=""></div>
         <div>The script requires 2 parameters, a Jamf server username and password.  The account must have at least Computers Create and Read (Jamf Pro Server Objects) along with Send Computer Unmanage Command (Jamf Pro Server Actions). A third (optional) parameter may be provided, the current Jamf server the client is enrolled in.  If the parameter is not provided the server will be read from com.jamfsoftware.jamf.plist.</div>
-<div id="app_image" style="position:relative;width:800px;">
+<div id="jpsImage2">
 <img src="images/mdmRemove_script.png" alt=""></div>
 </div>
 <div><hr></div>
