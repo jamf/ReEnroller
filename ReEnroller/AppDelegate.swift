@@ -1421,7 +1421,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
                 if removeAllProfiles == "false" {
                     writeToLog(theMessage: "Attempting to remove mdm")
                     if myExitCode(cmd: "/usr/local/jamf/bin/jamf", args: "removemdmprofile") == 0 {
-                        writeToLog(theMessage: "Removed old MDM profile")
+                        writeToLog(theMessage: "Removed old MDM profile using the jamf binary")
                     } else {
                         writeToLog(theMessage: "There was a problem removing old MDM info. Falling back to old settings and Falling back to old settings and exiting!")
     //                    unverifiedFallback()
@@ -1444,7 +1444,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
                 // try to remove mdm with jamf command
                 _ = myExitCode(cmd: "/usr/local/bin/jamf", args: "removemdmprofile")
                 if !mdmInstalled(cmd: "/bin/bash", args: "-c", "/usr/bin/profiles -C | grep 00000000-0000-0000-A000-4A414D460003 | wc -l") {
-                    writeToLog(theMessage: "Removed old MDM profile")
+                    writeToLog(theMessage: "Removed old MDM profile using the jamf binary.")
                 } else {
                     var attempt = 1
                     writeToLog(theMessage: "Unable to remove MDM using the jamf binary, attempting remote command.")
