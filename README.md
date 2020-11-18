@@ -24,6 +24,8 @@ Important: After enrolling in the new server the user must approve the MDM profi
 Thanks @fauxserve for coming up with the idea and initial bash version.
 
 ## History
+- 2020-11-19: Brought create seperate packages button back into view, minor logging additions.
+
 - 2020-10-05: Added ability to migrate from Jamf School to Jamf Pro, ability to skip the health check that verifies the server is available, ability to call device enrollment (since installing profiles with the profiles command no longer works with Big Sur), modified apiMDM_ removal script for Big Sur.  Recon now runs with the endUsername flag.
 
 - 20-07-27: Fixed device signature error that would occur when calling the remove mdm profile policy.
