@@ -1458,7 +1458,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
                             attempt+=1
                         }
 
-                        sleep(1)
+                        sleep(2)
                         if attempt > 7 {
                             writeToLog(theMessage: "Failed to remove MDM through remote command - exiting")
                             //                    unverifiedFallback()
@@ -1467,6 +1467,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
                         }
                     }   // while mdmInstalled - end
                     writeToLog(theMessage: "Attempt \(attempt-1) removed the MDM profile.")
+                    sleep(5)
                 }
 
                 if counter == 0 {
@@ -1510,10 +1511,20 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
         }
 
         // enroll with the new server using an invitation
-        if myExitCode(cmd: "/usr/local/bin/jamf", args: "enroll", "-invitation", "\(newInvite)", "-noRecon", "-noPolicy", "-noManage") == 0 {
-            writeToLog(theMessage: "/usr/local/bin/jamf enroll -invitation xxxxxxxx -noRecon -noPolicy -noManage")
-            writeToLog(theMessage: "Enrolled to new Jamf Server: \(newServer)")
-        } else {
+        writeToLog(theMessage: "Using enrollment invitation to enroll into Jamf Server: \(newServer)")
+        var enrolled = false
+        var enrollCounter = 1
+        if !enrolled && enrollCounter < 4 {
+            if myExitCode(cmd: "/usr/local/bin/jamf", args: "enroll", "-invitation", "\(newInvite)", "-noRecon", "-noPolicy", "-noManage") == 0 {
+                writeToLog(theMessage: "/usr/local/bin/jamf enroll -invitation xxxxxxxx -noRecon -noPolicy -noManage")
+                writeToLog(theMessage: "Enrolled to new Jamf Server: \(newServer)")
+                enrolled = true
+            } else {
+                enrollCounter += 1
+                sleep(5)
+            }
+        }
+        if !enrolled {
             writeToLog(theMessage: "There was a problem enrolling to new Jamf Server: \(newServer). Falling back to old settings and exiting!")
             completion("failed")
         }
