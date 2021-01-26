@@ -1385,7 +1385,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
     // function to return value of bash command - end
     
     // function to return mdm status - start
-    func mdmInstalled(cmd: String, args: String...) -> Bool {
+    func mdmInstalled(cmd: String, args: String..., message: String) -> Bool {
         var mdm = true
         var profileList = ""
         let mdmPipe    = Pipe()
@@ -1400,7 +1400,8 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
         
         let data = mdmPipe.fileHandleForReading.readDataToEndOfFile()
         profileList = String(data: data, encoding: String.Encoding.utf8)!
-        
+
+        writeToLog(theMessage: "\(message)")
         writeToLog(theMessage: "profile list: \n\(String(describing: profileList))")
         
         let mdmCount = Int(profileList.trimmingCharacters(in: .whitespacesAndNewlines))!
@@ -1443,12 +1444,12 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
                 var counter = 0
                 // try to remove mdm with jamf command
                 _ = myExitCode(cmd: "/usr/local/bin/jamf", args: "removemdmprofile")
-                if !mdmInstalled(cmd: "/bin/bash", args: "-c", "/usr/bin/profiles -C | grep 00000000-0000-0000-A000-4A414D460003 | wc -l") {
+                if !mdmInstalled(cmd: "/bin/bash", args: "-c", "/usr/bin/profiles -C | grep 00000000-0000-0000-A000-4A414D460003 | wc -l", message: "looking for MDM Profile") {
                     writeToLog(theMessage: "Removed old MDM profile using the jamf binary.")
                 } else {
                     var attempt = 1
                     writeToLog(theMessage: "Unable to remove MDM using the jamf binary, attempting remote command.")
-                    while mdmInstalled(cmd: "/bin/bash", args: "-c", "/usr/bin/profiles -C | grep 00000000-0000-0000-A000-4A414D460003 | wc -l") {
+                    while mdmInstalled(cmd: "/bin/bash", args: "-c", "/usr/bin/profiles -C | grep 00000000-0000-0000-A000-4A414D460003 | wc -l", message: "looking for MDM Profile") {
 
                         counter+=1
                         if (counter-1) % 20 == 0 {
@@ -1458,7 +1459,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
                             attempt+=1
                         }
 
-                        sleep(2)
+                        sleep(4)
                         if attempt > 7 {
                             writeToLog(theMessage: "Failed to remove MDM through remote command - exiting")
                             //                    unverifiedFallback()
@@ -1520,6 +1521,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
                 writeToLog(theMessage: "Enrolled to new Jamf Server: \(newServer)")
                 enrolled = true
             } else {
+                writeToLog(theMessage: "Enrollment attempt \(enrollCounter) failed.")
                 enrollCounter += 1
                 sleep(5)
             }
@@ -1527,6 +1529,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
         if !enrolled {
             writeToLog(theMessage: "There was a problem enrolling to new Jamf Server: \(newServer). Falling back to old settings and exiting!")
             completion("failed")
+            return
         }
         
         // verity connectivity to the new Jamf Pro server
@@ -1535,13 +1538,14 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
         } else {
             writeToLog(theMessage: "There was a problem checking the Jamf Server Connection to \(newServer). Falling back to old settings and exiting!")
             completion("failed")
+            return
         }
         
         // Handle MDM operations - start
        // check if we're migrating from Jamf School
         if jamfSchoolMigration == 1 {
             var counter = 0
-            while mdmInstalled(cmd: "/bin/bash", args: "-c", "/usr/bin/profiles -C | grep com.apple.mdm | wc -l") {
+            while mdmInstalled(cmd: "/bin/bash", args: "-c", "/usr/bin/profiles -C | grep com.apple.mdm | wc -l", message: "looking for Jamf School Profile") {
                 counter+=1
                 _ = myExitCode(cmd: "/bin/bash", args: "-c", "killall jamf;/usr/local/bin/jamf policy -trigger jamfSchoolUnenroll")
                 sleep(10)
@@ -1572,8 +1576,15 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
                 writeToLog(theMessage: "Enrolled - received management framework from new JPS.")
                 completion("succeeded")
             } else {
-                writeToLog(theMessage: "There was a problem getting management framework from new JPS. Falling back to old settings and exiting!")
-                completion("failed")
+                writeToLog(theMessage: "There was a problem getting the management framework from new JPS.")
+                if newEnrollment {
+                    writeToLog(theMessage: "New enrollment - continuing")
+                    completion("succeeded")
+                } else {
+                    writeToLog(theMessage: "Falling back to old settings and exiting!")
+                    completion("failed")
+                }
+
             }
         } else {
             writeToLog(theMessage: "macOS v\(os.majorVersion).\(os.minorVersion).\(os.patchVersion) - Skipping enabling of MDM.")
@@ -1715,7 +1726,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
         // restore backup jamf binary - end
         
         // restore original ConfigurationProfiles directory - start
-        if os.minorVersion < 13 {
+        if os.minorVersion < 13 && os.majorVersion < 11 {
             if fm.fileExists(atPath: origProfilesDir) {
                 do {
                     try fm.removeItem(atPath: origProfilesDir)
@@ -1818,7 +1829,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
                     exit(1)
                 }
             }
-        }   // for i in 1...10 - end
+        }   // for i in 1...5 - end
     }
     
     func verifiedCleanup(type: String) {
@@ -2275,7 +2286,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, URLSessionDelegate {
         
         // create jamf log file if not present
         if !fm.fileExists(atPath: logFilePath) {
-            print("create /private/var/log/jamf.log")
+            print("create \(logFilePath)")
             let _ = fm.createFile(atPath: logFilePath, contents: nil, attributes: [FileAttributeKey(rawValue: "ownerAccountID"):0, FileAttributeKey(rawValue: "groupOwnerAccountID"):80, FileAttributeKey(rawValue: "posixPermissions"):0o755])
         }
         
