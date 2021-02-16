@@ -85,7 +85,7 @@ else
 fi
 
 udid=$(ioreg -rd1 -c IOPlatformExpertDevice | awk '/UUID/ { print $3 }' | sed -e 's/"//g')
-curl "$jamfSchoolServer/api/devices/${udid}/unenroll" -H "Authorization: Basic ${5}" -H "Content-Type: application/x-www-form-urlencoded; charset=utf-8" -X POST</script_contents>
+curl "$jamfSchoolServer/api/devices/${udid}/unenroll" -H "Authorization: Basic ${token}" -H "Content-Type: application/data-urlencoded; charset=utf-8" -X POST</script_contents>
 </script>
 """
     static var policy   = """

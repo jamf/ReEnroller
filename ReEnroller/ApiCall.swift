@@ -22,7 +22,8 @@ class ApiCall: NSViewController, URLSessionDelegate {
 
         serverRequest.httpMethod = "POST"
         let serverConf = URLSessionConfiguration.default
-        serverConf.httpAdditionalHeaders = ["Authorization" : "Basic \(token)", "Content-Type" : "Content-Type: application/x-www-form-urlencoded; charset=utf-8", "Accept" : "application/json"]
+        serverConf.httpAdditionalHeaders = ["Authorization" : "Basic \(token)", "Content-Type" : "Content-Type: application/data-urlencoded; charset=utf-8", "Accept" : "application/json"]
+//        serverConf.httpAdditionalHeaders = ["Authorization" : "Basic \(token)", "Content-Type" : "Content-Type: application/x-www-form-urlencoded; charset=utf-8", "Accept" : "application/json"]
         
         let session = Foundation.URLSession(configuration: serverConf, delegate: self, delegateQueue: OperationQueue.main)
         let task = session.dataTask(with: serverRequest as URLRequest, completionHandler: {
