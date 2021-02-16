@@ -214,29 +214,33 @@ class ViewController: NSViewController, URLSessionDelegate {
     var startMigrationQ = OperationQueue()
     var enrollmentQ     = OperationQueue()
 
-//    @IBAction func jamfSchool_fn(_ sender: Any) {
-//        DispatchQueue.main.async {
-//            if self.jamfSchool_Button.state.rawValue == 1 {
-//                self.jamfSchoolBgnd_TextField.isHidden = false
-//                self.jamfSchoolHeader_Label.isHidden   = false
-//                self.jamfSchoolUrl_Label.isHidden      = false
-//                self.jamfSchoolUrl_TextField.isHidden  = false
-//                self.networkId_Label.isHidden          = false
-//                self.networkId_TextField.isHidden      = false
-//                self.apiKey_Label.isHidden             = false
-//                self.apiKey_TextField.isHidden         = false
-//            } else {
-//                self.jamfSchoolBgnd_TextField.isHidden = true
-//                self.jamfSchoolHeader_Label.isHidden   = true
-//                self.jamfSchoolUrl_Label.isHidden      = true
-//                self.jamfSchoolUrl_TextField.isHidden  = true
-//                self.networkId_Label.isHidden          = true
-//                self.networkId_TextField.isHidden      = true
-//                self.apiKey_Label.isHidden             = true
-//                self.apiKey_TextField.isHidden         = true
-//            }
-//        }
-//    }
+
+    @IBAction func jamfSchool_fn(_ sender: Any) {
+        if self.jamfSchool_Button.state.rawValue == 1 {
+            self.jamfSchoolBgnd_TextField.isHidden = false
+            self.jamfSchoolHeader_Label.isHidden   = false
+            self.jamfSchoolUrl_Label.isHidden      = false
+            self.jamfSchoolUrl_TextField.isHidden  = false
+            self.networkId_Label.isHidden          = false
+            self.networkId_TextField.isHidden      = false
+            self.apiKey_Label.isHidden             = false
+            self.apiKey_TextField.isHidden         = false
+            newEnrollment_Button.state             = NSControl.StateValue(rawValue: 1)
+            newEnrollment_Button.isEnabled         = false
+        } else {
+            self.jamfSchoolBgnd_TextField.isHidden = true
+            self.jamfSchoolHeader_Label.isHidden   = true
+            self.jamfSchoolUrl_Label.isHidden      = true
+            self.jamfSchoolUrl_TextField.isHidden  = true
+            self.networkId_Label.isHidden          = true
+            self.networkId_TextField.isHidden      = true
+            self.apiKey_Label.isHidden             = true
+            self.apiKey_TextField.isHidden         = true
+            newEnrollment_Button.state             = NSControl.StateValue(rawValue: 0)
+            newEnrollment_Button.isEnabled         = true
+        }
+        newEnrollment_fn(self)
+    }
 
     @IBAction func localHelp(_ sender: Any) {
 
@@ -271,28 +275,7 @@ class ViewController: NSViewController, URLSessionDelegate {
     }
 
     @IBAction func newEnrollment_fn(_ sender: Any) {
-
-            if self.jamfSchool_Button.state.rawValue == 1 {
-                self.jamfSchoolBgnd_TextField.isHidden = false
-                self.jamfSchoolHeader_Label.isHidden   = false
-                self.jamfSchoolUrl_Label.isHidden      = false
-                self.jamfSchoolUrl_TextField.isHidden  = false
-                self.networkId_Label.isHidden          = false
-                self.networkId_TextField.isHidden      = false
-                self.apiKey_Label.isHidden             = false
-                self.apiKey_TextField.isHidden         = false
-            } else {
-                self.jamfSchoolBgnd_TextField.isHidden = true
-                self.jamfSchoolHeader_Label.isHidden   = true
-                self.jamfSchoolUrl_Label.isHidden      = true
-                self.jamfSchoolUrl_TextField.isHidden  = true
-                self.networkId_Label.isHidden          = true
-                self.networkId_TextField.isHidden      = true
-                self.apiKey_Label.isHidden             = true
-                self.apiKey_TextField.isHidden         = true
-            }
-        
-        if newEnrollment_Button.state.rawValue == 1 || jamfSchool_Button.state.rawValue == 1 {
+        if newEnrollment_Button.state.rawValue == 1 {
             retainSite_Button.isEnabled        = false
             retainSite_Button.state            = NSControl.StateValue(rawValue: 0)
 //            enableSites_Button.isEnabled       = false
@@ -829,21 +812,10 @@ class ViewController: NSViewController, URLSessionDelegate {
 
         // rename management account if present - end
 
-/*
         // Let's enroll
-        self.enrollNewJps(newServer: self.newJssMgmtUrl, newInvite: self.theNewInvite) {
-            (enrolled: String) in
-            if ( enrolled == "failed" ) {
-                self.unverifiedFallback()
-                exit(1)
-            } else {
-                // Verify the enrollment
-                self.verifyNewEnrollment()
-            }
+        if !newEnrollment || jamfSchoolMigration == 1 {
+            WriteToLog().message(theMessage: "MDM Profile will be removed \(removeMdmWhen) enrollment in the new Jamf Pro server.")
         }
-*/
-
-        // Let's enroll
         if removeMdmWhen == "Before" {
             self.removeMDMProfile(when: "Before") {
                 (result: String) in
@@ -1436,6 +1408,7 @@ class ViewController: NSViewController, URLSessionDelegate {
                     WriteToLog().message(theMessage: "Attempt \(counter) to remove Jamf School MDM through remote command.")
                 }
             }   // while mdmInstalled - end
+            WriteToLog().message(theMessage: "Jamf School MDM removed through remote command.")
         }
 
         if !(( os.majorVersion > 10 ) || ( os.majorVersion == 10 && os.minorVersion > 15 )) {
@@ -1878,7 +1851,7 @@ class ViewController: NSViewController, URLSessionDelegate {
                 completion("\(when) - succcess")
             }
         } else {
-            if newEnrollment_Button.state.rawValue == 0 {
+            if !newEnrollment {
                 WriteToLog().message(theMessage: "Leaving MDM Profile intact - removal will be handled outside ReEnroller.")
             }
             completion("\(when) - succcess")
@@ -2097,6 +2070,7 @@ class ViewController: NSViewController, URLSessionDelegate {
     }
 
     func verifiedCleanup(type: String) {
+        WriteToLog().message(theMessage: "Starting cleanup...")
         if type == "full" {
             do {
                 if fm.fileExists(atPath: bakBinary) {
@@ -2275,6 +2249,7 @@ class ViewController: NSViewController, URLSessionDelegate {
     }
 
     func verifyNewEnrollment() {
+        WriteToLog().message(theMessage: "Verifying enrollment...")
         for i in 1...5 {
             // test for a policy on the new Jamf Pro server and that it ran successfully
             let policyExitCode = myExitCode(cmd: "/usr/local/bin/jamf", args: "policy", "-trigger", "jpsmigrationcheck")
@@ -2476,7 +2451,11 @@ class ViewController: NSViewController, URLSessionDelegate {
             migratedAttribute = plistData["migratedAttribute"] as? String ?? "room"
 
             removeMDM         = plistData["removeMDM"] as? Bool ?? true
-            removeMdmWhen     = plistData["removeMdmWhen"] as? String ?? "Before"
+            if jamfSchoolMigration == 0 {
+                removeMdmWhen = plistData["removeMdmWhen"] as? String ?? "Before"
+            } else {
+                removeMdmWhen = "After"
+            }
 
             WriteToLog().message(theMessage: "jamfSchoolMigration: \(jamfSchoolMigration)")
 

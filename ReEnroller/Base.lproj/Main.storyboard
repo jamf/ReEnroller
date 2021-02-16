@@ -779,7 +779,7 @@ if it does not exist</string>
                                     <font key="font" metaFont="label" size="11"/>
                                 </buttonCell>
                                 <connections>
-                                    <action selector="newEnrollment_fn:" target="XfG-lQ-9wD" id="GmT-hE-uvD"/>
+                                    <action selector="jamfSchool_fn:" target="XfG-lQ-9wD" id="xFM-Y8-kqf"/>
                                 </connections>
                             </button>
                             <textField toolTip="Must be at least 5 minutes" verticalHuggingPriority="750" textCompletion="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Z0Y-0c-bHE">
