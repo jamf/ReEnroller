@@ -89,6 +89,22 @@ a:hover
     width:490px;
     position: relative
 }
+#appImage2 img
+{
+    border: 0px #000000 solid;
+    padding: 10px 0px 10px 50px;
+    margin: auto;
+    width:400px;
+    position: relative
+}
+#appImage3 img
+{
+    border: 0px #000000 solid;
+    padding: 10px 0px 10px 50px;
+    margin: auto;
+    width:220px;
+    position: relative
+}
 #jpsImage img
 {
     border: 0px #000000 solid;
@@ -153,39 +169,49 @@ a:hover
 </div></div>
 <div id="appImage">
 <img src="images/ReEnroller.png" alt=""></div>
+    <div id="main_body" style="position:relative;">
+        <div style="font-family:Arial;font-size:13px;line-height:15px;color:#000000;">
+            <div>To help track migrated machines, click 'Mark machine as migrated' and select the attribute to update.  Any existing data will be overwriten.</div>
+        </div>
+    </div>
+<div id="appImage2">
+    <img src="images/attribute.png" alt="">
+</div>
+    <div id="main_body" style="position:relative;">
+        <div style="font-family:Arial;font-size:13px;line-height:15px;color:#000000;">
+            <div>Control if/when the MDM profile is removed, either before or after enrollment in the new Jamf Server.  In addition you can leave the MDM profile in place and develop a workflow outside ReEnroller to remove it.</div>
+        </div>
+    </div>
+<div id="appImage3">
+    <img src="images/removeMDM.png" alt="">
+</div>
 <div id="main_body" style="position:relative;">
 <div style="font-family:Arial;font-size:13px;line-height:15px;color:#000000;">
 <div>After the process is complete you&rsquo;ll find a package, (Re)Enroller-&lt;hostname&gt;.pkg, saved to your Desktop.&nbsp; If creating a second package, (Re)EnrollerDaemon-&lt;hostname&gt;.pkg, will also appear on the Desktop.  Each package is ready to be deployed with a policy on the Jamf Server.</div>
-
 </div></div>
 <div id="main_body" style="position:relative;">
     <div style="font-family:Arial;font-size:13px;line-height:15px;color:#000000;">
-<div>Once a package is built, and profiles are in place, it can be deployed from the Jamf Pro server via a policy or from the app itself.  Pushing the package requires credentials for an account able to remotely login (ssh) to the remote machine and the machine having ssh enabled on port 22.</div>
-</div></div>
-<div id="appImage" style="position:relative;width: 490px;height: auto;">
-    <img src="images/ReEnroller2.png" alt=""></div>
-
-
+<div>Once a package is built, and profiles are in place, it can be uploaded to the source Jamf Pro server for deployment.</div>
+    </div>
 <div id="main_body" style="position:relative;">
     <div style="font-family:Arial;font-size:13px;line-height:15px;color:#000000;">
-    <div>As the re-enrollment process kicks off the client will attempt to download, and use, the jamf binary from the new Jamf server.  If the download fails it will rely on the existing jamf binary.  Existing configurations will be backed up to /Library/Application Support/JAMF/ReEnroller/backup.  Upon successful re-enrollment the backups will be deleted, if the re-enrollment fails the backups will be restored.</div>
+    As the re-enrollment process kicks off the client will attempt to download, and use, the jamf binary from the new Jamf server.  If the download fails it will rely on the existing jamf binary.  Existing configurations will be backed up to /Library/Application Support/JAMF/ReEnroller/backup.  Upon successful re-enrollment the backups will be deleted, if the re-enrollment fails the backups will be restored.
 <div><hr></div>
-<div>To verify the machine successfully migrated a 'Migration Complete' policy must exist on the new server, scoped to all managed clients.&nbsp; As mentioned earlier this policy may be created automatically.&nbsp; If you wish to create it manually it must, at a minimum, contain a Files and Processes payload.&nbsp; On the policy General tab configure a Custom Event (jpsmigrationcheck) and Execution Frequency (Ongoing) as illustrated below:</div>
+To verify the machine successfully migrated a 'Migration Complete' policy must exist on the new server, scoped to all managed clients.&nbsp; As mentioned earlier this policy may be created automatically.&nbsp; If you wish to create it manually it must, at a minimum, contain a Files and Processes payload.&nbsp; On the policy General tab configure a Custom Event (jpsmigrationcheck) and Execution Frequency (Ongoing) as illustrated below:
 </div>
 </div>
 <div id="jpsImage">
 <img src="images/general.png" alt=""></div>
 <div id="main_body" style="position:relative;">
 <div style="font-family:Arial;font-size:13px;line-height:15px;color:#000000;">
-<div>The Files and Processes payload must contain the following in the Execute Command section: <br><span style="font-family:'Courier New';">touch /Library/Application\ Support/JAMF/ReEnroller/Complete</span>
-    </div>
+The Files and Processes payload must contain the following in the Execute Command section: <br><span style="font-family:'Courier New';">touch /Library/Application\ Support/JAMF/ReEnroller/Complete</span>
 </div>
 </div>
 <div id="jpsImage">
 <img src="images/executeCommand.png" alt=""></div>
 <div id="main_body" style="position:relative;">
 <div style="font-family:Arial;font-size:13px;line-height:15px;color:#000000;">
-<div>If utilizing a random password for the management account we also need a Management Account payload with (minimum) settings as shown:</div>
+If utilizing a random password for the management account we also need a Management Account payload with (minimum) settings as shown:
 </div>
 </div>
 <div id="jpsImage">
@@ -201,7 +227,7 @@ a:hover
     
 <div id="main_body" style="position:relative;">
 <div style="font-family:Arial;font-size:13px;line-height:15px;color:#000000;">
-<div>Jamf School migrations require the following information from your Jamf School instance:
+Jamf School migrations require the following information from your Jamf School instance:
 <ul style="margin-left:17px;line-height: 1.4;">
     <li>Jamf School URL</li>
     <li>Network ID.  Found under Devices → Enroll Devices(s)</li>
@@ -211,12 +237,11 @@ a:hover
     <div id="jpsImage2">
 <img src="images/JamfSchoolApiKey.png" alt=""></div>  
     </ul>
-    </div>
 </div>
 </div> 
 <div id="main_body" style="position:relative;">
 <div style="font-family:Arial;font-size:13px;line-height:15px;color:#000000;">
-<div>As the ReEnroller package is built the following will be created on the destination Jamf Server, if they don’t exist, to perform unenrollment from Jamf School.
+As the ReEnroller package is built the following will be created on the destination Jamf Server, if they don’t exist, to perform unenrollment from Jamf School.
     <ul>
 <li>Category - Name: Jamf School Unenroll</li>
 <li>Script - Name: Jamf School Unenroll</li>
@@ -225,11 +250,11 @@ a:hover
 Note, these objects are not updated when new packages are built and must be deleted from Jamf Pro if say you change the API key.
 <div><hr></div>    
     
-<div><strong>High Sierra (10.13) and later:</strong></div>
+<strong>High Sierra (10.13) and later:</strong>
 <div id="main_body" style="position:relative;">
 <div style="font-family:Arial;font-size:13px;line-height:15px;color:#000000;">
-<div>Starting with 10.13 Apple added /var/db/ConfigurationProfiles to SIP.  To ensure the MDM payload is removed additional setup is required, creating a script and policy for MDM removal.</div>
-    <div>The following sample script can be used:</div>
+Starting with 10.13 Apple added /var/db/ConfigurationProfiles to SIP.  To ensure the MDM payload is removed additional setup is required, creating a script and policy for MDM removal.
+    The following sample script can be used:
     <pre><span style="font-family:'Courier New';">
         <hr>
 #!/bin/bash
@@ -355,13 +380,16 @@ echo "unmanage machine: curl -X POST -sku ${uname}:******** ${server}JSSResource
     echo getcwd();
 ?>
 </span></pre></div>
-    <div>Create a policy to deploy the script on the source server (server you are migrating from).  <b>The policy must have a custom trigger of apiMDM_remove</b>.  Also set the policy to Ongoing.</div>
+    Create a policy to deploy the script on the source server (server you are migrating from).  <b>The policy must have a custom trigger of apiMDM_remove</b>.  Also set the policy to Ongoing.
 <div id="jpsImage2">
 <img src="images/mdmRemove_general.png" alt=""></div>
-        <div>The script requires 2 parameters, a Jamf server username and password.  The account must have at least Computers Create and Read (Jamf Pro Server Objects) along with Send Computer Unmanage Command (Jamf Pro Server Actions). A third (optional) parameter may be provided, the current Jamf server the client is enrolled in.  If the parameter is not provided the server will be read from com.jamfsoftware.jamf.plist.</div>
+        The script requires 2 parameters, a Jamf server username and password, if the MDM profile is to be removed prior to enrolling in the new serve.  Set the script/policy up on the server being unenrolled from.  The account must have at least Computers Create and Read (Jamf Pro Server Objects) along with Send Computer Unmanage Command (Jamf Pro Server Actions). The account is always set up on the server being unenrolled from.<p>
+    
+    A third parameter may be also be provided, the current Jamf server the client has received it's MDM profile from.  If the parameter is not provided the server will be read from com.jamfsoftware.jamf.plist.  <strong>If the MDM profile is removed after enrollment in the new server the Jamf URL parameter must be provided, the URL being the server the client was migrated from.  The script/policy must also be set up on the destination server.</strong>
 <div id="jpsImage2">
 <img src="images/mdmRemove_script.png" alt=""></div>
 </div>
+    The script could also be added to the policy that deploys the reEnrollment package. Be mindful that once the MDM profile is removed all other profiles will be removed, potentially impacting the user experience. 
 <div><hr></div>
 </div>
 </body>
