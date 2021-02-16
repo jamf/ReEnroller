@@ -271,7 +271,28 @@ class ViewController: NSViewController, URLSessionDelegate {
     }
 
     @IBAction func newEnrollment_fn(_ sender: Any) {
-        if newEnrollment_Button.state.rawValue == 1 {
+
+            if self.jamfSchool_Button.state.rawValue == 1 {
+                self.jamfSchoolBgnd_TextField.isHidden = false
+                self.jamfSchoolHeader_Label.isHidden   = false
+                self.jamfSchoolUrl_Label.isHidden      = false
+                self.jamfSchoolUrl_TextField.isHidden  = false
+                self.networkId_Label.isHidden          = false
+                self.networkId_TextField.isHidden      = false
+                self.apiKey_Label.isHidden             = false
+                self.apiKey_TextField.isHidden         = false
+            } else {
+                self.jamfSchoolBgnd_TextField.isHidden = true
+                self.jamfSchoolHeader_Label.isHidden   = true
+                self.jamfSchoolUrl_Label.isHidden      = true
+                self.jamfSchoolUrl_TextField.isHidden  = true
+                self.networkId_Label.isHidden          = true
+                self.networkId_TextField.isHidden      = true
+                self.apiKey_Label.isHidden             = true
+                self.apiKey_TextField.isHidden         = true
+            }
+        
+        if newEnrollment_Button.state.rawValue == 1 || jamfSchool_Button.state.rawValue == 1 {
             retainSite_Button.isEnabled        = false
             retainSite_Button.state            = NSControl.StateValue(rawValue: 0)
 //            enableSites_Button.isEnabled       = false
