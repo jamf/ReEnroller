@@ -2,8 +2,7 @@
 //  ObjectXML.swift
 //  ReEnroller
 //
-//  Created by Leslie Helou on 8/6/20.
-//  Copyright © 2020 Leslie Helou. All rights reserved.
+//  Created by Leslie Helou on 2/15/21
 //
 
 import Foundation

@@ -17,13 +17,19 @@ Use ReEnroller to build a package to take a macOS device enrolled in one Jamf se
 * Select a policy to run after a successful enrollment.
 * Deploy the package with policy or push it to an individual machine from within the app.
 
-Important: After enrolling in the new server the user must approve the MDM profile for macOS 10.13 and above.<p>
+Important: 
 
-\* **Be sure to view the help for detailed usage instructions.**
+* After enrolling in the new server the user must approve the MDM profile for macOS 10.13 and above.
+* Big Sur and later that fail back to the source server will not automatically (re)install the MDM profile.
+
+\* **Be sure to view the help (question mark in the lower right) for detailed usage instructions.**
 
 Thanks @fauxserve for coming up with the idea and initial bash version.
 
 ## History
+- 2021-02-14: Code update/cleanup.  Removed option to push the package to a client from the App.  Added ability to mark the device as migrated on the source server by writing to either the Asset Tag, User Name, Phone, Position, or Room attribute.  If the migration fails the the device successfully fails back to the source server the attribute will indicate the failure.
+
+
 - 2020-11-19: Brought create seperate packages button back into view, minor logging additions.
 
 - 2020-10-05: Added ability to migrate from Jamf School to Jamf Pro, ability to skip the health check that verifies the server is available, ability to call device enrollment (since installing profiles with the profiles command no longer works with Big Sur), modified apiMDM_ removal script for Big Sur.  Recon now runs with the endUsername flag.

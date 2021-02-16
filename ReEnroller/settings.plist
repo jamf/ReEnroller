@@ -2,6 +2,14 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>removeMdmWhen</key>
+	<string>Before</string>
+	<key>removeMDM</key>
+	<true/>
+	<key>migratedAttribute</key>
+	<string>room</string>
+	<key>markAsMigrated</key>
+	<false/>
 	<key>maxRetries</key>
 	<string></string>
 	<key>newEnrollment</key>

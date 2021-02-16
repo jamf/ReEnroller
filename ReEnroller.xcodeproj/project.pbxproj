@@ -3,126 +3,130 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 51;
+	objectVersion = 50;
 	objects = {
 
 /* Begin PBXBuildFile section */
-		B50831051E5A87F900133D1B /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B50831041E5A87F900133D1B /* AppDelegate.swift */; };
-		B50831071E5A87F900133D1B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B50831061E5A87F900133D1B /* Assets.xcassets */; };
-		B508310A1E5A87F900133D1B /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = B50831081E5A87F900133D1B /* MainMenu.xib */; };
-		B5100AC9237E0BFA00E4DA40 /* ReEnroller-component.plist in Resources */ = {isa = PBXBuildFile; fileRef = B5100AC8237E0BFA00E4DA40 /* ReEnroller-component.plist */; };
-		B514454D1F7CB187000B4055 /* index.html in Resources */ = {isa = PBXBuildFile; fileRef = B514454C1F7CB187000B4055 /* index.html */; };
-		B51D2F1E24DB88D70024DFEC /* ApiCall.swift in Sources */ = {isa = PBXBuildFile; fileRef = B51D2F1D24DB88D70024DFEC /* ApiCall.swift */; };
-		B51D2F2024DCD60D0024DFEC /* ObjectXML.swift in Sources */ = {isa = PBXBuildFile; fileRef = B51D2F1F24DCD60D0024DFEC /* ObjectXML.swift */; };
-		B5319B211E5F3E9200268E38 /* settings.plist in Resources */ = {isa = PBXBuildFile; fileRef = B5319B201E5F3E9200268E38 /* settings.plist */; };
-		B541FD52215D79CB004D6B6C /* command.swift in Sources */ = {isa = PBXBuildFile; fileRef = B541FD51215D79CB004D6B6C /* command.swift */; };
-		B55A276A1EACE2DD00AF8398 /* build-reenroller.png in Resources */ = {isa = PBXBuildFile; fileRef = B55A27691EACE2DD00AF8398 /* build-reenroller.png */; };
-		B562410F215B1992007F8144 /* mgmtAccount.swift in Sources */ = {isa = PBXBuildFile; fileRef = B562410E215B1991007F8144 /* mgmtAccount.swift */; };
-		B5A43ECF203E3D260012CB53 /* apiMDM_remove.txt in Resources */ = {isa = PBXBuildFile; fileRef = B5A43ECE203E3D260012CB53 /* apiMDM_remove.txt */; };
-		B5A43ED42043359A0012CB53 /* 2 in Resources */ = {isa = PBXBuildFile; fileRef = B5A43ED32043359A0012CB53 /* 2 */; };
-		B5A43ED6204335F30012CB53 /* 1 in Resources */ = {isa = PBXBuildFile; fileRef = B5A43ED5204335F30012CB53 /* 1 */; };
-		B5BFAFD7228B309C00E58326 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B5BFAFD6228B309C00E58326 /* WebKit.framework */; };
-		B5DBA04F1E5FCA2A00FA52CE /* com.jamf.ReEnroller.plist in Resources */ = {isa = PBXBuildFile; fileRef = B5DBA04E1E5FCA2A00FA52CE /* com.jamf.ReEnroller.plist */; };
-		B5F155801F4BE303002241A3 /* images in Resources */ = {isa = PBXBuildFile; fileRef = B5F1557E1F4BE303002241A3 /* images */; };
+		B535676B25DB4BED0017769D /* CasperJxmlDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B535676A25DB4BED0017769D /* CasperJxmlDelegate.swift */; };
+		B535677225DB550C0017769D /* WriteToLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = B535677125DB550C0017769D /* WriteToLog.swift */; };
+		B535677525DB56110017769D /* Alert.swift in Sources */ = {isa = PBXBuildFile; fileRef = B535677425DB56110017769D /* Alert.swift */; };
+		B5434E3B25D72BD50013A85B /* HelpViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5434E3A25D72BD50013A85B /* HelpViewController.swift */; };
+		B5434E4725D8678E0013A85B /* images in Resources */ = {isa = PBXBuildFile; fileRef = B5434E4625D8678E0013A85B /* images */; };
+		B5434E4E25D982390013A85B /* Globals.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5434E4D25D982390013A85B /* Globals.swift */; };
+		B5480D5C25D6AE1700BFCC86 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5480D5B25D6AE1700BFCC86 /* AppDelegate.swift */; };
+		B5480D5E25D6AE1700BFCC86 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5480D5D25D6AE1700BFCC86 /* ViewController.swift */; };
+		B5480D6025D6AE1A00BFCC86 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B5480D5F25D6AE1A00BFCC86 /* Assets.xcassets */; };
+		B5480D6325D6AE1A00BFCC86 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B5480D6125D6AE1A00BFCC86 /* Main.storyboard */; };
+		B5480D7025D6B39200BFCC86 /* help.html in Resources */ = {isa = PBXBuildFile; fileRef = B5480D6F25D6B39200BFCC86 /* help.html */; };
+		B5480D7325D6B3B600BFCC86 /* apiMDM_remove.txt in Resources */ = {isa = PBXBuildFile; fileRef = B5480D7225D6B3B600BFCC86 /* apiMDM_remove.txt */; };
+		B5480DA425D6B4E000BFCC86 /* command.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5480DA325D6B4E000BFCC86 /* command.swift */; };
+		B5480DAB25D6B8CA00BFCC86 /* ApiCall.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5480DAA25D6B8CA00BFCC86 /* ApiCall.swift */; };
+		B5480DAE25D6B8FD00BFCC86 /* ObjectXML.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5480DAD25D6B8FD00BFCC86 /* ObjectXML.swift */; };
+		B5480DBB25D6BB6C00BFCC86 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B5480DBA25D6BB6C00BFCC86 /* WebKit.framework */; };
+		B5480DCC25D6BE8700BFCC86 /* 1 in Resources */ = {isa = PBXBuildFile; fileRef = B5480DCB25D6BE8700BFCC86 /* 1 */; };
+		B5480DD025D6BEB600BFCC86 /* 2 in Resources */ = {isa = PBXBuildFile; fileRef = B5480DCF25D6BEB600BFCC86 /* 2 */; };
+		B5E2587025D7252100ABD528 /* settings.plist in Resources */ = {isa = PBXBuildFile; fileRef = B5E2586F25D7252100ABD528 /* settings.plist */; };
+		B5E2587325D725B100ABD528 /* com.jamf.ReEnroller.plist in Resources */ = {isa = PBXBuildFile; fileRef = B5E2587225D725B100ABD528 /* com.jamf.ReEnroller.plist */; };
+		B5E2587625D7273600ABD528 /* ReEnroller-component.plist in Resources */ = {isa = PBXBuildFile; fileRef = B5E2587525D7273600ABD528 /* ReEnroller-component.plist */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		B50831011E5A87F900133D1B /* ReEnroller.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ReEnroller.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		B50831041E5A87F900133D1B /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
-		B50831061E5A87F900133D1B /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		B50831091E5A87F900133D1B /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/MainMenu.xib; sourceTree = "<group>"; };
-		B508310B1E5A87F900133D1B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		B5100AC8237E0BFA00E4DA40 /* ReEnroller-component.plist */ = {isa = PBXFileReference; lastKnownFileType = file.bplist; path = "ReEnroller-component.plist"; sourceTree = "<group>"; };
-		B514454C1F7CB187000B4055 /* index.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = index.html; sourceTree = "<group>"; };
-		B51D2F1D24DB88D70024DFEC /* ApiCall.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ApiCall.swift; sourceTree = "<group>"; };
-		B51D2F1F24DCD60D0024DFEC /* ObjectXML.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ObjectXML.swift; sourceTree = "<group>"; };
-		B5319B201E5F3E9200268E38 /* settings.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = settings.plist; sourceTree = "<group>"; };
-		B541FD51215D79CB004D6B6C /* command.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = command.swift; sourceTree = "<group>"; };
-		B55A27691EACE2DD00AF8398 /* build-reenroller.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "build-reenroller.png"; sourceTree = "<group>"; };
-		B562410E215B1991007F8144 /* mgmtAccount.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = mgmtAccount.swift; sourceTree = "<group>"; };
-		B5A43ECE203E3D260012CB53 /* apiMDM_remove.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = apiMDM_remove.txt; sourceTree = "<group>"; };
-		B5A43ED32043359A0012CB53 /* 2 */ = {isa = PBXFileReference; lastKnownFileType = folder; path = 2; sourceTree = "<group>"; };
-		B5A43ED5204335F30012CB53 /* 1 */ = {isa = PBXFileReference; lastKnownFileType = folder; path = 1; sourceTree = "<group>"; };
-		B5BFAFD4228B0BEC00E58326 /* ReEnroller.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ReEnroller.entitlements; sourceTree = "<group>"; };
-		B5BFAFD6228B309C00E58326 /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
-		B5DBA04E1E5FCA2A00FA52CE /* com.jamf.ReEnroller.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = com.jamf.ReEnroller.plist; path = ../com.jamf.ReEnroller.plist; sourceTree = "<group>"; };
-		B5F1557E1F4BE303002241A3 /* images */ = {isa = PBXFileReference; lastKnownFileType = folder; path = images; sourceTree = "<group>"; };
+		B535676A25DB4BED0017769D /* CasperJxmlDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CasperJxmlDelegate.swift; sourceTree = "<group>"; };
+		B535677125DB550C0017769D /* WriteToLog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WriteToLog.swift; sourceTree = "<group>"; };
+		B535677425DB56110017769D /* Alert.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Alert.swift; sourceTree = "<group>"; };
+		B5434E3A25D72BD50013A85B /* HelpViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelpViewController.swift; sourceTree = "<group>"; };
+		B5434E4625D8678E0013A85B /* images */ = {isa = PBXFileReference; lastKnownFileType = folder; path = images; sourceTree = "<group>"; };
+		B5434E4D25D982390013A85B /* Globals.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Globals.swift; sourceTree = "<group>"; };
+		B5480D5825D6AE1700BFCC86 /* ReEnroller.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ReEnroller.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		B5480D5B25D6AE1700BFCC86 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		B5480D5D25D6AE1700BFCC86 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		B5480D5F25D6AE1A00BFCC86 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		B5480D6225D6AE1A00BFCC86 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		B5480D6425D6AE1A00BFCC86 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		B5480D6525D6AE1A00BFCC86 /* ReEnroller.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ReEnroller.entitlements; sourceTree = "<group>"; };
+		B5480D6F25D6B39200BFCC86 /* help.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = help.html; sourceTree = "<group>"; };
+		B5480D7225D6B3B600BFCC86 /* apiMDM_remove.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = apiMDM_remove.txt; sourceTree = "<group>"; };
+		B5480DA325D6B4E000BFCC86 /* command.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = command.swift; sourceTree = "<group>"; };
+		B5480DAA25D6B8CA00BFCC86 /* ApiCall.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ApiCall.swift; sourceTree = "<group>"; };
+		B5480DAD25D6B8FD00BFCC86 /* ObjectXML.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ObjectXML.swift; sourceTree = "<group>"; };
+		B5480DBA25D6BB6C00BFCC86 /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
+		B5480DCB25D6BE8700BFCC86 /* 1 */ = {isa = PBXFileReference; lastKnownFileType = folder; path = 1; sourceTree = "<group>"; };
+		B5480DCF25D6BEB600BFCC86 /* 2 */ = {isa = PBXFileReference; lastKnownFileType = folder; path = 2; sourceTree = "<group>"; };
+		B5E2586F25D7252100ABD528 /* settings.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = settings.plist; sourceTree = "<group>"; };
+		B5E2587225D725B100ABD528 /* com.jamf.ReEnroller.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = com.jamf.ReEnroller.plist; sourceTree = "<group>"; };
+		B5E2587525D7273600ABD528 /* ReEnroller-component.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "ReEnroller-component.plist"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		B50830FE1E5A87F900133D1B /* Frameworks */ = {
+		B5480D5525D6AE1700BFCC86 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B5BFAFD7228B309C00E58326 /* WebKit.framework in Frameworks */,
+				B5480DBB25D6BB6C00BFCC86 /* WebKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		B50830F81E5A87F900133D1B = {
+		B5480D4F25D6AE1700BFCC86 = {
 			isa = PBXGroup;
 			children = (
-				B50831031E5A87F900133D1B /* ReEnroller */,
-				B50831021E5A87F900133D1B /* Products */,
-				B5BFAFD5228B309C00E58326 /* Frameworks */,
+				B5480D5A25D6AE1700BFCC86 /* ReEnroller */,
+				B5480D5925D6AE1700BFCC86 /* Products */,
+				B5480DB925D6BB6C00BFCC86 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
-		B50831021E5A87F900133D1B /* Products */ = {
+		B5480D5925D6AE1700BFCC86 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				B50831011E5A87F900133D1B /* ReEnroller.app */,
+				B5480D5825D6AE1700BFCC86 /* ReEnroller.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
 		};
-		B50831031E5A87F900133D1B /* ReEnroller */ = {
+		B5480D5A25D6AE1700BFCC86 /* ReEnroller */ = {
 			isa = PBXGroup;
 			children = (
-				B5BFAFD4228B0BEC00E58326 /* ReEnroller.entitlements */,
-				B51D2F1D24DB88D70024DFEC /* ApiCall.swift */,
-				B50831041E5A87F900133D1B /* AppDelegate.swift */,
-				B541FD51215D79CB004D6B6C /* command.swift */,
-				B562410E215B1991007F8144 /* mgmtAccount.swift */,
-				B51D2F1F24DCD60D0024DFEC /* ObjectXML.swift */,
-				B50831061E5A87F900133D1B /* Assets.xcassets */,
-				B55A27681EACE2BA00AF8398 /* Images */,
-				B50831081E5A87F900133D1B /* MainMenu.xib */,
-				B508310B1E5A87F900133D1B /* Info.plist */,
-				B5319B201E5F3E9200268E38 /* settings.plist */,
-				B5DBA04E1E5FCA2A00FA52CE /* com.jamf.ReEnroller.plist */,
-				B5100AC8237E0BFA00E4DA40 /* ReEnroller-component.plist */,
-				B5A43ED5204335F30012CB53 /* 1 */,
-				B5A43ED32043359A0012CB53 /* 2 */,
-				B5AC20301F258F4200C16EAA /* help */,
+				B5480DAA25D6B8CA00BFCC86 /* ApiCall.swift */,
+				B535677425DB56110017769D /* Alert.swift */,
+				B5480D5B25D6AE1700BFCC86 /* AppDelegate.swift */,
+				B535676A25DB4BED0017769D /* CasperJxmlDelegate.swift */,
+				B5480DA325D6B4E000BFCC86 /* command.swift */,
+				B5434E4D25D982390013A85B /* Globals.swift */,
+				B5434E3A25D72BD50013A85B /* HelpViewController.swift */,
+				B5480DAD25D6B8FD00BFCC86 /* ObjectXML.swift */,
+				B5480D5D25D6AE1700BFCC86 /* ViewController.swift */,
+				B535677125DB550C0017769D /* WriteToLog.swift */,
+				B5480D5F25D6AE1A00BFCC86 /* Assets.xcassets */,
+				B5480D6125D6AE1A00BFCC86 /* Main.storyboard */,
+				B5480D6425D6AE1A00BFCC86 /* Info.plist */,
+				B5E2587225D725B100ABD528 /* com.jamf.ReEnroller.plist */,
+				B5E2586F25D7252100ABD528 /* settings.plist */,
+				B5E2587525D7273600ABD528 /* ReEnroller-component.plist */,
+				B5480D6525D6AE1A00BFCC86 /* ReEnroller.entitlements */,
+				B5480DCB25D6BE8700BFCC86 /* 1 */,
+				B5480DCF25D6BEB600BFCC86 /* 2 */,
+				B5480D6E25D6B33A00BFCC86 /* help */,
 			);
 			path = ReEnroller;
 			sourceTree = "<group>";
 		};
-		B55A27681EACE2BA00AF8398 /* Images */ = {
+		B5480D6E25D6B33A00BFCC86 /* help */ = {
 			isa = PBXGroup;
 			children = (
-				B55A27691EACE2DD00AF8398 /* build-reenroller.png */,
+				B5434E4625D8678E0013A85B /* images */,
+				B5480D7225D6B3B600BFCC86 /* apiMDM_remove.txt */,
+				B5480D6F25D6B39200BFCC86 /* help.html */,
 			);
-			name = Images;
+			path = help;
 			sourceTree = "<group>";
 		};
-		B5AC20301F258F4200C16EAA /* help */ = {
+		B5480DB925D6BB6C00BFCC86 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				B514454C1F7CB187000B4055 /* index.html */,
-				B5A43ECE203E3D260012CB53 /* apiMDM_remove.txt */,
-				B5F1557E1F4BE303002241A3 /* images */,
-			);
-			name = help;
-			sourceTree = "<group>";
-		};
-		B5BFAFD5228B309C00E58326 /* Frameworks */ = {
-			isa = PBXGroup;
-			children = (
-				B5BFAFD6228B309C00E58326 /* WebKit.framework */,
+				B5480DBA25D6BB6C00BFCC86 /* WebKit.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -130,13 +134,13 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		B50831001E5A87F900133D1B /* ReEnroller */ = {
+		B5480D5725D6AE1700BFCC86 /* ReEnroller */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = B508310E1E5A87F900133D1B /* Build configuration list for PBXNativeTarget "ReEnroller" */;
+			buildConfigurationList = B5480D6825D6AE1A00BFCC86 /* Build configuration list for PBXNativeTarget "ReEnroller" */;
 			buildPhases = (
-				B50830FD1E5A87F900133D1B /* Sources */,
-				B50830FE1E5A87F900133D1B /* Frameworks */,
-				B50830FF1E5A87F900133D1B /* Resources */,
+				B5480D5425D6AE1700BFCC86 /* Sources */,
+				B5480D5525D6AE1700BFCC86 /* Frameworks */,
+				B5480D5625D6AE1700BFCC86 /* Resources */,
 			);
 			buildRules = (
 			);
@@ -144,108 +148,104 @@
 			);
 			name = ReEnroller;
 			productName = ReEnroller;
-			productReference = B50831011E5A87F900133D1B /* ReEnroller.app */;
+			productReference = B5480D5825D6AE1700BFCC86 /* ReEnroller.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
-		B50830F91E5A87F900133D1B /* Project object */ = {
+		B5480D5025D6AE1700BFCC86 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastSwiftUpdateCheck = 0820;
-				LastUpgradeCheck = 0940;
-				ORGANIZATIONNAME = "Leslie Helou";
+				LastSwiftUpdateCheck = 1210;
+				LastUpgradeCheck = 1210;
 				TargetAttributes = {
-					B50831001E5A87F900133D1B = {
-						CreatedOnToolsVersion = 8.2.1;
-						DevelopmentTeam = PS2F6S478M;
-						LastSwiftMigration = 1140;
-						ProvisioningStyle = Automatic;
-						SystemCapabilities = {
-							com.apple.HardenedRuntime = {
-								enabled = 1;
-							};
-						};
+					B5480D5725D6AE1700BFCC86 = {
+						CreatedOnToolsVersion = 12.1;
 					};
 				};
 			};
-			buildConfigurationList = B50830FC1E5A87F900133D1B /* Build configuration list for PBXProject "ReEnroller" */;
-			compatibilityVersion = "Xcode 10.0";
-			developmentRegion = English;
+			buildConfigurationList = B5480D5325D6AE1700BFCC86 /* Build configuration list for PBXProject "ReEnroller" */;
+			compatibilityVersion = "Xcode 9.3";
+			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
-				English,
 				en,
 				Base,
 			);
-			mainGroup = B50830F81E5A87F900133D1B;
-			productRefGroup = B50831021E5A87F900133D1B /* Products */;
+			mainGroup = B5480D4F25D6AE1700BFCC86;
+			productRefGroup = B5480D5925D6AE1700BFCC86 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				B50831001E5A87F900133D1B /* ReEnroller */,
+				B5480D5725D6AE1700BFCC86 /* ReEnroller */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
-		B50830FF1E5A87F900133D1B /* Resources */ = {
+		B5480D5625D6AE1700BFCC86 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B5A43ECF203E3D260012CB53 /* apiMDM_remove.txt in Resources */,
-				B50831071E5A87F900133D1B /* Assets.xcassets in Resources */,
-				B514454D1F7CB187000B4055 /* index.html in Resources */,
-				B55A276A1EACE2DD00AF8398 /* build-reenroller.png in Resources */,
-				B5A43ED6204335F30012CB53 /* 1 in Resources */,
-				B5F155801F4BE303002241A3 /* images in Resources */,
-				B5319B211E5F3E9200268E38 /* settings.plist in Resources */,
-				B5A43ED42043359A0012CB53 /* 2 in Resources */,
-				B5DBA04F1E5FCA2A00FA52CE /* com.jamf.ReEnroller.plist in Resources */,
-				B5100AC9237E0BFA00E4DA40 /* ReEnroller-component.plist in Resources */,
-				B508310A1E5A87F900133D1B /* MainMenu.xib in Resources */,
+				B5434E4725D8678E0013A85B /* images in Resources */,
+				B5480D7325D6B3B600BFCC86 /* apiMDM_remove.txt in Resources */,
+				B5480D7025D6B39200BFCC86 /* help.html in Resources */,
+				B5480D6025D6AE1A00BFCC86 /* Assets.xcassets in Resources */,
+				B5480DD025D6BEB600BFCC86 /* 2 in Resources */,
+				B5480DCC25D6BE8700BFCC86 /* 1 in Resources */,
+				B5E2587025D7252100ABD528 /* settings.plist in Resources */,
+				B5E2587325D725B100ABD528 /* com.jamf.ReEnroller.plist in Resources */,
+				B5E2587625D7273600ABD528 /* ReEnroller-component.plist in Resources */,
+				B5480D6325D6AE1A00BFCC86 /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		B50830FD1E5A87F900133D1B /* Sources */ = {
+		B5480D5425D6AE1700BFCC86 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B51D2F2024DCD60D0024DFEC /* ObjectXML.swift in Sources */,
-				B541FD52215D79CB004D6B6C /* command.swift in Sources */,
-				B562410F215B1992007F8144 /* mgmtAccount.swift in Sources */,
-				B51D2F1E24DB88D70024DFEC /* ApiCall.swift in Sources */,
-				B50831051E5A87F900133D1B /* AppDelegate.swift in Sources */,
+				B5480DAE25D6B8FD00BFCC86 /* ObjectXML.swift in Sources */,
+				B535677225DB550C0017769D /* WriteToLog.swift in Sources */,
+				B5434E3B25D72BD50013A85B /* HelpViewController.swift in Sources */,
+				B5480DA425D6B4E000BFCC86 /* command.swift in Sources */,
+				B5480D5E25D6AE1700BFCC86 /* ViewController.swift in Sources */,
+				B5480DAB25D6B8CA00BFCC86 /* ApiCall.swift in Sources */,
+				B5434E4E25D982390013A85B /* Globals.swift in Sources */,
+				B5480D5C25D6AE1700BFCC86 /* AppDelegate.swift in Sources */,
+				B535677525DB56110017769D /* Alert.swift in Sources */,
+				B535676B25DB4BED0017769D /* CasperJxmlDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXVariantGroup section */
-		B50831081E5A87F900133D1B /* MainMenu.xib */ = {
+		B5480D6125D6AE1A00BFCC86 /* Main.storyboard */ = {
 			isa = PBXVariantGroup;
 			children = (
-				B50831091E5A87F900133D1B /* Base */,
+				B5480D6225D6AE1A00BFCC86 /* Base */,
 			);
-			name = MainMenu.xib;
+			name = Main.storyboard;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
-		B508310C1E5A87F900133D1B /* Debug */ = {
+		B5480D6625D6AE1A00BFCC86 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_NONNULL = YES;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
 				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_COMMA = YES;
@@ -261,17 +261,18 @@
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
 				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				CODE_SIGN_IDENTITY = "-";
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
-				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
@@ -285,25 +286,27 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.10;
-				MTL_ENABLE_DEBUG_INFO = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.12;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = macosx;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				SWIFT_VERSION = 5.0;
 			};
 			name = Debug;
 		};
-		B508310D1E5A87F900133D1B /* Release */ = {
+		B5480D6725D6AE1A00BFCC86 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_NONNULL = YES;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
 				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_COMMA = YES;
@@ -319,17 +322,18 @@
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
 				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				CODE_SIGN_IDENTITY = "-";
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
@@ -337,22 +341,23 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				MACOSX_DEPLOYMENT_TARGET = 10.12;
 				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
 				SDKROOT = macosx;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
-				SWIFT_VERSION = 5.0;
 			};
 			name = Release;
 		};
-		B508310F1E5A87F900133D1B /* Debug */ = {
+		B5480D6925D6AE1A00BFCC86 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_IDENTITY = "Mac Developer";
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = ReEnroller/ReEnroller.entitlements;
+				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_TEAM = PS2F6S478M;
 				ENABLE_HARDENED_RUNTIME = YES;
 				INFOPLIST_FILE = ReEnroller/Info.plist;
@@ -360,22 +365,22 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.11;
-				MARKETING_VERSION = 5.1.3;
+				MACOSX_DEPLOYMENT_TARGET = 10.12;
+				MARKETING_VERSION = 5.5.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.jamf.pse.ReEnroller;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_SWIFT3_OBJC_INFERENCE = On;
 				SWIFT_VERSION = 5.0;
 			};
 			name = Debug;
 		};
-		B50831101E5A87F900133D1B /* Release */ = {
+		B5480D6A25D6AE1A00BFCC86 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_IDENTITY = "Mac Developer";
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = ReEnroller/ReEnroller.entitlements;
+				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_TEAM = PS2F6S478M;
 				ENABLE_HARDENED_RUNTIME = YES;
 				INFOPLIST_FILE = ReEnroller/Info.plist;
@@ -383,11 +388,10 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.11;
-				MARKETING_VERSION = 5.1.3;
+				MACOSX_DEPLOYMENT_TARGET = 10.12;
+				MARKETING_VERSION = 5.5.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.jamf.pse.ReEnroller;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_SWIFT3_OBJC_INFERENCE = On;
 				SWIFT_VERSION = 5.0;
 			};
 			name = Release;
@@ -395,25 +399,25 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		B50830FC1E5A87F900133D1B /* Build configuration list for PBXProject "ReEnroller" */ = {
+		B5480D5325D6AE1700BFCC86 /* Build configuration list for PBXProject "ReEnroller" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				B508310C1E5A87F900133D1B /* Debug */,
-				B508310D1E5A87F900133D1B /* Release */,
+				B5480D6625D6AE1A00BFCC86 /* Debug */,
+				B5480D6725D6AE1A00BFCC86 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		B508310E1E5A87F900133D1B /* Build configuration list for PBXNativeTarget "ReEnroller" */ = {
+		B5480D6825D6AE1A00BFCC86 /* Build configuration list for PBXNativeTarget "ReEnroller" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				B508310F1E5A87F900133D1B /* Debug */,
-				B50831101E5A87F900133D1B /* Release */,
+				B5480D6925D6AE1A00BFCC86 /* Debug */,
+				B5480D6A25D6AE1A00BFCC86 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
-	rootObject = B50830F91E5A87F900133D1B /* Project object */;
+	rootObject = B5480D5025D6AE1700BFCC86 /* Project object */;
 }
