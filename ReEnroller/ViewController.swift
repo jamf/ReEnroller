@@ -214,29 +214,29 @@ class ViewController: NSViewController, URLSessionDelegate {
     var startMigrationQ = OperationQueue()
     var enrollmentQ     = OperationQueue()
 
-    @IBAction func jamfSchool_fn(_ sender: Any) {
-        DispatchQueue.main.async {
-            if self.jamfSchool_Button.state.rawValue == 1 {
-                self.jamfSchoolBgnd_TextField.isHidden = false
-                self.jamfSchoolHeader_Label.isHidden   = false
-                self.jamfSchoolUrl_Label.isHidden      = false
-                self.jamfSchoolUrl_TextField.isHidden  = false
-                self.networkId_Label.isHidden          = false
-                self.networkId_TextField.isHidden      = false
-                self.apiKey_Label.isHidden             = false
-                self.apiKey_TextField.isHidden         = false
-            } else {
-                self.jamfSchoolBgnd_TextField.isHidden = true
-                self.jamfSchoolHeader_Label.isHidden   = true
-                self.jamfSchoolUrl_Label.isHidden      = true
-                self.jamfSchoolUrl_TextField.isHidden  = true
-                self.networkId_Label.isHidden          = true
-                self.networkId_TextField.isHidden      = true
-                self.apiKey_Label.isHidden             = true
-                self.apiKey_TextField.isHidden         = true
-            }
-        }
-    }
+//    @IBAction func jamfSchool_fn(_ sender: Any) {
+//        DispatchQueue.main.async {
+//            if self.jamfSchool_Button.state.rawValue == 1 {
+//                self.jamfSchoolBgnd_TextField.isHidden = false
+//                self.jamfSchoolHeader_Label.isHidden   = false
+//                self.jamfSchoolUrl_Label.isHidden      = false
+//                self.jamfSchoolUrl_TextField.isHidden  = false
+//                self.networkId_Label.isHidden          = false
+//                self.networkId_TextField.isHidden      = false
+//                self.apiKey_Label.isHidden             = false
+//                self.apiKey_TextField.isHidden         = false
+//            } else {
+//                self.jamfSchoolBgnd_TextField.isHidden = true
+//                self.jamfSchoolHeader_Label.isHidden   = true
+//                self.jamfSchoolUrl_Label.isHidden      = true
+//                self.jamfSchoolUrl_TextField.isHidden  = true
+//                self.networkId_Label.isHidden          = true
+//                self.networkId_TextField.isHidden      = true
+//                self.apiKey_Label.isHidden             = true
+//                self.apiKey_TextField.isHidden         = true
+//            }
+//        }
+//    }
 
     @IBAction func localHelp(_ sender: Any) {
 
