@@ -4,7 +4,7 @@ Download: [ReEnroller](https://github.com/BIG-RAT/ReEnroller/releases/download/c
 
 Easily migrate a computer from one Jamf server to another.
 
-![alt text](https://github.com/BIG-RAT/ReEnroller/blob/master/ReEnroller/images/ReEnroller.png "ReEnroller")
+![alt text](https://github.com/BIG-RAT/ReEnroller/blob/master/ReEnroller/help/images/ReEnroller.png "ReEnroller")
 
 
 Use ReEnroller to build a package to take a macOS device enrolled in one Jamf server and enroll it into another.
