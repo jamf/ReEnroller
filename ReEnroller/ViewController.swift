@@ -2160,6 +2160,8 @@ class ViewController: NSViewController, URLSessionDelegate {
                     WriteToLog().message(theMessage: "call to profiles renew -type enrollment failed")
                     //exit(1)
                 }
+            } else {
+                    WriteToLog().message(theMessage: "not calling profiles renew -type enrollment")
             }
 
             // remove config profile if marked as such - start
