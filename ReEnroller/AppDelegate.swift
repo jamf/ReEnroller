@@ -9,9 +9,10 @@ import Cocoa
 
 @NSApplicationMain
 class AppDelegate: NSObject, NSApplicationDelegate {
-
+    
+    let userDefaults = UserDefaults.standard
+    
     @IBAction func showHelp(_ sender: NSMenuItem) {
-
         DispatchQueue.main.async {
             var helpIsOpen = false
             var windowsCount = 0
@@ -62,6 +63,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     // quit the app if the window is closed
     func applicationShouldTerminateAfterLastWindowClosed(_ app: NSApplication) -> Bool {
+        userDefaults.set("", forKey: "tokenKey")
         return true
     }
 

@@ -2,6 +2,8 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>sourceMdm</key>
+	<string>Jamf Pro</string>
 	<key>removeMdmWhen</key>
 	<string>Before</string>
 	<key>removeMDM</key>
@@ -11,8 +13,6 @@
 	<key>markAsMigrated</key>
 	<false/>
 	<key>maxRetries</key>
-	<string></string>
-	<key>newEnrollment</key>
 	<string></string>
 	<key>mgmtAccount</key>
 	<string></string>
