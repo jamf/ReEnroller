@@ -47,7 +47,7 @@ class CasperJxmlDelegate: NSObject, URLSessionDelegate {
                     if httpResponse.statusCode > 199 && httpResponse.statusCode <= 299 {
 
                         let rawXml = String(data: data!, encoding: .utf8)
-//                        print("[CasperJxmlDelegate.casperJxmlGet] raw fileServerXml: \(String(describing: rawXml!))")
+                        print("[CasperJxmlDelegate.casperJxmlGet] raw fileServerXml: \(String(describing: rawXml!))")
                         var sslVerification = ""
                         sslVerification = self.betweenTags(xmlString: rawXml!, startTag: "<verifySSLCert>", endTag: "</verifySSLCert>")
 

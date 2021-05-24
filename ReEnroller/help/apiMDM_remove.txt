@@ -50,7 +50,7 @@
 #
 # HISTORY
 #
-#	Version: 2.0
+#	Version: 1.3
 #
 #	- Created by Leslie Helou, Professional Services Engineer, JAMF Software on December 12, 2017
 #   - updated 20190124: Provide additional feedback as it runs
@@ -64,16 +64,9 @@ majorVer=$( /bin/echo "$macOS_Version" | /usr/bin/awk -F. '{print $1}' )
 minorVer=$( /bin/echo "$macOS_Version" | /usr/bin/awk -F. '{print $2}' )
 
 ## account with computer create and read (JSS Objects), Send Computer Unmanage Command (JSS Actions)
+uname="$4"
+pwd="$5"
 
-if [ "$4" == "" ] || [ "$5" == "" ];then
-    echo "missing username and/or password in script payload - exiting."
-    exit 1
-else
-    uname="$4"
-    pwd="$5"
-fi
-
-## define the URL of the Jamf MDM we're moving from.
 if [ "$6" != "" ];then
 	server="$6"
 else
@@ -120,3 +113,4 @@ fi
 ## send unmanage command to machine
 echo "unmanage machine: curl -X POST -sku ${uname}:******** ${server}JSSResource/computercommands/command/UnmanageDevice/id/${compId}"
 /usr/bin/curl -X POST -sku "${uname}:${pwd}" ${server}JSSResource/computercommands/command/UnmanageDevice/id/${compId}
+

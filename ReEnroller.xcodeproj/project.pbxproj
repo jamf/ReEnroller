@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		B512307525FD6FF800FFA054 /* SourceMdmViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B512307425FD6FF800FFA054 /* SourceMdmViewController.swift */; };
 		B535676B25DB4BED0017769D /* CasperJxmlDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B535676A25DB4BED0017769D /* CasperJxmlDelegate.swift */; };
 		B535677225DB550C0017769D /* WriteToLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = B535677125DB550C0017769D /* WriteToLog.swift */; };
 		B535677525DB56110017769D /* Alert.swift in Sources */ = {isa = PBXBuildFile; fileRef = B535677425DB56110017769D /* Alert.swift */; };
@@ -32,7 +31,6 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		B512307425FD6FF800FFA054 /* SourceMdmViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SourceMdmViewController.swift; sourceTree = "<group>"; };
 		B535676A25DB4BED0017769D /* CasperJxmlDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CasperJxmlDelegate.swift; sourceTree = "<group>"; };
 		B535677125DB550C0017769D /* WriteToLog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WriteToLog.swift; sourceTree = "<group>"; };
 		B535677425DB56110017769D /* Alert.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Alert.swift; sourceTree = "<group>"; };
@@ -99,7 +97,6 @@
 				B5434E4D25D982390013A85B /* Globals.swift */,
 				B5434E3A25D72BD50013A85B /* HelpViewController.swift */,
 				B5480DAD25D6B8FD00BFCC86 /* ObjectXML.swift */,
-				B512307425FD6FF800FFA054 /* SourceMdmViewController.swift */,
 				B5480D5D25D6AE1700BFCC86 /* ViewController.swift */,
 				B535677125DB550C0017769D /* WriteToLog.swift */,
 				B5480D5F25D6AE1A00BFCC86 /* Assets.xcassets */,
@@ -213,7 +210,6 @@
 			files = (
 				B5480DAE25D6B8FD00BFCC86 /* ObjectXML.swift in Sources */,
 				B535677225DB550C0017769D /* WriteToLog.swift in Sources */,
-				B512307525FD6FF800FFA054 /* SourceMdmViewController.swift in Sources */,
 				B5434E3B25D72BD50013A85B /* HelpViewController.swift in Sources */,
 				B5480DA425D6B4E000BFCC86 /* command.swift in Sources */,
 				B5480D5E25D6AE1700BFCC86 /* ViewController.swift in Sources */,
@@ -370,7 +366,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.12;
-				MARKETING_VERSION = 6.0.0;
+				MARKETING_VERSION = 5.5.2;
 				PRODUCT_BUNDLE_IDENTIFIER = com.jamf.pse.ReEnroller;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
@@ -393,7 +389,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.12;
-				MARKETING_VERSION = 6.0.0;
+				MARKETING_VERSION = 5.5.2;
 				PRODUCT_BUNDLE_IDENTIFIER = com.jamf.pse.ReEnroller;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;

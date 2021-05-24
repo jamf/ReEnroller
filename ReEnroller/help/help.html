@@ -1,4 +1,3 @@
-<!doctype html>
 <html>
 <head>
 <meta charset="utf-8">
@@ -171,7 +170,7 @@ a:hover
 <img src="images/ReEnroller.png" alt=""></div>
     <div id="main_body" style="position:relative;">
         <div style="font-family:Arial;font-size:13px;line-height:15px;color:#000000;">
-            <div>To help track migrated machines, click 'Mark machine as migrated' and select the attribute to update.  Any existing data will be overwriten.</div>
+            <div>To help track migrated machines, click 'Mark machine as migrated' and select the attribute to update.  If using Phone, Position, or Room, disable 'Collect user and location information from LDAP' from Computer Management --> Inventory Collection. Any existing data will be overwriten.</div>
         </div>
     </div>
 <div id="appImage2">
@@ -297,23 +296,23 @@ Starting with 10.13 Apple added /var/db/ConfigurationProfiles to SIP.  To ensure
 # ABOUT THIS PROGRAM
 #
 # NAME - apiMDM_remove.sh
-#
+# 
 # DESCRIPTION - Script is used to remove MDM from macOS clients 10.13 (High Sierra) and later.
-#               Parameters passed to the script include a Jamf server username and password and
+#               Parameters passed to the script include a Jamf server username and password and 
 #               optionally the Jamf server URL in the form: https://FQDN:port/.
 #
-#               The jamf user aaccount must have at least computer create and read (JSS Objects)
+#               The jamf user aaccount must have at least computer create and read (JSS Objects) 
 #               along with Send Computer Unmanage Command (JSS Actions).
-#
+# 	
 ####################################################################################################
 #
 # HISTORY
 #
-#    Version: 2.0
+#	Version: 1.3
 #
-#    - Created by Leslie Helou, Professional Services Engineer, JAMF Software on December 12, 2017
-#    - updated 20190124: Provide additional feedback as it runs
-#    - updated 20200918: Updates due to changes in xpath for Big Sur
+#	- Created by Leslie Helou, Professional Services Engineer, JAMF Software on December 12, 2017
+#   - updated 20190124: Provide additional feedback as it runs
+#   - updated 20200918: Updates due to changes in xpath for Big Sur
 #
 ####################################################################################################
 
@@ -323,21 +322,14 @@ majorVer=$( /bin/echo "$macOS_Version" | /usr/bin/awk -F. '{print $1}' )
 minorVer=$( /bin/echo "$macOS_Version" | /usr/bin/awk -F. '{print $2}' )
 
 ## account with computer create and read (JSS Objects), Send Computer Unmanage Command (JSS Actions)
+uname="$4"
+pwd="$5"
 
-if [ "$4" == "" ] || [ "$5" == "" ];then
-    echo "missing username and/or password in script payload - exiting."
-    exit 1
-else
-    uname="$4"
-    pwd="$5"
-fi
-
-## define the URL of the Jamf MDM we're moving from.
 if [ "$6" != "" ];then
-    server="$6"
+	server="$6"
 else
-    ## get current Jamf server
-    server=$(/usr/bin/defaults read /Library/Preferences/com.jamfsoftware.jamf.plist jss_url)
+	## get current Jamf server
+	server=$(/usr/bin/defaults read /Library/Preferences/com.jamfsoftware.jamf.plist jss_url)
 fi
 
 if [ "$server" == "" ];then
@@ -379,6 +371,7 @@ fi
 ## send unmanage command to machine
 echo "unmanage machine: curl -X POST -sku ${uname}:******** ${server}JSSResource/computercommands/command/UnmanageDevice/id/${compId}"
 /usr/bin/curl -X POST -sku "${uname}:${pwd}" ${server}JSSResource/computercommands/command/UnmanageDevice/id/${compId}
+
 
 <br><hr>
 <?php

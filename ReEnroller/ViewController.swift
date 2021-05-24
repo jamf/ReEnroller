@@ -70,15 +70,15 @@ class ViewController: NSViewController, URLSessionDelegate {
     @IBOutlet weak var mgmtAcctPwd2_TextField: NSSecureTextField!
     @IBOutlet weak var rndPwdLen_TextField: NSTextField?
 
-    // For non Jamf Pro MDMs
-//    @IBOutlet weak var jamfSchoolBgnd_TextField: NSTextField!
-//    @IBOutlet weak var jamfSchoolHeader_Label: NSTextField!
-//    @IBOutlet weak var jamfSchoolUrl_Label: NSTextField!
-//    @IBOutlet weak var sourceMdmUrl_TextField: NSTextField!
-//    @IBOutlet weak var networkId_Label: NSTextField!
-//    @IBOutlet weak var apiKey_Label: NSTextField!
-//    @IBOutlet weak var networkId_TextField: NSTextField!
-//    @IBOutlet weak var apiKey_TextField: NSTextField!
+    // For Jamf School
+    @IBOutlet weak var jamfSchoolBgnd_TextField: NSTextField!
+    @IBOutlet weak var jamfSchoolHeader_Label: NSTextField!
+    @IBOutlet weak var jamfSchoolUrl_Label: NSTextField!
+    @IBOutlet weak var jamfSchoolUrl_TextField: NSTextField!
+    @IBOutlet weak var networkId_Label: NSTextField!
+    @IBOutlet weak var apiKey_Label: NSTextField!
+    @IBOutlet weak var networkId_TextField: NSTextField!
+    @IBOutlet weak var apiKey_TextField: NSTextField!
 
     // management account buttons
     @IBOutlet weak var mgmtAcctCreate_button: NSButton!
@@ -175,12 +175,6 @@ class ViewController: NSViewController, URLSessionDelegate {
 
     // read this from Jamf server
     var createConfSwitches  = ""
-    
-    // source MDM info
-    var sourceMdm           = "Jamf Pro"
-    var sourceMdmUrl        = ""
-    var tenantNetwork       = ""
-    var tokenKey            = ""
 
     var newJssMgmtUrl       = ""
     var theNewInvite        = ""
@@ -193,58 +187,59 @@ class ViewController: NSViewController, URLSessionDelegate {
     var includesMsg         = "includes"
     var includesMsg2        = ""
     var policyMsg           = ""
-    var postInstallPolicyId = ""
+    var postInstallPolicyId  = ""
 
     var profileUuid         = ""
     var removeConfigProfile = ""
     var removeAllProfiles   = ""
 
     // Jamf School
+    var jamfSchoolMigration = 0
     var jamfSchoolUrl       = ""
     var jamfSchoolToken     = ""
 
+//    var safePackageURL      = ""
     var safeProfileURL      = ""
     var Pipe_pkg            = Pipe()
     var task_pkg            = Process()
 
     var maxRetries          = -1
     var retryCount          = 0
-    
-    let userDefaults        = UserDefaults.standard
+
+    let userDefaults = UserDefaults.standard
 
     // OS version info
-    let os                  = ProcessInfo().operatingSystemVersion
+    let os = ProcessInfo().operatingSystemVersion
 
-    var startMigrationQ     = OperationQueue()
-    var apiQ                = OperationQueue()
-    
-    @IBOutlet weak var sourceMDM_button: NSPopUpButton!
-    // Summary source MDM window - start
-    @IBAction func showSourceMdmWindow(_ sender: NSButton) {
-//        print("\(sourceMDM_button.titleOfSelectedItem!)")
-        if "\(sourceMDM_button.titleOfSelectedItem!)" != "Jamf Pro" && "\(sourceMDM_button.titleOfSelectedItem!)" != "None" {
-            newEnrollment_Button.state     = NSControl.StateValue(rawValue: 1)
-            newEnrollment_Button.isEnabled = false
-            removeMdmWhen_Button.selectItem(at: 1)
-            removeMdmWhen_Button.isEnabled = false
-            performSegue(withIdentifier: "showSourceMDM", sender: self)
+    var startMigrationQ = OperationQueue()
+    var enrollmentQ     = OperationQueue()
+
+
+    @IBAction func jamfSchool_fn(_ sender: Any) {
+        if self.jamfSchool_Button.state.rawValue == 1 {
+            self.jamfSchoolBgnd_TextField.isHidden = false
+            self.jamfSchoolHeader_Label.isHidden   = false
+            self.jamfSchoolUrl_Label.isHidden      = false
+            self.jamfSchoolUrl_TextField.isHidden  = false
+            self.networkId_Label.isHidden          = false
+            self.networkId_TextField.isHidden      = false
+            self.apiKey_Label.isHidden             = false
+            self.apiKey_TextField.isHidden         = false
+            newEnrollment_Button.state             = NSControl.StateValue(rawValue: 1)
+            newEnrollment_Button.isEnabled         = false
         } else {
-            newEnrollment_Button.state     = NSControl.StateValue(rawValue: 0)
-            newEnrollment_Button.isEnabled = true
-            removeMdmWhen_Button.selectItem(at: 0)
-            removeMdmWhen_Button.isEnabled = true
+            self.jamfSchoolBgnd_TextField.isHidden = true
+            self.jamfSchoolHeader_Label.isHidden   = true
+            self.jamfSchoolUrl_Label.isHidden      = true
+            self.jamfSchoolUrl_TextField.isHidden  = true
+            self.networkId_Label.isHidden          = true
+            self.networkId_TextField.isHidden      = true
+            self.apiKey_Label.isHidden             = true
+            self.apiKey_TextField.isHidden         = true
+            newEnrollment_Button.state             = NSControl.StateValue(rawValue: 0)
+            newEnrollment_Button.isEnabled         = true
         }
-    }
-    // source MDM Window - end
-    
-    override func prepare(for segue: NSStoryboardSegue, sender: Any?) {
-//        print("[prepare]")
-//        print("number of records: \(totalRecords)")
-        let sourceMdmViewController: SourceMdmViewController = segue.destinationController as! SourceMdmViewController
-        
-//        print("\(sourceMDM_button.titleOfSelectedItem!)")
-        sourceMdmViewController.sourceTitle = "\(sourceMDM_button.titleOfSelectedItem!)"
-
+        newEnrollment_fn(self)
     }
 
     @IBAction func localHelp(_ sender: Any) {
@@ -385,35 +380,20 @@ class ViewController: NSViewController, URLSessionDelegate {
 //            return
 //        }
 
-        // non Jamf Pro check - start
-        sourceMdmUrl  = userDefaults.string(forKey: "sourceMdmUrl") ?? ""
-        tenantNetwork = userDefaults.string(forKey: "tenantNetwork") ?? ""
-        tokenKey      = userDefaults.string(forKey: "tokenKey") ?? ""
-        var allFields = true
-//        if jamfSchool_Button.state.rawValue == 1 {
-        switch sourceMDM_button.titleOfSelectedItem! {
-        case "Jamf School":
-            if sourceMdmUrl == "" || tenantNetwork == "" || tokenKey == "" {
+        // Jamf School check - start
+        if jamfSchool_Button.state.rawValue == 1 {
+            if networkId_TextField.stringValue == "" || apiKey_TextField.stringValue == "" {
                 Alert().display(header: "Attention:", message: "Migrating from Jamf School requires the server URL, the Network ID, and API key.")
-                allFields = false
+                return
             } else {
                // generate token for Jamf School API
-                let jamfSchoolCreds = "\(tenantNetwork):\(tokenKey)"
+                let jamfSchoolCreds = "\(networkId_TextField.stringValue):\(apiKey_TextField.stringValue)"
                 jamfSchoolToken     = jamfSchoolCreds.data(using: .utf8)?.base64EncodedString() ?? ""
+//                self.plistData["jamfSchoolUrl"]   = jamfSchoolUrl_TextField.stringValue as AnyObject
+//                self.plistData["jamfSchoolToken"] = jamfSchoolBase64Creds as AnyObject
            }
-        case "Workspace ONE":
-            if sourceMdmUrl == "" || tenantNetwork == "" || tokenKey == "" {
-                Alert().display(header: "Attention:", message: "Migrating from Workspace ONE requires the server URL, the Tenant Code, and API token.")
-                allFields = false
-            }
-        default:
-            break
         }
-        if !allFields {
-            showSourceMdmWindow(sourceMDM_button)
-            return
-        }
-        // non Jamf Pro check - start
+        // Jamf School check - start
 
         self.spinner.startAnimation(self)
 
@@ -472,8 +452,7 @@ class ViewController: NSViewController, URLSessionDelegate {
                     Xml.objectArray.append("invitation")
 
                     // get invitation code
-//                    self.apiAction(action: "POST", theServer: jssUrl, token: jpsBase64Creds, xml: Xml.objectDict["invitation"]!, theApiObject: "invitation") {
-                    ApiCall().post(theServer: jssUrl, token: jpsBase64Creds, xml: Xml.objectDict["invitation"]!, theApiObject: "invitation") {
+                    self.apiAction(action: "POST", theServer: jssUrl, token: jpsBase64Creds, xml: Xml.objectDict["invitation"]!, theApiObject: "invitation") {
                         (result: [Any]) in
                         let responseCode = result[0] as! Int
                         let responseMesage = result[1] as! String
@@ -504,9 +483,9 @@ class ViewController: NSViewController, URLSessionDelegate {
 
                                     }   // if self.createPolicy_Button.state.rawvalue == 1 - end
 
-                                    switch self.sourceMDM_button.titleOfSelectedItem! {
-                                    case "Jamf School":
-                                        var unenrollPolicyXml = JamfSchool.policy.replacingOccurrences(of: "<parameter4>----jamfSchoolUrl----</parameter4>", with: "<parameter4>\(self.sourceMdmUrl)</parameter4>")
+                                    if self.jamfSchool_Button.state.rawValue == 1 {
+                                        self.jamfSchoolUrl    = "\(self.jamfSchoolUrl_TextField.stringValue)"
+                                        var unenrollPolicyXml = JamfSchool.policy.replacingOccurrences(of: "<parameter4>----jamfSchoolUrl----</parameter4>", with: "<parameter4>\(self.jamfSchoolUrl)</parameter4>")
                                         unenrollPolicyXml = unenrollPolicyXml.replacingOccurrences(of: "<parameter5>---jamfSchoolToken---</parameter5>", with: "<parameter5>\(self.jamfSchoolToken)</parameter5>")
 
                                         Xml.objectDict["UnenrollCatagory"] = JamfSchool.catagory
@@ -515,27 +494,23 @@ class ViewController: NSViewController, URLSessionDelegate {
                                         Xml.objectArray.append("UnenrollScript")
                                         Xml.objectDict["UnenrollPolicy"]   = unenrollPolicyXml
                                         Xml.objectArray.append("UnenrollPolicy")
-                                    case "Workspace ONE":
-                                        var unenrollPolicyXml = WS1.policy.replacingOccurrences(of: "<parameter4>----WS1Url----</parameter4>", with: "<parameter4>\(self.sourceMdmUrl)</parameter4>")
-                                        unenrollPolicyXml = unenrollPolicyXml.replacingOccurrences(of: "<parameter5>---WS1Tenant---</parameter5>", with: "<parameter5>\(self.tenantNetwork)</parameter5>")
-                                        unenrollPolicyXml = unenrollPolicyXml.replacingOccurrences(of: "<parameter6>----WS1Token----</parameter6>", with: "<parameter6>\(self.tokenKey)</parameter6>")
-
-                                        Xml.objectDict["UnenrollCatagory"] = WS1.catagory
-                                        Xml.objectArray.append("UnenrollCatagory")
-                                        Xml.objectDict["UnenrollScript"]   = WS1.script
-                                        Xml.objectArray.append("UnenrollScript")
-                                        Xml.objectDict["UnenrollPolicy"]   = unenrollPolicyXml
-                                        Xml.objectArray.append("UnenrollPolicy")
-                                    default:
-                                        break
-                                    }
+                                    }   // if self.jamfSchool_Button.state.rawvalue == 1 - end
 
                                     if Xml.objectArray.count > 0 {
-                                        ApiCall().post(theServer: jssUrl, token: jpsBase64Creds, xml: Xml.objectDict["\(String(describing: Xml.objectArray.first!))"]!, theApiObject: "\(String(describing: Xml.objectArray.first!))") {
-//                                            self.apiAction(action: "POST", theServer: jssUrl, token: jpsBase64Creds, xml: Xml.objectDict["\(String(describing: Xml.objectArray.first!))"]!, theApiObject: "\(String(describing: Xml.objectArray.first!))") {
+                                        self.apiAction(action: "POST", theServer: jssUrl, token: jpsBase64Creds, xml: Xml.objectDict["\(String(describing: Xml.objectArray.first!))"]!, theApiObject: "\(String(describing: Xml.objectArray.first!))") {
                                             (result: [Any]) in
-                                            print("back from apiAction: \(result)")
-                                            
+                                            let responseCode = result[0] as! Int
+                                            let responseMesage = result[1] as! String
+                                            if !(responseCode > 199 && responseCode < 300) {
+                                                if responseCode == 409 {
+                                                    print("Migration complete policy already exists")
+                                                } else {
+                                                    Alert().display(header: "Attention", message: "Failed to create the migration complete policy.\nSee Help to create it manually.\nResponse code: \(responseCode)")
+                                                }
+                                            } else {
+                                                print("Created new enrollment complete policy")
+                                                print("\(responseMesage)")
+                                            }
                                             self.buildPackage(jssUrl1: "\(jssUrl)")
                                         }   // self.apiAction - end
                                     } else {
@@ -561,8 +536,8 @@ class ViewController: NSViewController, URLSessionDelegate {
         if randomPassword_button.state.rawValue == 1 {
             mgmtAcctPwd_TextField.isEnabled = false
             mgmtAcctPwd2_TextField.isEnabled = false
-//            createPolicy_Button.state = convertToNSControlStateValue(1)
-//            createPolicy_Button.isEnabled = false
+            createPolicy_Button.state = convertToNSControlStateValue(1)
+            createPolicy_Button.isEnabled = false
             rndPwdLen_TextField?.isEnabled = true
             mgmtAcctPwd_TextField.stringValue = ""
             mgmtAcctPwd2_TextField.stringValue = ""
@@ -570,7 +545,7 @@ class ViewController: NSViewController, URLSessionDelegate {
         } else {
             mgmtAcctPwd_TextField.isEnabled = true
             mgmtAcctPwd2_TextField.isEnabled = true
-//            createPolicy_Button.isEnabled = true
+            createPolicy_Button.isEnabled = true
             rndPwdLen_TextField?.isEnabled = false
         }
     }
@@ -590,6 +565,74 @@ class ViewController: NSViewController, URLSessionDelegate {
             policyId_Textfield.isEnabled = false
         }
     }
+
+    func apiAction(action: String, theServer: String, token: String, xml: String, theApiObject: String, completion: @escaping (_ result: [Any]) -> Void) {
+        URLCache.shared.removeAllCachedResponses()
+        var returnValues = [Any]()
+        var endpoint     = ""
+        var responseData = ""
+
+        print("[func apiAction] endpoint: \(endpoint)")
+        print("[func apiAction] xml: \(xml)")
+
+        switch theApiObject {
+        case "invitation":
+            endpoint = "\(theServer)/JSSResource/computerinvitations/id/0"
+        case "migrationCheckPolicy", "UnenrollPolicy":
+            endpoint = "\(theServer)/JSSResource/policies/id/0"
+        case "UnenrollCatagory":
+            endpoint = "\(theServer)/JSSResource/categories/id/0"
+        case "UnenrollScript":
+            endpoint = "\(theServer)/JSSResource/scripts/id/0"
+        default:
+            endpoint = ""
+        }
+
+        endpoint = endpoint.replacingOccurrences(of: "//JSSResource", with: "/JSSResource")
+
+        let serverUrl = NSURL(string: "\(endpoint)")
+        let serverRequest = NSMutableURLRequest(url: serverUrl! as URL)
+
+        serverRequest.httpMethod = "\(action)"
+        serverRequest.httpBody = Data(xml.utf8)
+        let serverConf = URLSessionConfiguration.default
+        serverConf.httpAdditionalHeaders = ["Authorization" : "Basic \(token)", "Content-Type" : "application/xml", "Accept" : "application/xml"]
+
+        let session = Foundation.URLSession(configuration: serverConf, delegate: self, delegateQueue: OperationQueue.main)
+        let task = session.dataTask(with: serverRequest as URLRequest, completionHandler: {
+            (data, response, error) -> Void in
+            if let httpResponse = response as? HTTPURLResponse {
+                if let _ = String(data: data!, encoding: .utf8) {
+                    responseData = String(data: data!, encoding: .utf8)!
+                    responseData = responseData.replacingOccurrences(of: "\n", with: " ")
+                    print("[apiAction] response code: \(httpResponse.statusCode)")
+                    print("[apiAction] response: \(responseData)")
+//                    completion([httpResponse.statusCode,"\(responseData)"])
+                    returnValues = [httpResponse.statusCode,"\(responseData)"]
+                } else {
+                    print("[apiAction] No data was returned from \(action).")
+//                    completion([httpResponse.statusCode,""])
+                    returnValues = [httpResponse.statusCode,""]
+                }
+
+            } else {
+//                completion([404,""])
+                returnValues = [404,""]
+            }
+            // move completions here
+            if theApiObject == Xml.objectArray.last {
+                completion(returnValues)
+            } else {
+                // call next item in list
+                let nextObject = Xml.objectArray.firstIndex(of: theApiObject)!+1
+                self.apiAction(action: "POST", theServer: theServer, token: token, xml: Xml.objectDict["\(String(describing: Xml.objectArray[nextObject]))"]!, theApiObject: "\(String(describing: Xml.objectArray[nextObject]))") {
+                    (result: [Any]) in
+                    completion(result)
+                }
+            }
+        })
+        task.resume()
+    }   // func apiAction - end
 
     func beginMigration() {
 
@@ -770,12 +813,8 @@ class ViewController: NSViewController, URLSessionDelegate {
         // rename management account if present - end
 
         // Let's enroll
-        if removeMDM {
+        if !newEnrollment || jamfSchoolMigration == 1 {
             WriteToLog().message(theMessage: "MDM Profile will be removed \(removeMdmWhen) enrollment in the new Jamf Pro server.")
-        } else {
-            if !newEnrollment {
-                WriteToLog().message(theMessage: "MDM Profile will removed by a process outside ReEnroller.")
-            }
         }
         if removeMdmWhen == "Before" {
             self.removeMDMProfile(when: "Before") {
@@ -1011,23 +1050,19 @@ class ViewController: NSViewController, URLSessionDelegate {
         }
         // configure ReEnroller folder removal - end
 
-        // MDM we're migrating from
-        self.plistData["sourceMdm"] = sourceMDM_button.titleOfSelectedItem! as AnyObject
-        
         // Jamf School migration check - start
-//        if self.sourceMDM_button.titleOfSelectedItem! == "Jamf School" {
-//            self.plistData["jamfSchool"] = 0 as AnyObject
-//        } else {
-//            self.plistData["jamfSchool"] = 1 as AnyObject
-//        }
+        if self.jamfSchool_Button.state.rawValue == 0 {
+            self.plistData["jamfSchool"] = 0 as AnyObject
+        } else {
+            self.plistData["jamfSchool"] = 1 as AnyObject
+        }
         // Jamf School migration check - end
 
         // configure new enrollment check - start
-        if self.sourceMDM_button.titleOfSelectedItem! != "Jamf Pro" {
-//        if self.newEnrollment_Button.state.rawValue == 0 && self.jamfSchool_Button.state.rawValue == 0 {
-            self.plistData["newEnrollment"] = 1 as AnyObject
-        } else {
+        if self.newEnrollment_Button.state.rawValue == 0 && self.jamfSchool_Button.state.rawValue == 0 {
             self.plistData["newEnrollment"] = 0 as AnyObject
+        } else {
+            self.plistData["newEnrollment"] = 1 as AnyObject
         }
         // configure new enrollment check - end
 
@@ -1239,7 +1274,7 @@ class ViewController: NSViewController, URLSessionDelegate {
         //Create URL to the source file you want to download
         let fileURL = URL(string: "\(source)")
 
-        let sessionConfig = URLSessionConfiguration.ephemeral
+        let sessionConfig = URLSessionConfiguration.default
         let session = Foundation.URLSession(configuration: sessionConfig, delegate: self, delegateQueue: OperationQueue.main)
 
         let request = URLRequest(url:fileURL!)
@@ -1359,31 +1394,21 @@ class ViewController: NSViewController, URLSessionDelegate {
 
         // Handle MDM operations - start
        // check if we're migrating from Jamf School
-        if sourceMdm != "Jamf Pro" && sourceMdm != "None" {
-            var mdmIdentifier = "00000000-0000-0000-A000-4A414D460003"  // Jamf Pro MDM id
-            switch sourceMdm {
-            case "Jamf School":
-                mdmIdentifier = "com.apple.mdm"
-            case "Workspace ONE":
-                mdmIdentifier = "a1c63400-63cd-4abb-a63a-05af0515a8a5"
-            default:
-                break
-            }
-
+        if jamfSchoolMigration == 1 {
             var counter = 0
-            while mdmInstalled(cmd: "/bin/bash", args: "-c", "/usr/bin/profiles -vL | grep 'description\\|identifier' | grep \"\(mdmIdentifier)\" | wc -l", message: "looking for \(sourceMdm) MDM profile") {
+            while mdmInstalled(cmd: "/bin/bash", args: "-c", "/usr/bin/profiles -C | grep com.apple.mdm | wc -l", message: "looking for Jamf School Profile") {
                 counter+=1
-                _ = myExitCode(cmd: "/bin/bash", args: "-c", "killall jamf;/usr/local/bin/jamf policy -trigger sourceMdmUnenroll")
+                _ = myExitCode(cmd: "/bin/bash", args: "-c", "killall jamf;/usr/local/bin/jamf policy -trigger jamfSchoolUnenroll")
                 sleep(10)
                 if counter > 6 {
-                    WriteToLog().message(theMessage: "Failed to remove \(sourceMdm) MDM profile through remote command - exiting")
+                    WriteToLog().message(theMessage: "Failed to remove Jamf School MDM through remote command - exiting")
                     completion("failed")
                     return
                 } else {
-                    WriteToLog().message(theMessage: "Attempt \(counter) to remove \(sourceMdm) MDM profile through remote command.")
+                    WriteToLog().message(theMessage: "Attempt \(counter) to remove Jamf School MDM through remote command.")
                 }
             }   // while mdmInstalled - end
-            WriteToLog().message(theMessage: "\(sourceMdm) MDM profile removed through remote command.")
+            WriteToLog().message(theMessage: "Jamf School MDM removed through remote command.")
         }
 
         if !(( os.majorVersion > 10 ) || ( os.majorVersion == 10 && os.minorVersion > 15 )) {
@@ -1487,11 +1512,11 @@ class ViewController: NSViewController, URLSessionDelegate {
             var healthCheckUrl = "\(server)/healthCheck.html"
             healthCheckUrl     = healthCheckUrl.replacingOccurrences(of: "//healthCheck.html", with: "/healthCheck.html")
 
-            let serverUrl = URL(string: "\(healthCheckUrl)")
+            let serverUrl = NSURL(string: "\(healthCheckUrl)")
             let serverRequest = NSMutableURLRequest(url: serverUrl! as URL)
 
             serverRequest.httpMethod = "GET"
-            let serverConf = URLSessionConfiguration.ephemeral
+            let serverConf = URLSessionConfiguration.default
 
             WriteToLog().message(theMessage: "Performing a health check against: \(healthCheckUrl)")
             let session = Foundation.URLSession(configuration: serverConf, delegate: self, delegateQueue: OperationQueue.main)
@@ -1561,11 +1586,11 @@ class ViewController: NSViewController, URLSessionDelegate {
     func getSites(completion: @escaping (Dictionary<String, Int>) -> Dictionary<String, Int>) {
         var local_allSites = Dictionary<String, Int>()
 
-        let serverEncodedURL = URL(string: resourcePath)
+        let serverEncodedURL = NSURL(string: resourcePath)
         let serverRequest = NSMutableURLRequest(url: serverEncodedURL! as URL)
         //        print("serverRequest: \(serverRequest)")
         serverRequest.httpMethod = "GET"
-        let serverConf = URLSessionConfiguration.ephemeral
+        let serverConf = URLSessionConfiguration.default
         serverConf.httpAdditionalHeaders = ["Authorization" : "Basic \(jssCredsBase64)", "Content-Type" : "application/json", "Accept" : "application/json"]
         let serverSession = Foundation.URLSession(configuration: serverConf, delegate: self, delegateQueue: OperationQueue.main)
         let task = serverSession.dataTask(with: serverRequest as URLRequest, completionHandler: {
@@ -1628,7 +1653,7 @@ class ViewController: NSViewController, URLSessionDelegate {
 
         WriteToLog().message(theMessage: "\(message)")
         if message != "" {
-            WriteToLog().message(theMessage: "MDM profile count: \(String(describing: profileList))")
+            WriteToLog().message(theMessage: "profile list: \n\(String(describing: profileList))")
         }
 
         let mdmCount = Int(profileList.trimmingCharacters(in: .whitespacesAndNewlines))!
@@ -1757,7 +1782,6 @@ class ViewController: NSViewController, URLSessionDelegate {
 
     func removeMDMProfile(when: String, completion: @escaping (_ result: String) -> Void) {
         if removeMDM {
-            WriteToLog().message(theMessage: "Start MDM profile removal.")
             // check if MDM profile exists
             if mdmInstalled(cmd: "/bin/bash", args: "-c", "/usr/bin/profiles -C | grep 00000000-0000-0000-A000-4A414D460003 | wc -l", message: "looking for MDM Profile") {
                 // remove mdm profile - start
@@ -1795,18 +1819,20 @@ class ViewController: NSViewController, URLSessionDelegate {
                         while mdmInstalled(cmd: "/bin/bash", args: "-c", "/usr/bin/profiles -C | grep 00000000-0000-0000-A000-4A414D460003 | wc -l", message: "looking for MDM Profile") {
 
                             counter+=1
-                            if attempt > 3 {    // try 3 times, waiting 20 secondes between tries
-                                WriteToLog().message(theMessage: "Failed to remove MDM through remote command.")
-                                completion("\(when) - failed")
-                            }
-                            if (counter-1) % 2 == 0 {
+                            if (counter-1) % 20 == 0 {
                                 WriteToLog().message(theMessage: "Attempt \(attempt) to remove MDM through remote command.")
                                 _ = myExitCode(cmd: "/bin/bash", args: "-c", "killall jamf")
                                 _ = myExitCode(cmd: "/bin/bash", args: "-c", "/usr/local/bin/jamf policy -trigger apiMDM_remove")
                                 attempt+=1
                             }
 
-                            sleep(10)
+                            sleep(4)
+                            if attempt > 7 {
+                                WriteToLog().message(theMessage: "Failed to remove MDM through remote command.")
+                                //                    unverifiedFallback()
+                                //                    exit(1)
+                                completion("\(when) - failed")
+                            }
                         }   // while mdmInstalled - end
                         WriteToLog().message(theMessage: "Attempt \(attempt-1) removed the MDM profile.")
                         sleep(5)
@@ -2134,8 +2160,6 @@ class ViewController: NSViewController, URLSessionDelegate {
                     WriteToLog().message(theMessage: "call to profiles renew -type enrollment failed")
                     //exit(1)
                 }
-            } else {
-                    WriteToLog().message(theMessage: "not calling profiles renew -type enrollment")
             }
 
             // remove config profile if marked as such - start
@@ -2373,9 +2397,6 @@ class ViewController: NSViewController, URLSessionDelegate {
 
         if plistData["newJSSHostname"] != nil && plistData["newJSSPort"] != nil && plistData["theNewInvite"] != nil {
             WriteToLog().message(theMessage: "Found configuration for new Jamf Pro server: \(String(describing: plistData["newJSSHostname"]!)), begin migration")
-            
-            // source MDM
-            sourceMdm = plistData["sourceMdm"]! as! String
 
             // Parameters for the new emvironment
             newJSSHostname = plistData["newJSSHostname"]! as! String
@@ -2423,18 +2444,23 @@ class ViewController: NSViewController, URLSessionDelegate {
                 httpProtocol = "https"
             }
 
+//                jamfSchoolMigration = (plistData["jamfSchool"] ?? "" as AnyObject) as! String
+            jamfSchoolMigration = plistData["jamfSchool"]! as? Int ?? 0
+
             markAsMigrated    = plistData["markAsMigrated"] as? Bool ?? false
             migratedAttribute = plistData["migratedAttribute"] as? String ?? "room"
 
             removeMDM         = plistData["removeMDM"] as? Bool ?? true
-            
-            if sourceMdm == "Jamf Pro" {
+            if jamfSchoolMigration == 0 {
                 removeMdmWhen = plistData["removeMdmWhen"] as? String ?? "Before"
             } else {
                 removeMdmWhen = "After"
             }
 
-            WriteToLog().message(theMessage: "source MDM: \(sourceMdm)")
+            WriteToLog().message(theMessage: "jamfSchoolMigration: \(jamfSchoolMigration)")
+
+//                jamfSchoolUrl       = plistData["jamfSchoolUrl"]! as? String ?? ""
+//                jamfSchoolToken     = plistData["jamfSchoolToken"]! as? String ?? ""
 
             theNewInvite = plistData["theNewInvite"]! as! String
             newJssMgmtUrl = "\(httpProtocol)://\(newJSSHostname):\(newJSSPort)"
@@ -2493,7 +2519,6 @@ class ViewController: NSViewController, URLSessionDelegate {
         jssUrl_TextField.stringValue      = userDefaults.string(forKey: "jamfProUrl") ?? ""
         jssUsername_TextField.stringValue = userDefaults.string(forKey: "jamfProUser") ?? ""
         migratedAttribute_Button.selectItem(withTitle: "Room")
-        sourceMDM_button.selectItem(at: 1)
 
         WriteToLog().message(theMessage: "Configuration not found, launching GUI.")
         param.runAsDaemon = false
@@ -2519,10 +2544,11 @@ class ViewController: NSViewController, URLSessionDelegate {
         mgmtAcctPwd2_TextField.nextKeyView = maxRetries_Textfield
         maxRetries_Textfield.nextKeyView   = retry_TextField
 
-        self.view.wantsLayer = true
-        self.view.layer?.backgroundColor = param.backgroundColor
-        NSApplication.shared.setActivationPolicy(.regular)
-        NSApplication.shared.activate(ignoringOtherApps: true)
+        DispatchQueue.main.async {
+            self.view.layer?.backgroundColor = CGColor(red: 0x6c/255.0, green:0x82/255.0, blue:0x94/255.0, alpha: 1.0)
+            NSApplication.shared.setActivationPolicy(.regular)
+            NSApplication.shared.activate(ignoringOtherApps: true)
+        }
     }
 
     override var representedObject: Any? {
