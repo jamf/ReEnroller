@@ -2249,29 +2249,35 @@ class ViewController: NSViewController, URLSessionDelegate {
     }
 
     func verifyNewEnrollment() {
-        WriteToLog().message(theMessage: "Verifying enrollment...")
-        for i in 1...5 {
-            // test for a policy on the new Jamf Pro server and that it ran successfully
-            let policyExitCode = myExitCode(cmd: "/usr/local/bin/jamf", args: "policy", "-trigger", "jpsmigrationcheck")
-            sleep(20)
-            if policyExitCode == 0 && fm.fileExists(atPath: verificationFile) {
-                WriteToLog().message(theMessage: "Verified migration with sample policy using jpsmigrationcheck trigger.")
-                WriteToLog().message(theMessage: "Policy created the check file.")
-                break
-            } else {
-                WriteToLog().message(theMessage: "Attempt \(i): There was a problem verifying migration with sample policy using jpsmigrationcheck trigger.")
-                WriteToLog().message(theMessage: "/usr/local/bin/jamf policy -trigger jpsmigrationcheck")
-                WriteToLog().message(theMessage: "Exit code: \(policyExitCode)")
-                if i == 5 {
-                    WriteToLog().message(theMessage: "Falling back to old settings and exiting!")
-                    unverifiedFallback()
-                    exit(1)
+        DispatchQueue.main.async {
+            WriteToLog().message(theMessage: "Verifying enrollment...")
+            for i in 1...4 {
+                // test for a policy on the new Jamf Pro server and that it ran successfully
+                let policyExitCode = self.myExitCode(cmd: "/usr/local/bin/jamf", args: "policy", "-trigger", "jpsmigrationcheck")
+                var loopCount = 0
+                while loopCount < 30 && !self.fm.fileExists(atPath: self.verificationFile) {
+                    sleep(1)
+                    loopCount+=1
                 }
-            }
-        }   // for i in 1...5 - end
-        // verify cleanup
-        self.verifiedCleanup(type: "full")
-        exit(0)
+                if policyExitCode == 0 && self.fm.fileExists(atPath: self.verificationFile) {
+                    WriteToLog().message(theMessage: "Verified migration with sample policy using jpsmigrationcheck trigger.")
+                    WriteToLog().message(theMessage: "Policy created the check file.")
+                    break
+                } else {
+                    WriteToLog().message(theMessage: "Attempt \(i): There was a problem verifying migration with sample policy using jpsmigrationcheck trigger.")
+                    WriteToLog().message(theMessage: "/usr/local/bin/jamf policy -trigger jpsmigrationcheck")
+                    WriteToLog().message(theMessage: "Exit code: \(policyExitCode)")
+                    if i == 5 {
+                        WriteToLog().message(theMessage: "Falling back to old settings and exiting!")
+                        self.unverifiedFallback()
+                        exit(1)
+                    }
+                }
+            }   // for i in 1...5 - end
+            // verify cleanup
+            self.verifiedCleanup(type: "full")
+            exit(0)
+        }
     }
 
     func xmlEncode(rawString: String) -> String {
