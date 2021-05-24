@@ -28,18 +28,18 @@ class ApiCall: NSViewController, URLSessionDelegate {
         let semaphore = DispatchSemaphore(value: 0)
         
         apiQ.addOperation {
-            print("[func apiAction] theApiObject: \(theApiObject)")
+            print("[func apiAction][POST] theApiObject: \(theApiObject)")
     //        print("[func apiAction] xml: \(xml)")
 
             switch theApiObject {
             case "invitation":
                 endpoint = "\(theServer)/JSSResource/computerinvitations/id/0"
             case "migrationCheckPolicy", "UnenrollPolicy":
-                if action == "POST" {
+//                if action == "POST" {
                     endpoint = "\(theServer)/JSSResource/policies/id/0"
-                } else {
-                    endpoint = "\(theServer)/JSSResource/policies/name/Migration%20Complete%20v4"
-                }
+//                } else {
+//                    endpoint = "\(theServer)/JSSResource/policies/name/Migration%20Complete%20v4"
+//                }
             case "UnenrollCatagory":
                 if action == "POST" {
                     endpoint = "\(theServer)/JSSResource/categories/id/0"
@@ -47,11 +47,11 @@ class ApiCall: NSViewController, URLSessionDelegate {
                     //print("no need to retry category")
                 //}
             case "UnenrollScript":
-                if action == "POST" {
+//                if action == "POST" {
                     endpoint = "\(theServer)/JSSResource/scripts/id/0"
-                } else {
-                    endpoint = "\(theServer)/JSSResource/scripts/name/Migration%20Unenroll"
-                }
+//                } else {
+//                    endpoint = "\(theServer)/JSSResource/scripts/name/Migration%20Unenroll"
+//                }
             default:
                 endpoint = ""
             }
@@ -172,34 +172,35 @@ class ApiCall: NSViewController, URLSessionDelegate {
         var responseData = ""
         var apiResults   = [String:String]()
         let action       = "PUT"
-        var putXml       = xml
+//        var putXml       = xml
         
         apiQ.maxConcurrentOperationCount = 1
         let semaphore = DispatchSemaphore(value: 0)
         
         apiQ.addOperation {
-            print("[func apiAction] theApiObject: \(theApiObject)")
+            print("[func apiAction][PUT] theApiObject: \(theApiObject)")
 
             switch theApiObject {
             case "invitation":
                 endpoint = "\(theServer)/JSSResource/computerinvitations/id/0"
-            case "migrationCheckPolicy", "UnenrollPolicy":
+            case "migrationCheckPolicy":
                 endpoint = "\(theServer)/JSSResource/policies/name/Migration%20Complete%20v4"
-
+            case "UnenrollPolicy":
+                endpoint = "\(theServer)/JSSResource/policies/name/Migration%20Unenroll"
             case "UnenrollScript":
                 endpoint = "\(theServer)/JSSResource/scripts/name/Migration%20Unenroll"
             default:
                 endpoint = ""
             }
             
-            putXml   = xml.replacingOccurrences(of: "<name>Migration Unenroll</name>\n", with: "")
+//            putXml   = xml.replacingOccurrences(of: "<name>Migration Unenroll</name>\n", with: "")
             endpoint = endpoint.replacingOccurrences(of: "//JSSResource", with: "/JSSResource")
 
             let serverUrl     = URL(string: "\(endpoint)")
             let serverRequest = NSMutableURLRequest(url: serverUrl! as URL)
             
             serverRequest.httpMethod         = "\(action)"
-            serverRequest.httpBody           = Data(putXml.utf8)
+            serverRequest.httpBody           = Data(xml.utf8)
             let serverConf                   = URLSessionConfiguration.ephemeral
             serverConf.httpAdditionalHeaders = ["Authorization" : "Basic \(token)", "Content-Type" : "application/xml", "Accept" : "application/xml"]
 

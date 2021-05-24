@@ -518,7 +518,7 @@ class ViewController: NSViewController, URLSessionDelegate {
                                     case "Workspace ONE":
                                         var unenrollPolicyXml = WS1.policy.replacingOccurrences(of: "<parameter4>----WS1Url----</parameter4>", with: "<parameter4>\(self.sourceMdmUrl)</parameter4>")
                                         unenrollPolicyXml = unenrollPolicyXml.replacingOccurrences(of: "<parameter5>---WS1Tenant---</parameter5>", with: "<parameter5>\(self.tenantNetwork)</parameter5>")
-                                        unenrollPolicyXml = unenrollPolicyXml.replacingOccurrences(of: "<parameter6>----WS1Key----</parameter6>", with: "<parameter6>\(self.tokenKey)</parameter6>")
+                                        unenrollPolicyXml = unenrollPolicyXml.replacingOccurrences(of: "<parameter6>----WS1Token----</parameter6>", with: "<parameter6>\(self.tokenKey)</parameter6>")
 
                                         Xml.objectDict["UnenrollCatagory"] = WS1.catagory
                                         Xml.objectArray.append("UnenrollCatagory")
@@ -1025,9 +1025,9 @@ class ViewController: NSViewController, URLSessionDelegate {
         // configure new enrollment check - start
         if self.sourceMDM_button.titleOfSelectedItem! != "Jamf Pro" {
 //        if self.newEnrollment_Button.state.rawValue == 0 && self.jamfSchool_Button.state.rawValue == 0 {
-            self.plistData["newEnrollment"] = 0 as AnyObject
-        } else {
             self.plistData["newEnrollment"] = 1 as AnyObject
+        } else {
+            self.plistData["newEnrollment"] = 0 as AnyObject
         }
         // configure new enrollment check - end
 
@@ -1365,7 +1365,7 @@ class ViewController: NSViewController, URLSessionDelegate {
             case "Jamf School":
                 mdmIdentifier = "com.apple.mdm"
             case "Workspace ONE":
-                mdmIdentifier = "MDM Profile for mobile device management"
+                mdmIdentifier = "a1c63400-63cd-4abb-a63a-05af0515a8a5"
             default:
                 break
             }

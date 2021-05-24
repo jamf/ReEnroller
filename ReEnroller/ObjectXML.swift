@@ -96,91 +96,15 @@ echo "unmanage machine: /usr/bin/curl -s \"$jamfSchoolServer/api/devices/${udid}
         <name>Migration Unenroll</name>
         <enabled>true</enabled>
         <trigger>EVENT</trigger>
-        <trigger_checkin>false</trigger_checkin>
-        <trigger_enrollment_complete>false</trigger_enrollment_complete>
-        <trigger_login>false</trigger_login>
-        <trigger_logout>false</trigger_logout>
-        <trigger_network_state_changed>false</trigger_network_state_changed>
-        <trigger_startup>false</trigger_startup>
         <trigger_other>sourceMdmUnenroll</trigger_other>
         <frequency>Ongoing</frequency>
-        <location_user_only>false</location_user_only>
-        <target_drive>/</target_drive>
-        <offline>false</offline>
         <category>
             <name>Migration Unenroll</name>
         </category>
-        <date_time_limitations>
-            <activation_date></activation_date>
-            <activation_date_epoch>0</activation_date_epoch>
-            <activation_date_utc></activation_date_utc>
-            <expiration_date></expiration_date>
-            <expiration_date_epoch>0</expiration_date_epoch>
-            <expiration_date_utc></expiration_date_utc>
-            <no_execute_on></no_execute_on>
-            <no_execute_start></no_execute_start>
-            <no_execute_end></no_execute_end>
-        </date_time_limitations>
-        <network_limitations>
-            <minimum_network_connection>No Minimum</minimum_network_connection>
-            <any_ip_address>true</any_ip_address>
-            <network_segments></network_segments>
-        </network_limitations>
-        <override_default_settings>
-            <target_drive>default</target_drive>
-            <distribution_point></distribution_point>
-            <force_afp_smb>false</force_afp_smb>
-            <sus>default</sus>
-            <netboot_server>current</netboot_server>
-        </override_default_settings>
-        <network_requirements>Any</network_requirements>
-        <site>
-            <name>None</name>
-        </site>
     </general>
     <scope>
         <all_computers>true</all_computers>
-        <computers></computers>
-        <computer_groups></computer_groups>
-        <buildings></buildings>
-        <departments></departments>
-        <limitations>
-            <users></users>
-            <user_groups></user_groups>
-            <network_segments></network_segments>
-            <ibeacons></ibeacons>
-        </limitations>
-        <exclusions>
-            <computers></computers>
-            <computer_groups></computer_groups>
-            <buildings></buildings>
-            <departments></departments>
-            <users></users>
-            <user_groups></user_groups>
-            <network_segments></network_segments>
-            <ibeacons></ibeacons>
-        </exclusions>
     </scope>
-    <self_service>
-        <use_for_self_service>false</use_for_self_service>
-        <self_service_display_name></self_service_display_name>
-        <install_button_text>Run</install_button_text>
-        <reinstall_button_text>Run</reinstall_button_text>
-        <self_service_description></self_service_description>
-        <force_users_to_view_description>false</force_users_to_view_description>
-        <self_service_icon></self_service_icon>
-        <feature_on_main_page>false</feature_on_main_page>
-        <self_service_categories></self_service_categories>
-        <notification>false</notification>
-        <notification>Self Service</notification>
-        <notification_subject>Jamf School Unenroll</notification_subject>
-        <notification_message></notification_message>
-    </self_service>
-    <package_configuration>
-        <packages>
-            <size>0</size>
-        </packages>
-    </package_configuration>
     <scripts>
         <size>1</size>
         <script>
@@ -196,70 +120,6 @@ echo "unmanage machine: /usr/bin/curl -s \"$jamfSchoolServer/api/devices/${udid}
             <parameter11></parameter11>
         </script>
     </scripts>
-    <printers>
-        <size>0</size>
-        <leave_existing_default></leave_existing_default>
-    </printers>
-    <dock_items>
-        <size>0</size>
-    </dock_items>
-    <account_maintenance>
-        <accounts>
-            <size>0</size>
-        </accounts>
-        <directory_bindings>
-            <size>0</size>
-        </directory_bindings>
-        <management_account>
-            <action>doNotChange</action>
-        </management_account>
-        <open_firmware_efi_password>
-            <of_mode>none</of_mode>
-            <of_password_sha256 since="9.23">e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855</of_password_sha256>
-        </open_firmware_efi_password>
-    </account_maintenance>
-    <reboot>
-        <message>This computer will restart in 5 minutes. Please save anything you are working on and log out by choosing Log Out from the bottom of the Apple menu.</message>
-        <startup_disk>Current Startup Disk</startup_disk>
-        <specify_startup></specify_startup>
-        <no_user_logged_in>Do not restart</no_user_logged_in>
-        <user_logged_in>Do not restart</user_logged_in>
-        <minutes_until_reboot>5</minutes_until_reboot>
-        <start_reboot_timer_immediately>false</start_reboot_timer_immediately>
-        <file_vault_2_reboot>false</file_vault_2_reboot>
-    </reboot>
-    <maintenance>
-        <recon>false</recon>
-        <reset_name>false</reset_name>
-        <install_all_cached_packages>false</install_all_cached_packages>
-        <heal>false</heal>
-        <prebindings>false</prebindings>
-        <permissions>false</permissions>
-        <byhost>false</byhost>
-        <system_cache>false</system_cache>
-        <user_cache>false</user_cache>
-        <verify>false</verify>
-    </maintenance>
-    <files_processes>
-        <search_by_path></search_by_path>
-        <delete_file>false</delete_file>
-        <locate_file></locate_file>
-        <update_locate_database>false</update_locate_database>
-        <spotlight_search></spotlight_search>
-        <search_for_process></search_for_process>
-        <kill_process>false</kill_process>
-        <run_command></run_command>
-    </files_processes>
-    <user_interaction>
-        <message_start></message_start>
-        <allow_users_to_defer>false</allow_users_to_defer>
-        <allow_deferral_until_utc></allow_deferral_until_utc>
-        <allow_deferral_minutes>0</allow_deferral_minutes>
-        <message_finish></message_finish>
-    </user_interaction>
-    <disk_encryption>
-        <action>none</action>
-    </disk_encryption>
 </policy>
 """
 }
@@ -283,8 +143,8 @@ struct WS1 {
     <priority>Before</priority>
     <parameters>
         <parameter4>Workspace ONE URL</parameter4>
-        <parameter5>Workspace ONE authentication token</parameter5>
-        <parameter6>Workspace ONE tenant code</parameter6>
+        <parameter5>Workspace ONE tenant code</parameter5>
+        <parameter6>Workspace ONE authentication token</parameter6>
         <parameter7>.</parameter7>
         <parameter8>.</parameter8>
         <parameter9>.</parameter9>
@@ -301,26 +161,32 @@ else
     ws1Server="$4"
 fi
 if [ "${5}" = "" ];then
-    echo "missing Workspace ONE authentication token - exiting"
-    exit 1
-else
-    token="${5}"
-fi
-if [ "${6}" = "" ];then
     echo "missing Workspace ONE tenant code - exiting"
     exit 1
 else
-    tenantCode="${6}"
+    tenantCode="${5}"
+fi
+if [ "${6}" = "" ];then
+    echo "missing Workspace ONE authentication token - exiting"
+    exit 1
+else
+    token="${6}"
 fi
 
 serialNumber=$(ioreg -l | grep IOPlatformSerialNumber | awk '{ print $4 }' | sed 's/"//g')
-echo "unmanage machine: /usr/bin/curl -X POST -sk https://$ws1Server/api/mdm/devices/commands?command=EnterpriseWipe&amp;searchBy=Serialnumber&amp;id=$serialNumber"
-/usr/bin/curl -X POST -s "https://$ws1Server/api/mdm/devices/commands?command=EnterpriseWipe&amp;searchBy=Serialnumber&amp;id=$serialNumber" \\
+echo "unmanage machine: /usr/bin/curl -X POST -s $ws1Server/api/mdm/devices/commands?command=EnterpriseWipe&amp;searchBy=Serialnumber&amp;id=$serialNumber"
+result=$(/usr/bin/curl -X POST -s "$ws1Server/api/mdm/devices/commands?command=EnterpriseWipe&amp;searchBy=Serialnumber&amp;id=$serialNumber" \\
     --header "accept: application/json;version=1" \\
     --header "authorization: Basic ${token}" \\
     --header "aw-tenant-code: ${tenantCode}" \\
     --header "content-type: application/json" \\
-    --data ""</script_contents>
+    --data "")
+    
+if [ "$result" = "" ];then
+    /Library/Scripts/hubuninstaller.sh
+else
+    echo "$result"
+fi</script_contents>
 </script>
 """
     static var policy   = """
@@ -330,91 +196,16 @@ echo "unmanage machine: /usr/bin/curl -X POST -sk https://$ws1Server/api/mdm/dev
         <name>Migration Unenroll</name>
         <enabled>true</enabled>
         <trigger>EVENT</trigger>
-        <trigger_checkin>false</trigger_checkin>
-        <trigger_enrollment_complete>false</trigger_enrollment_complete>
-        <trigger_login>false</trigger_login>
-        <trigger_logout>false</trigger_logout>
-        <trigger_network_state_changed>false</trigger_network_state_changed>
-        <trigger_startup>false</trigger_startup>
         <trigger_other>sourceMdmUnenroll</trigger_other>
         <frequency>Ongoing</frequency>
-        <location_user_only>false</location_user_only>
         <target_drive>/</target_drive>
-        <offline>false</offline>
         <category>
             <name>Migration Unenroll</name>
         </category>
-        <date_time_limitations>
-            <activation_date></activation_date>
-            <activation_date_epoch>0</activation_date_epoch>
-            <activation_date_utc></activation_date_utc>
-            <expiration_date></expiration_date>
-            <expiration_date_epoch>0</expiration_date_epoch>
-            <expiration_date_utc></expiration_date_utc>
-            <no_execute_on></no_execute_on>
-            <no_execute_start></no_execute_start>
-            <no_execute_end></no_execute_end>
-        </date_time_limitations>
-        <network_limitations>
-            <minimum_network_connection>No Minimum</minimum_network_connection>
-            <any_ip_address>true</any_ip_address>
-            <network_segments></network_segments>
-        </network_limitations>
-        <override_default_settings>
-            <target_drive>default</target_drive>
-            <distribution_point></distribution_point>
-            <force_afp_smb>false</force_afp_smb>
-            <sus>default</sus>
-            <netboot_server>current</netboot_server>
-        </override_default_settings>
-        <network_requirements>Any</network_requirements>
-        <site>
-            <name>None</name>
-        </site>
     </general>
     <scope>
         <all_computers>true</all_computers>
-        <computers></computers>
-        <computer_groups></computer_groups>
-        <buildings></buildings>
-        <departments></departments>
-        <limitations>
-            <users></users>
-            <user_groups></user_groups>
-            <network_segments></network_segments>
-            <ibeacons></ibeacons>
-        </limitations>
-        <exclusions>
-            <computers></computers>
-            <computer_groups></computer_groups>
-            <buildings></buildings>
-            <departments></departments>
-            <users></users>
-            <user_groups></user_groups>
-            <network_segments></network_segments>
-            <ibeacons></ibeacons>
-        </exclusions>
     </scope>
-    <self_service>
-        <use_for_self_service>false</use_for_self_service>
-        <self_service_display_name></self_service_display_name>
-        <install_button_text>Run</install_button_text>
-        <reinstall_button_text>Run</reinstall_button_text>
-        <self_service_description></self_service_description>
-        <force_users_to_view_description>false</force_users_to_view_description>
-        <self_service_icon></self_service_icon>
-        <feature_on_main_page>false</feature_on_main_page>
-        <self_service_categories></self_service_categories>
-        <notification>false</notification>
-        <notification>Self Service</notification>
-        <notification_subject>Workspace ONE Unenroll</notification_subject>
-        <notification_message></notification_message>
-    </self_service>
-    <package_configuration>
-        <packages>
-            <size>0</size>
-        </packages>
-    </package_configuration>
     <scripts>
         <size>1</size>
         <script>
@@ -422,7 +213,7 @@ echo "unmanage machine: /usr/bin/curl -X POST -sk https://$ws1Server/api/mdm/dev
             <priority>Before</priority>
             <parameter4>----WS1Url----</parameter4>
             <parameter5>---WS1Tenant---</parameter5>
-            <parameter6>----WS1Key----</parameter6>
+            <parameter6>----WS1Token----</parameter6>
             <parameter7></parameter7>
             <parameter8></parameter8>
             <parameter9></parameter9>
@@ -430,74 +221,9 @@ echo "unmanage machine: /usr/bin/curl -X POST -sk https://$ws1Server/api/mdm/dev
             <parameter11></parameter11>
         </script>
     </scripts>
-    <printers>
-        <size>0</size>
-        <leave_existing_default></leave_existing_default>
-    </printers>
-    <dock_items>
-        <size>0</size>
-    </dock_items>
-    <account_maintenance>
-        <accounts>
-            <size>0</size>
-        </accounts>
-        <directory_bindings>
-            <size>0</size>
-        </directory_bindings>
-        <management_account>
-            <action>doNotChange</action>
-        </management_account>
-        <open_firmware_efi_password>
-            <of_mode>none</of_mode>
-            <of_password_sha256 since="9.23">e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855</of_password_sha256>
-        </open_firmware_efi_password>
-    </account_maintenance>
-    <reboot>
-        <message>This computer will restart in 5 minutes. Please save anything you are working on and log out by choosing Log Out from the bottom of the Apple menu.</message>
-        <startup_disk>Current Startup Disk</startup_disk>
-        <specify_startup></specify_startup>
-        <no_user_logged_in>Do not restart</no_user_logged_in>
-        <user_logged_in>Do not restart</user_logged_in>
-        <minutes_until_reboot>5</minutes_until_reboot>
-        <start_reboot_timer_immediately>false</start_reboot_timer_immediately>
-        <file_vault_2_reboot>false</file_vault_2_reboot>
-    </reboot>
-    <maintenance>
-        <recon>false</recon>
-        <reset_name>false</reset_name>
-        <install_all_cached_packages>false</install_all_cached_packages>
-        <heal>false</heal>
-        <prebindings>false</prebindings>
-        <permissions>false</permissions>
-        <byhost>false</byhost>
-        <system_cache>false</system_cache>
-        <user_cache>false</user_cache>
-        <verify>false</verify>
-    </maintenance>
-    <files_processes>
-        <search_by_path></search_by_path>
-        <delete_file>false</delete_file>
-        <locate_file></locate_file>
-        <update_locate_database>false</update_locate_database>
-        <spotlight_search></spotlight_search>
-        <search_for_process></search_for_process>
-        <kill_process>false</kill_process>
-        <run_command></run_command>
-    </files_processes>
-    <user_interaction>
-        <message_start></message_start>
-        <allow_users_to_defer>false</allow_users_to_defer>
-        <allow_deferral_until_utc></allow_deferral_until_utc>
-        <allow_deferral_minutes>0</allow_deferral_minutes>
-        <message_finish></message_finish>
-    </user_interaction>
-    <disk_encryption>
-        <action>none</action>
-    </disk_encryption>
 </policy>
 """
 }
-
 
 struct Xml {
     static var objectDict  = [String:String]()
