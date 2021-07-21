@@ -1035,7 +1035,7 @@ class ViewController: NSViewController, URLSessionDelegate {
         // configure all profile removal - end
 
         // configure device enrollment call - start
-        if self.removeReEnroller_Button.state.rawValue == 0 {
+        if self.deviceEnrollment_Button.state.rawValue == 0 {
             self.plistData["callEnrollment"] = "no" as AnyObject
         } else {
             self.plistData["callEnrollment"] = "yes" as AnyObject
@@ -2267,13 +2267,13 @@ class ViewController: NSViewController, URLSessionDelegate {
                     WriteToLog().message(theMessage: "Attempt \(i): There was a problem verifying migration with sample policy using jpsmigrationcheck trigger.")
                     WriteToLog().message(theMessage: "/usr/local/bin/jamf policy -trigger jpsmigrationcheck")
                     WriteToLog().message(theMessage: "Exit code: \(policyExitCode)")
-                    if i == 5 {
+                    if i > 3 {
                         WriteToLog().message(theMessage: "Falling back to old settings and exiting!")
                         self.unverifiedFallback()
                         exit(1)
                     }
                 }
-            }   // for i in 1...5 - end
+            }   // for i in 1...4 - end
             // verify cleanup
             self.verifiedCleanup(type: "full")
             exit(0)

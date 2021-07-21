@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="17156" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
+<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="18122" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
     <dependencies>
         <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="17156"/>
-        <plugIn identifier="com.apple.WebKit2IBPlugin" version="17156"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="18122"/>
+        <plugIn identifier="com.apple.WebKit2IBPlugin" version="18122"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
@@ -318,13 +318,13 @@
                         <autoresizingMask key="autoresizingMask"/>
                         <subviews>
                             <box horizontalHuggingPriority="249" verticalHuggingPriority="750" boxType="separator" translatesAutoresizingMaskIntoConstraints="NO" id="Ygw-b2-OXm">
-                                <rect key="frame" x="-12" y="555" width="604" height="5"/>
+                                <rect key="frame" x="-12" y="557" width="604" height="5"/>
                             </box>
                             <box horizontalHuggingPriority="249" verticalHuggingPriority="750" boxType="separator" translatesAutoresizingMaskIntoConstraints="NO" id="l1R-5j-nWb">
                                 <rect key="frame" x="-12" y="426" width="604" height="5"/>
                             </box>
                             <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="ksy-wD-XfU">
-                                <rect key="frame" x="27" y="635" width="136" height="14"/>
+                                <rect key="frame" x="27" y="637" width="136" height="14"/>
                                 <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="New Jamf Server URL:" id="aYB-Mz-fGh">
                                     <font key="font" metaFont="systemSemibold" size="12"/>
                                     <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
@@ -332,7 +332,7 @@
                                 </textFieldCell>
                             </textField>
                             <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="72o-81-Zp2">
-                                <rect key="frame" x="27" y="605" width="136" height="15"/>
+                                <rect key="frame" x="27" y="607" width="136" height="15"/>
                                 <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Username:" id="Zoa-Gh-PeI">
                                     <font key="font" metaFont="systemSemibold" size="12"/>
                                     <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
@@ -340,7 +340,7 @@
                                 </textFieldCell>
                             </textField>
                             <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="XV5-Ht-fLl">
-                                <rect key="frame" x="167" y="631" width="410" height="22"/>
+                                <rect key="frame" x="167" y="633" width="410" height="22"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="22" id="zsG-Va-bHW"/>
                                 </constraints>
@@ -351,7 +351,7 @@
                                 </textFieldCell>
                             </textField>
                             <textField toolTip="Account should have administrative rights on the new Jamf server" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Udu-Yr-EcR">
-                                <rect key="frame" x="167" y="603" width="220" height="21"/>
+                                <rect key="frame" x="167" y="605" width="220" height="21"/>
                                 <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" placeholderString="jamf admin" drawsBackground="YES" id="rj1-v2-5ko">
                                     <font key="font" metaFont="system"/>
                                     <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
@@ -359,7 +359,7 @@
                                 </textFieldCell>
                             </textField>
                             <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="NDT-it-MXI">
-                                <rect key="frame" x="27" y="576" width="136" height="15"/>
+                                <rect key="frame" x="27" y="578" width="136" height="15"/>
                                 <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Password:" id="1Sv-9z-8Gu">
                                     <font key="font" metaFont="systemSemibold" size="12"/>
                                     <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
@@ -367,7 +367,7 @@
                                 </textFieldCell>
                             </textField>
                             <secureTextField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="a8R-tD-Ecl">
-                                <rect key="frame" x="167" y="570" width="220" height="21"/>
+                                <rect key="frame" x="167" y="572" width="220" height="21"/>
                                 <secureTextFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" borderStyle="bezel" drawsBackground="YES" usesSingleLineMode="YES" id="oNs-mW-d9j">
                                     <font key="font" metaFont="system"/>
                                     <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
@@ -378,7 +378,7 @@
                                 </secureTextFieldCell>
                             </secureTextField>
                             <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="VF6-ZT-5ov">
-                                <rect key="frame" x="27" y="526" width="136" height="15"/>
+                                <rect key="frame" x="27" y="528" width="136" height="15"/>
                                 <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Management Account:" id="FEJ-sq-xnp">
                                     <font key="font" metaFont="systemSemibold" size="12"/>
                                     <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
@@ -386,7 +386,7 @@
                                 </textFieldCell>
                             </textField>
                             <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="6sF-BZ-C5w">
-                                <rect key="frame" x="167" y="522" width="220" height="21"/>
+                                <rect key="frame" x="167" y="524" width="220" height="21"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="220" id="RSk-vi-a7s"/>
                                 </constraints>
@@ -397,7 +397,7 @@
                                 </textFieldCell>
                             </textField>
                             <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="JgG-u5-it6">
-                                <rect key="frame" x="27" y="502" width="136" height="15"/>
+                                <rect key="frame" x="27" y="504" width="136" height="15"/>
                                 <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Password:" id="UQv-NP-IO3">
                                     <font key="font" metaFont="systemSemibold" size="12"/>
                                     <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
@@ -405,7 +405,7 @@
                                 </textFieldCell>
                             </textField>
                             <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="KmQ-hu-Kuy">
-                                <rect key="frame" x="27" y="477" width="136" height="15"/>
+                                <rect key="frame" x="27" y="479" width="136" height="15"/>
                                 <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Verify Password:" id="Mnd-rF-2Ok">
                                     <font key="font" metaFont="systemSemibold" size="12"/>
                                     <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
@@ -413,7 +413,7 @@
                                 </textFieldCell>
                             </textField>
                             <secureTextField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="hPG-hA-hRD">
-                                <rect key="frame" x="167" y="497" width="220" height="21"/>
+                                <rect key="frame" x="167" y="499" width="220" height="21"/>
                                 <secureTextFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" borderStyle="bezel" drawsBackground="YES" usesSingleLineMode="YES" id="Q4H-eb-7hT">
                                     <font key="font" metaFont="system"/>
                                     <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
@@ -424,7 +424,7 @@
                                 </secureTextFieldCell>
                             </secureTextField>
                             <secureTextField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="d65-p5-1BY">
-                                <rect key="frame" x="167" y="472" width="220" height="21"/>
+                                <rect key="frame" x="167" y="474" width="220" height="21"/>
                                 <secureTextFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" borderStyle="bezel" drawsBackground="YES" usesSingleLineMode="YES" id="lVv-js-Yfj">
                                     <font key="font" metaFont="system"/>
                                     <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
@@ -435,7 +435,7 @@
                                 </secureTextFieldCell>
                             </secureTextField>
                             <button translatesAutoresizingMaskIntoConstraints="NO" id="pvq-bO-mOR" userLabel="Randomly Generated Password">
-                                <rect key="frame" x="147" y="455" width="185" height="18"/>
+                                <rect key="frame" x="149" y="457" width="181" height="16"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="180" id="3Gz-a6-i1h"/>
                                 </constraints>
@@ -470,7 +470,7 @@
                                 </textFieldCell>
                             </textField>
                             <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Eql-sc-zIu">
-                                <rect key="frame" x="409" y="502" width="150" height="42"/>
+                                <rect key="frame" x="411" y="507" width="146" height="36"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="36" id="acS-Hp-KWq"/>
                                 </constraints>
@@ -482,7 +482,7 @@ if it does not exist</string>
                                 </buttonCell>
                             </button>
                             <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="3LF-it-shw">
-                                <rect key="frame" x="409" y="490" width="131" height="20"/>
+                                <rect key="frame" x="411" y="494" width="127" height="16"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="14" id="AHy-VQ-K1M"/>
                                 </constraints>
@@ -492,7 +492,7 @@ if it does not exist</string>
                                 </buttonCell>
                             </button>
                             <progressIndicator wantsLayer="YES" horizontalHuggingPriority="750" verticalHuggingPriority="750" maxValue="100" displayedWhenStopped="NO" bezeled="NO" indeterminate="YES" style="spinning" translatesAutoresizingMaskIntoConstraints="NO" id="179-7F-ykc">
-                                <rect key="frame" x="452" y="445" width="44" height="32"/>
+                                <rect key="frame" x="452" y="447" width="44" height="32"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="44" id="Ykv-z1-THf"/>
                                 </constraints>
@@ -514,7 +514,7 @@ if it does not exist</string>
                                 </connections>
                             </button>
                             <button toolTip="Help" horizontalHuggingPriority="750" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="wca-Nl-uAU">
-                                <rect key="frame" x="483" y="22" width="25" height="25"/>
+                                <rect key="frame" x="482" y="22" width="26" height="26"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="21" id="Mge-7V-axI"/>
                                     <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="21" id="jbM-sG-m9z"/>
@@ -557,7 +557,7 @@ if it does not exist</string>
                                 </pathCell>
                             </pathControl>
                             <button translatesAutoresizingMaskIntoConstraints="NO" id="Hby-7o-AO7">
-                                <rect key="frame" x="59" y="373" width="125" height="18"/>
+                                <rect key="frame" x="61" y="375" width="121" height="14"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="120" id="7HK-WC-lZ9"/>
                                     <constraint firstAttribute="height" constant="12" id="eYW-ms-Js6"/>
@@ -568,7 +568,7 @@ if it does not exist</string>
                                 </buttonCell>
                             </button>
                             <button translatesAutoresizingMaskIntoConstraints="NO" id="a4k-JY-3gI">
-                                <rect key="frame" x="59" y="356" width="400" height="18"/>
+                                <rect key="frame" x="61" y="358" width="396" height="14"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="12" id="FMe-Oq-CLh"/>
                                     <constraint firstAttribute="width" constant="395" id="KId-2f-YuX"/>
@@ -591,14 +591,14 @@ if it does not exist</string>
                                 </textFieldCell>
                             </textField>
                             <button misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="TYg-rK-MtJ">
-                                <rect key="frame" x="59" y="110" width="235" height="18"/>
+                                <rect key="frame" x="61" y="110" width="235" height="18"/>
                                 <buttonCell key="cell" type="check" title="Remove ReEnroller folder after migration" bezelStyle="regularSquare" imagePosition="left" controlSize="small" state="on" inset="2" id="X5y-3G-t9I">
                                     <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                     <font key="font" metaFont="label" size="11"/>
                                 </buttonCell>
                             </button>
                             <button translatesAutoresizingMaskIntoConstraints="NO" id="uDr-Xe-sA9">
-                                <rect key="frame" x="60" y="233" width="330" height="18"/>
+                                <rect key="frame" x="61" y="235" width="326" height="14"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="12" id="02h-JK-jPi"/>
                                     <constraint firstAttribute="width" constant="325" id="ztk-d5-YWQ"/>
@@ -609,7 +609,7 @@ if it does not exist</string>
                                 </buttonCell>
                             </button>
                             <button identifier="existingSite" translatesAutoresizingMaskIntoConstraints="NO" id="KBE-8a-tXl">
-                                <rect key="frame" x="60" y="251" width="177" height="18"/>
+                                <rect key="frame" x="61" y="253" width="173" height="14"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="12" id="2l4-kC-jj9"/>
                                     <constraint firstAttribute="width" constant="172" id="tjy-hR-noW"/>
@@ -623,7 +623,7 @@ if it does not exist</string>
                                 </connections>
                             </button>
                             <button identifier="selectSite" translatesAutoresizingMaskIntoConstraints="NO" id="vBb-mh-eE0">
-                                <rect key="frame" x="59" y="214" width="91" height="18"/>
+                                <rect key="frame" x="61" y="216" width="87" height="14"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="12" id="18S-fX-R1C"/>
                                     <constraint firstAttribute="width" constant="86" id="aVM-Bj-SuA"/>
@@ -637,7 +637,7 @@ if it does not exist</string>
                                 </connections>
                             </button>
                             <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" textCompletion="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Ypf-E2-1dX">
-                                <rect key="frame" x="161" y="57" width="88" height="15"/>
+                                <rect key="frame" x="162" y="57" width="88" height="15"/>
                                 <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" allowsUndo="NO" sendsActionOnEndEditing="YES" title="Retry interval:" id="Xqx-PH-luf">
                                     <font key="font" metaFont="systemSemibold" size="12"/>
                                     <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
@@ -661,7 +661,7 @@ if it does not exist</string>
                                 </textFieldCell>
                             </textField>
                             <textField toolTip="Must be at least 5 minutes" verticalHuggingPriority="750" textCompletion="NO" translatesAutoresizingMaskIntoConstraints="NO" id="hhu-Mz-Vy4">
-                                <rect key="frame" x="249" y="54" width="43" height="21"/>
+                                <rect key="frame" x="250" y="54" width="43" height="21"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="43" id="SFH-Wg-rnJ"/>
                                 </constraints>
@@ -675,7 +675,7 @@ if it does not exist</string>
                                 </textFieldCell>
                             </textField>
                             <button translatesAutoresizingMaskIntoConstraints="NO" id="8Wb-nM-RnW">
-                                <rect key="frame" x="160" y="33" width="161" height="18"/>
+                                <rect key="frame" x="163" y="33" width="160" height="16"/>
                                 <string key="toolTip">Creates a package containing the launch daemon and post install script, separate from the package containing the re-enrollment app</string>
                                 <buttonCell key="cell" type="check" title="Create Separate Packages" bezelStyle="regularSquare" imagePosition="left" controlSize="small" inset="2" id="zHk-6i-MD1">
                                     <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
@@ -683,7 +683,7 @@ if it does not exist</string>
                                 </buttonCell>
                             </button>
                             <button translatesAutoresizingMaskIntoConstraints="NO" id="3hY-6f-3v7">
-                                <rect key="frame" x="59" y="194" width="268" height="18"/>
+                                <rect key="frame" x="61" y="196" width="264" height="14"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="263" id="E7i-Rs-MtO"/>
                                     <constraint firstAttribute="height" constant="12" id="hom-Q5-xBx"/>
@@ -721,7 +721,7 @@ if it does not exist</string>
                                 </textFieldCell>
                             </textField>
                             <textField hidden="YES" verticalHuggingPriority="750" horizontalCompressionResistancePriority="751" translatesAutoresizingMaskIntoConstraints="NO" id="5Vy-LI-2pU">
-                                <rect key="frame" x="240" y="152" width="142" height="14"/>
+                                <rect key="frame" x="240" y="150" width="142" height="14"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="14" id="omE-lG-1FU"/>
                                     <constraint firstAttribute="width" constant="142" id="qSt-Cu-trm"/>
@@ -733,7 +733,7 @@ if it does not exist</string>
                                 </textFieldCell>
                             </textField>
                             <button translatesAutoresizingMaskIntoConstraints="NO" id="ly7-41-XjP">
-                                <rect key="frame" x="60" y="286" width="115" height="18"/>
+                                <rect key="frame" x="61" y="288" width="111" height="14"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="12" id="Ubv-Iy-dii"/>
                                     <constraint firstAttribute="width" constant="110" id="rf2-al-Ba4"/>
@@ -744,7 +744,7 @@ if it does not exist</string>
                                 </buttonCell>
                             </button>
                             <button translatesAutoresizingMaskIntoConstraints="NO" id="0zd-GI-GRx">
-                                <rect key="frame" x="60" y="268" width="137" height="18"/>
+                                <rect key="frame" x="61" y="270" width="133" height="14"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="132" id="DMv-50-Yxa"/>
                                     <constraint firstAttribute="height" constant="12" id="MGr-df-wDh"/>
@@ -755,7 +755,7 @@ if it does not exist</string>
                                 </buttonCell>
                             </button>
                             <button verticalHuggingPriority="750" verticalCompressionResistancePriority="751" translatesAutoresizingMaskIntoConstraints="NO" id="DvA-gu-991">
-                                <rect key="frame" x="60" y="305" width="144" height="18"/>
+                                <rect key="frame" x="61" y="307" width="140" height="14"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="139" id="63j-MY-WFM"/>
                                     <constraint firstAttribute="height" constant="12" id="fg9-Wi-wWJ"/>
@@ -769,7 +769,7 @@ if it does not exist</string>
                                 </connections>
                             </button>
                             <button verticalHuggingPriority="750" verticalCompressionResistancePriority="751" translatesAutoresizingMaskIntoConstraints="NO" id="0Ba-Q5-0U3">
-                                <rect key="frame" x="60" y="325" width="158" height="18"/>
+                                <rect key="frame" x="61" y="327" width="154" height="14"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="153" id="3Hn-wr-vu3"/>
                                     <constraint firstAttribute="height" constant="12" id="Ff9-uY-vl7"/>
@@ -805,7 +805,7 @@ if it does not exist</string>
                                 </textFieldCell>
                             </textField>
                             <button translatesAutoresizingMaskIntoConstraints="NO" id="CcP-p6-Gdo">
-                                <rect key="frame" x="59" y="171" width="344" height="18"/>
+                                <rect key="frame" x="61" y="173" width="340" height="14"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="339" id="2eQ-rN-jMJ"/>
                                     <constraint firstAttribute="height" constant="12" id="CyJ-fi-HtF"/>
@@ -912,7 +912,7 @@ if it does not exist</string>
                                 </textFieldCell>
                             </textField>
                             <popUpButton verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="ySm-ue-XU1">
-                                <rect key="frame" x="153" y="211" width="64" height="22"/>
+                                <rect key="frame" x="152" y="210" width="66" height="24"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="18" id="945-XF-D2o"/>
                                     <constraint firstAttribute="width" constant="58" id="NUi-ih-91G"/>
@@ -931,7 +931,7 @@ if it does not exist</string>
                                 </connections>
                             </popUpButton>
                             <button identifier="selectSite" translatesAutoresizingMaskIntoConstraints="NO" id="JpP-v5-6mb">
-                                <rect key="frame" x="59" y="151" width="161" height="18"/>
+                                <rect key="frame" x="61" y="151" width="157" height="14"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="156" id="HOo-NO-qW7"/>
                                     <constraint firstAttribute="height" constant="12" id="NfH-MZ-BeV"/>
@@ -945,7 +945,7 @@ if it does not exist</string>
                                 </connections>
                             </button>
                             <popUpButton hidden="YES" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="hlx-w1-qbP" userLabel="Attribute">
-                                <rect key="frame" x="365" y="146" width="95" height="22"/>
+                                <rect key="frame" x="364" y="145" width="91" height="24"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="18" id="Ibf-JZ-AZT"/>
                                     <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="74" id="wlI-dV-v1Q"/>
@@ -975,9 +975,9 @@ if it does not exist</string>
                                 </popUpButtonCell>
                             </popUpButton>
                             <button verticalHuggingPriority="750" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Ijm-aZ-UA0">
-                                <rect key="frame" x="59" y="130" width="131" height="18"/>
+                                <rect key="frame" x="61" y="130" width="131" height="18"/>
                                 <constraints>
-                                    <constraint firstAttribute="height" constant="12" id="A1w-Vd-73x"/>
+                                    <constraint firstAttribute="height" constant="16" id="A1w-Vd-73x"/>
                                 </constraints>
                                 <buttonCell key="cell" type="check" title="Remove MDM profile" bezelStyle="regularSquare" imagePosition="left" controlSize="small" state="on" inset="2" id="o2H-iS-6Wh">
                                     <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
@@ -990,7 +990,7 @@ if it does not exist</string>
                             <popUpButton verticalHuggingPriority="750" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="n0M-kN-jDR" userLabel="removeMDM">
                                 <rect key="frame" x="195" y="125" width="77" height="25"/>
                                 <constraints>
-                                    <constraint firstAttribute="width" constant="71" id="QZe-MU-VVa"/>
+                                    <constraint firstAttribute="width" constant="69" id="QZe-MU-VVa"/>
                                 </constraints>
                                 <popUpButtonCell key="cell" type="push" title="Before" bezelStyle="rounded" alignment="left" controlSize="small" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" selectedItem="PAF-dp-bs0" id="pWf-uQ-acM">
                                     <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
@@ -1010,7 +1010,7 @@ if it does not exist</string>
                             <constraint firstItem="3LF-it-shw" firstAttribute="leading" secondItem="hPG-hA-hRD" secondAttribute="trailing" constant="25" id="1BN-xC-mb8"/>
                             <constraint firstItem="0Ba-Q5-0U3" firstAttribute="leading" secondItem="DvA-gu-991" secondAttribute="leading" id="1VU-i1-nJo"/>
                             <constraint firstItem="JpP-v5-6mb" firstAttribute="baseline" secondItem="hlx-w1-qbP" secondAttribute="baseline" constant="-2" id="2BQ-dh-jla"/>
-                            <constraint firstItem="JpP-v5-6mb" firstAttribute="centerX" secondItem="0Ba-Q5-0U3" secondAttribute="centerX" id="2JG-u3-NwA"/>
+                            <constraint firstItem="JpP-v5-6mb" firstAttribute="centerX" secondItem="0Ba-Q5-0U3" secondAttribute="centerX" constant="1.5" id="2JG-u3-NwA"/>
                             <constraint firstItem="Hwx-mE-hc3" firstAttribute="leading" secondItem="tqV-hs-Xet" secondAttribute="leading" id="2LQ-mO-JTv"/>
                             <constraint firstItem="pvq-bO-mOR" firstAttribute="leading" secondItem="m2S-Jp-Qdl" secondAttribute="leading" constant="150" id="2ku-wB-te3"/>
                             <constraint firstItem="Eql-sc-zIu" firstAttribute="leading" secondItem="6sF-BZ-C5w" secondAttribute="trailing" constant="25" id="2rb-07-ix6"/>
@@ -1031,11 +1031,11 @@ if it does not exist</string>
                             <constraint firstItem="gyf-Li-2jw" firstAttribute="trailing" secondItem="3LF-it-shw" secondAttribute="trailing" id="6t9-sN-dZX"/>
                             <constraint firstItem="Z0Y-0c-bHE" firstAttribute="leading" secondItem="zIv-4F-4uc" secondAttribute="trailing" constant="2" id="6wD-Rf-pFw"/>
                             <constraint firstItem="6sF-BZ-C5w" firstAttribute="leading" secondItem="VF6-ZT-5ov" secondAttribute="trailing" constant="6" id="7sq-Z8-5hi"/>
-                            <constraint firstItem="TYg-rK-MtJ" firstAttribute="trailing" secondItem="hhu-Mz-Vy4" secondAttribute="trailing" id="7vP-zV-k8K"/>
+                            <constraint firstItem="TYg-rK-MtJ" firstAttribute="trailing" secondItem="hhu-Mz-Vy4" secondAttribute="trailing" constant="2" id="7vP-zV-k8K"/>
                             <constraint firstAttribute="bottom" secondItem="wca-Nl-uAU" secondAttribute="bottom" constant="26" id="8Vu-Yk-XYB"/>
                             <constraint firstItem="DvA-gu-991" firstAttribute="leading" secondItem="ly7-41-XjP" secondAttribute="leading" id="8bt-nL-Ix7"/>
                             <constraint firstItem="zIv-4F-4uc" firstAttribute="leading" secondItem="m2S-Jp-Qdl" secondAttribute="leading" constant="79" id="8fD-I7-TLc"/>
-                            <constraint firstItem="n0M-kN-jDR" firstAttribute="leading" secondItem="Ijm-aZ-UA0" secondAttribute="trailing" constant="10" id="9sg-c1-t6N"/>
+                            <constraint firstItem="n0M-kN-jDR" firstAttribute="leading" secondItem="Ijm-aZ-UA0" secondAttribute="trailing" constant="7" id="9sg-c1-t6N"/>
                             <constraint firstItem="Ygw-b2-OXm" firstAttribute="top" secondItem="a8R-tD-Ecl" secondAttribute="bottom" constant="12" id="AMA-U0-hdb"/>
                             <constraint firstItem="Ypf-E2-1dX" firstAttribute="baseline" secondItem="hhu-Mz-Vy4" secondAttribute="baseline" id="Ab3-SE-hep"/>
                             <constraint firstItem="KmQ-hu-Kuy" firstAttribute="leading" secondItem="VF6-ZT-5ov" secondAttribute="leading" id="BAo-f8-xzO"/>
@@ -1045,7 +1045,7 @@ if it does not exist</string>
                             <constraint firstItem="Den-fa-WgB" firstAttribute="centerX" secondItem="pvq-bO-mOR" secondAttribute="centerX" id="CcT-2Q-R2B"/>
                             <constraint firstItem="6sF-BZ-C5w" firstAttribute="leading" secondItem="hPG-hA-hRD" secondAttribute="leading" id="Cfb-pe-5nS"/>
                             <constraint firstItem="hhu-Mz-Vy4" firstAttribute="leading" secondItem="Ypf-E2-1dX" secondAttribute="trailing" constant="2" id="CvD-yn-OEt"/>
-                            <constraint firstItem="n0M-kN-jDR" firstAttribute="top" secondItem="5Vy-LI-2pU" secondAttribute="bottom" constant="3" id="Drh-zX-YhQ"/>
+                            <constraint firstItem="n0M-kN-jDR" firstAttribute="top" secondItem="5Vy-LI-2pU" secondAttribute="bottom" constant="2" id="Drh-zX-YhQ"/>
                             <constraint firstItem="3LF-it-shw" firstAttribute="top" secondItem="Ygw-b2-OXm" secondAttribute="bottom" constant="50" id="E3i-xa-rSf"/>
                             <constraint firstItem="8Wb-nM-RnW" firstAttribute="top" secondItem="hhu-Mz-Vy4" secondAttribute="bottom" constant="6" id="E96-wh-yme"/>
                             <constraint firstItem="4d7-bk-L0L" firstAttribute="leading" secondItem="I7E-Rk-AjZ" secondAttribute="trailing" constant="1" id="ERr-q3-nsS"/>
@@ -1075,7 +1075,7 @@ if it does not exist</string>
                             <constraint firstItem="Z0Y-0c-bHE" firstAttribute="baseline" secondItem="Hwx-mE-hc3" secondAttribute="baseline" id="QPc-HH-dzC"/>
                             <constraint firstItem="hMj-z6-APi" firstAttribute="leading" secondItem="wca-Nl-uAU" secondAttribute="trailing" constant="6" id="Qhu-Df-49S"/>
                             <constraint firstItem="KmQ-hu-Kuy" firstAttribute="leading" secondItem="JgG-u5-it6" secondAttribute="leading" id="Qws-4R-ot8"/>
-                            <constraint firstItem="Z0Y-0c-bHE" firstAttribute="top" secondItem="TYg-rK-MtJ" secondAttribute="bottom" constant="9" id="R5j-30-fWf"/>
+                            <constraint firstItem="Z0Y-0c-bHE" firstAttribute="top" secondItem="TYg-rK-MtJ" secondAttribute="bottom" constant="7" id="R5j-30-fWf"/>
                             <constraint firstItem="gyf-Li-2jw" firstAttribute="top" secondItem="a4k-JY-3gI" secondAttribute="bottom" constant="12" id="TQl-Lr-U9S"/>
                             <constraint firstAttribute="bottom" secondItem="hMj-z6-APi" secondAttribute="bottom" constant="20" symbolic="YES" id="Tt9-KG-JlO"/>
                             <constraint firstItem="KmQ-hu-Kuy" firstAttribute="trailing" secondItem="NDT-it-MXI" secondAttribute="trailing" id="UQV-Yf-bj6"/>
@@ -1085,7 +1085,7 @@ if it does not exist</string>
                             <constraint firstAttribute="trailing" secondItem="Ygw-b2-OXm" secondAttribute="trailing" constant="12" id="XeU-VS-fdE"/>
                             <constraint firstItem="vBb-mh-eE0" firstAttribute="top" secondItem="uDr-Xe-sA9" secondAttribute="bottom" constant="7" id="Y2A-be-guk"/>
                             <constraint firstItem="KmQ-hu-Kuy" firstAttribute="leading" secondItem="NDT-it-MXI" secondAttribute="leading" id="YVD-n2-VXd"/>
-                            <constraint firstItem="zIv-4F-4uc" firstAttribute="top" secondItem="TYg-rK-MtJ" secondAttribute="bottom" constant="11" id="ZAY-oe-9pv"/>
+                            <constraint firstItem="zIv-4F-4uc" firstAttribute="top" secondItem="TYg-rK-MtJ" secondAttribute="bottom" constant="9" id="ZAY-oe-9pv"/>
                             <constraint firstItem="NDT-it-MXI" firstAttribute="top" secondItem="a8R-tD-Ecl" secondAttribute="top" id="ZK1-7l-dIx"/>
                             <constraint firstItem="vYP-Py-TzV" firstAttribute="top" secondItem="a4k-JY-3gI" secondAttribute="bottom" constant="36" id="ZbW-gl-KRc"/>
                             <constraint firstItem="uDr-Xe-sA9" firstAttribute="top" secondItem="KBE-8a-tXl" secondAttribute="bottom" constant="6" id="Znr-ee-d8z"/>
@@ -1097,17 +1097,17 @@ if it does not exist</string>
                             <constraint firstItem="8qO-6q-QJ3" firstAttribute="top" secondItem="uDr-Xe-sA9" secondAttribute="bottom" constant="26" id="cX9-OA-bLB"/>
                             <constraint firstItem="8qO-6q-QJ3" firstAttribute="leading" secondItem="3hY-6f-3v7" secondAttribute="trailing" constant="40" id="dAZ-T4-RbV"/>
                             <constraint firstItem="0zd-GI-GRx" firstAttribute="leading" secondItem="KBE-8a-tXl" secondAttribute="leading" id="dZK-o0-UD2"/>
-                            <constraint firstItem="58c-sa-UIf" firstAttribute="leading" secondItem="0zd-GI-GRx" secondAttribute="trailing" constant="73" id="dt5-zd-Bas"/>
+                            <constraint firstItem="58c-sa-UIf" firstAttribute="leading" secondItem="0zd-GI-GRx" secondAttribute="trailing" constant="74" id="dt5-zd-Bas"/>
                             <constraint firstItem="6sF-BZ-C5w" firstAttribute="trailing" secondItem="a8R-tD-Ecl" secondAttribute="trailing" id="eOC-0f-9sM"/>
                             <constraint firstAttribute="trailing" secondItem="Eql-sc-zIu" secondAttribute="trailing" constant="47" id="ehX-Ly-qG2"/>
                             <constraint firstItem="6sF-BZ-C5w" firstAttribute="leading" secondItem="d65-p5-1BY" secondAttribute="leading" id="g6D-RO-Nve"/>
                             <constraint firstAttribute="bottom" secondItem="hMj-z6-APi" secondAttribute="bottom" constant="20" symbolic="YES" id="gDW-bX-wDu"/>
                             <constraint firstItem="d65-p5-1BY" firstAttribute="top" secondItem="hPG-hA-hRD" secondAttribute="bottom" constant="4" id="h2e-Se-pn8"/>
-                            <constraint firstItem="I7E-Rk-AjZ" firstAttribute="leading" secondItem="ly7-41-XjP" secondAttribute="trailing" constant="77" id="h8X-gz-Alf"/>
+                            <constraint firstItem="I7E-Rk-AjZ" firstAttribute="leading" secondItem="ly7-41-XjP" secondAttribute="trailing" constant="78" id="h8X-gz-Alf"/>
                             <constraint firstItem="Ypf-E2-1dX" firstAttribute="baseline" secondItem="hhu-Mz-Vy4" secondAttribute="firstBaseline" id="hQH-Z4-HiC"/>
                             <constraint firstItem="hPG-hA-hRD" firstAttribute="top" secondItem="6sF-BZ-C5w" secondAttribute="bottom" constant="4" id="hRW-L5-fli"/>
                             <constraint firstItem="6sF-BZ-C5w" firstAttribute="leading" secondItem="a8R-tD-Ecl" secondAttribute="leading" id="hdw-Pr-yzl"/>
-                            <constraint firstItem="gyf-Li-2jw" firstAttribute="leading" secondItem="KBE-8a-tXl" secondAttribute="trailing" constant="8" symbolic="YES" id="hgP-YI-bbe"/>
+                            <constraint firstItem="gyf-Li-2jw" firstAttribute="leading" secondItem="KBE-8a-tXl" secondAttribute="trailing" constant="9" id="hgP-YI-bbe"/>
                             <constraint firstItem="5Vy-LI-2pU" firstAttribute="trailing" secondItem="EvM-Qh-0sM" secondAttribute="trailing" id="hgy-lL-TBc"/>
                             <constraint firstItem="58c-sa-UIf" firstAttribute="centerX" secondItem="l1R-5j-nWb" secondAttribute="centerX" id="hsr-nD-3Na"/>
                             <constraint firstItem="Hby-7o-AO7" firstAttribute="top" secondItem="gEr-Am-Pfv" secondAttribute="bottom" constant="2" id="iBQ-Qw-JhD"/>
@@ -1128,12 +1128,12 @@ if it does not exist</string>
                             <constraint firstAttribute="trailing" secondItem="XV5-Ht-fLl" secondAttribute="trailing" constant="27" id="nyO-OX-dmw"/>
                             <constraint firstItem="a4k-JY-3gI" firstAttribute="top" secondItem="Hby-7o-AO7" secondAttribute="bottom" constant="5" id="oog-PB-Kcn"/>
                             <constraint firstItem="hlx-w1-qbP" firstAttribute="leading" secondItem="JpP-v5-6mb" secondAttribute="trailing" constant="150" id="op5-db-iLg"/>
-                            <constraint firstItem="TYg-rK-MtJ" firstAttribute="top" secondItem="Ijm-aZ-UA0" secondAttribute="bottom" constant="8" id="p9o-c2-tzt"/>
+                            <constraint firstItem="TYg-rK-MtJ" firstAttribute="top" secondItem="Ijm-aZ-UA0" secondAttribute="bottom" constant="4" id="p9o-c2-tzt"/>
                             <constraint firstItem="wca-Nl-uAU" firstAttribute="top" secondItem="l1R-5j-nWb" secondAttribute="bottom" constant="381" id="p9u-fQ-D3f"/>
-                            <constraint firstItem="Ijm-aZ-UA0" firstAttribute="centerX" secondItem="gEr-Am-Pfv" secondAttribute="centerX" id="pLu-I0-4DD"/>
+                            <constraint firstItem="Ijm-aZ-UA0" firstAttribute="centerX" secondItem="gEr-Am-Pfv" secondAttribute="centerX" constant="1.5" id="pLu-I0-4DD"/>
                             <constraint firstItem="DvA-gu-991" firstAttribute="top" secondItem="0Ba-Q5-0U3" secondAttribute="bottom" constant="8" id="q6f-ej-j6e"/>
                             <constraint firstItem="Den-fa-WgB" firstAttribute="top" secondItem="pvq-bO-mOR" secondAttribute="bottom" constant="5" id="qEy-Zp-yyS"/>
-                            <constraint firstItem="TYg-rK-MtJ" firstAttribute="top" secondItem="n0M-kN-jDR" secondAttribute="bottom" constant="3" id="qpN-62-l4d"/>
+                            <constraint firstItem="TYg-rK-MtJ" firstAttribute="top" secondItem="n0M-kN-jDR" secondAttribute="bottom" constant="2" id="qpN-62-l4d"/>
                             <constraint firstItem="HJ3-nj-LhG" firstAttribute="top" secondItem="4d7-bk-L0L" secondAttribute="bottom" constant="4" id="qpw-E2-pxz"/>
                             <constraint firstItem="0zd-GI-GRx" firstAttribute="top" secondItem="ly7-41-XjP" secondAttribute="bottom" constant="6" symbolic="YES" id="rH2-vJ-thG"/>
                             <constraint firstItem="6sF-BZ-C5w" firstAttribute="trailing" secondItem="Udu-Yr-EcR" secondAttribute="trailing" id="sMX-Q5-IHT"/>
@@ -1141,11 +1141,11 @@ if it does not exist</string>
                             <constraint firstAttribute="trailing" secondItem="3LF-it-shw" secondAttribute="trailing" constant="66" id="u3e-Zf-Dx1"/>
                             <constraint firstItem="vBb-mh-eE0" firstAttribute="leading" secondItem="3hY-6f-3v7" secondAttribute="leading" id="u6s-7k-IVG"/>
                             <constraint firstItem="58c-sa-UIf" firstAttribute="top" secondItem="I7E-Rk-AjZ" secondAttribute="bottom" constant="8" symbolic="YES" id="uIF-iV-V0j"/>
-                            <constraint firstItem="vYP-Py-TzV" firstAttribute="leading" secondItem="DvA-gu-991" secondAttribute="trailing" constant="84" id="uns-mH-34E"/>
+                            <constraint firstItem="vYP-Py-TzV" firstAttribute="leading" secondItem="DvA-gu-991" secondAttribute="trailing" constant="85" id="uns-mH-34E"/>
                             <constraint firstItem="6sF-BZ-C5w" firstAttribute="leading" secondItem="Udu-Yr-EcR" secondAttribute="leading" id="uox-pD-50B"/>
                             <constraint firstItem="hhu-Mz-Vy4" firstAttribute="top" secondItem="Z0Y-0c-bHE" secondAttribute="bottom" constant="8" id="utY-WZ-NLs"/>
                             <constraint firstItem="l1R-5j-nWb" firstAttribute="leading" secondItem="Ygw-b2-OXm" secondAttribute="leading" id="was-Xi-i56"/>
-                            <constraint firstItem="xke-7w-7lb" firstAttribute="leading" secondItem="0Ba-Q5-0U3" secondAttribute="trailing" constant="142" id="wrE-S9-Wam"/>
+                            <constraint firstItem="xke-7w-7lb" firstAttribute="leading" secondItem="0Ba-Q5-0U3" secondAttribute="trailing" constant="143" id="wrE-S9-Wam"/>
                             <constraint firstItem="6sF-BZ-C5w" firstAttribute="trailing" secondItem="d65-p5-1BY" secondAttribute="trailing" id="xSM-Qp-wEY"/>
                             <constraint firstItem="Ygw-b2-OXm" firstAttribute="leading" secondItem="m2S-Jp-Qdl" secondAttribute="leading" constant="-12" id="xYW-1V-enu"/>
                             <constraint firstItem="ySm-ue-XU1" firstAttribute="top" secondItem="uDr-Xe-sA9" secondAttribute="bottom" constant="4" id="y9K-EM-0Z7"/>
@@ -1221,11 +1221,11 @@ if it does not exist</string>
                             <allowedToolbarItems>
                                 <toolbarItem implicitItemIdentifier="NSToolbarSpaceItem" id="Hn2-IO-Noi"/>
                                 <toolbarItem implicitItemIdentifier="NSToolbarFlexibleSpaceItem" id="pMr-6d-NNe"/>
-                                <toolbarItem implicitItemIdentifier="BC83DC05-C09C-4E84-BAF0-7482F7ACC16B" label="" paletteLabel="Custom View" sizingBehavior="auto" id="ZCW-bq-kzU">
+                                <toolbarItem implicitItemIdentifier="BC83DC05-C09C-4E84-BAF0-7482F7ACC16B" label="" paletteLabel="Custom View" title="Download MDM Removal Script" sizingBehavior="auto" id="ZCW-bq-kzU">
                                     <nil key="toolTip"/>
                                     <button key="view" verticalHuggingPriority="750" id="liR-hm-jNN">
                                         <rect key="frame" x="0.0" y="14" width="242" height="43"/>
-                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                        <autoresizingMask key="autoresizingMask"/>
                                         <buttonCell key="cell" type="push" title="Download MDM Removal Script" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="CTQ-6v-yL6">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                             <font key="font" metaFont="system"/>
