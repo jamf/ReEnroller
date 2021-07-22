@@ -27,6 +27,8 @@ Important:
 Thanks @fauxserve for coming up with the idea and initial bash version.
 
 ## History
+- 2021-02-17: Fixed issue with call automated device enrollment setting was ignored.
+
 - 2021-02-17: Fixed issue that related to migrations from Jamf School.
  
 - 2021-02-14: Code update/cleanup.  Removed option to push the package to a client from the App.  Added ability to mark the device as migrated on the source server by writing to either the Asset Tag, User Name, Phone, Position, or Room attribute.  If the migration fails the the device successfully fails back to the source server the attribute will indicate the failure.  Added the ability to control when the MDM profile is removed, if at all, during the re-enrollment process.
