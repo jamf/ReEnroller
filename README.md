@@ -27,7 +27,7 @@ Important:
 Thanks @fauxserve for coming up with the idea and initial bash version.
 
 ## History
-- 2021-02-17: Fixed issue with call automated device enrollment setting was ignored.
+- 2021-07-21: Fixed issue with call automated device enrollment setting was ignored.
 
 - 2021-02-17: Fixed issue that related to migrations from Jamf School.
  
