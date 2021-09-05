@@ -1993,13 +1993,15 @@ class ViewController: NSViewController, URLSessionDelegate {
         }
         // restore backup jamf plist - end
 
-        // re-enable mdm management from old server on the system - start
-        if myExitCode(cmd: "/usr/local/bin/jamf", args: "mdm") == 0 {
-            WriteToLog().message(theMessage: "MDM Enrolled - getting MDM profiles from old JSS.")
-        } else {
-            WriteToLog().message(theMessage: "There was a problem getting MDM profiles from old JSS.")
+        if os.majorVersion < 11 {
+            // re-enable mdm management from old server on the system - start
+            if myExitCode(cmd: "/usr/local/bin/jamf", args: "mdm") == 0 {
+                WriteToLog().message(theMessage: "MDM Enrolled - getting MDM profiles from old JSS.")
+            } else {
+                WriteToLog().message(theMessage: "There was a problem getting MDM profiles from old JSS.")
+            }
+            // re-enable mdm management from old server on the system - end
         }
-        // re-enable mdm management from old server on the system - end
 
         // try to run recon and update migration state, if tracking
         if self.markAsMigrated {
