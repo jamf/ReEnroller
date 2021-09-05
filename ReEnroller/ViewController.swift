@@ -795,7 +795,7 @@ class ViewController: NSViewController, URLSessionDelegate {
         // backup existing jamf plist, if it exists - end
 
         // backup existing ConfigurationProfiles dir, if present - start
-        if self.os.minorVersion < 13 {
+        if self.os.majorVersion == 10 && self.os.minorVersion < 13 {
             if self.backup(operation: "copy", source: self.origProfilesDir, destination: self.bakProfilesDir) {
                 WriteToLog().message(theMessage: "Successfully backed up current ConfigurationProfiles")
             } else {
