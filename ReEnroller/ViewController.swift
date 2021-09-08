@@ -718,6 +718,7 @@ class ViewController: NSViewController, URLSessionDelegate {
                                 if self.backup(operation: "move", source: self.origBinary, destination: self.bakBinary) {
                                     if self.myExitCode(cmd: "/bin/bash", args: "-c", "gunzip -f '/Library/Application Support/JAMF/ReEnroller/jamf.gz'") == 0 {
                                         do {
+                                            _ = self.myExitCode(cmd: "/bin/bash", args: "-c", "killall jamf")
                                             try self.fm.moveItem(atPath: "/Library/Application Support/JAMF/ReEnroller/jamf", toPath: self.origBinary)
                                             WriteToLog().message(theMessage: "Using jamf binary from the new server.")
                                             // set permissions to read and execute
@@ -1781,11 +1782,12 @@ class ViewController: NSViewController, URLSessionDelegate {
     }
 
     func removeMDMProfile(when: String, completion: @escaping (_ result: String) -> Void) {
+        var removeResult = "success"
         if removeMDM {
             // check if MDM profile exists
             if mdmInstalled(cmd: "/bin/bash", args: "-c", "/usr/bin/profiles -C | grep 00000000-0000-0000-A000-4A414D460003 | wc -l", message: "looking for MDM Profile") {
                 // remove mdm profile - start
-                if os.minorVersion < 13 {
+                if os.majorVersion == 10 && os.minorVersion < 13 {
                     if removeAllProfiles == "false" {
                         WriteToLog().message(theMessage: "Attempting to remove mdm")
                         if myExitCode(cmd: "/usr/local/jamf/bin/jamf", args: "removemdmprofile") == 0 {
@@ -1794,15 +1796,17 @@ class ViewController: NSViewController, URLSessionDelegate {
                             WriteToLog().message(theMessage: "There was a problem removing old MDM profile.")
         //                    unverifiedFallback()
         //                    exit(1)
-                            completion("\(when) - failed")
+                            removeResult = "failed"
+//                          completion("\(when) - failed")
                         }
                     } else {
-                        // os.minorVersion < 13 - remove all profiles
+                        // macOS < 10.13 - remove all profiles
                         if myExitCode(cmd: "/bin/rm", args: "-fr", "/private/var/db/ConfigurationProfiles") == 0 {
                             WriteToLog().message(theMessage: "Removed all configuration profiles")
                         } else {
                             WriteToLog().message(theMessage: "There was a problem removing all configuration profiles.")
-                            completion("\(when) - failed")
+                            removeResult = "failed"
+//                            completion("\(when) - failed")
                         }
                     }
                 } else {
@@ -1831,7 +1835,8 @@ class ViewController: NSViewController, URLSessionDelegate {
                                 WriteToLog().message(theMessage: "Failed to remove MDM through remote command.")
                                 //                    unverifiedFallback()
                                 //                    exit(1)
-                                completion("\(when) - failed")
+                                removeResult = "failed"
+//                              completion("\(when) - failed")
                             }
                         }   // while mdmInstalled - end
                         WriteToLog().message(theMessage: "Attempt \(attempt-1) removed the MDM profile.")
@@ -1843,8 +1848,9 @@ class ViewController: NSViewController, URLSessionDelegate {
                     } else {
                         WriteToLog().message(theMessage: "MDM has been removed.")
                     }
-                    completion("\(when) - succcess")
+//                    completion("\(when) - succcess")
                 }
+                completion("\(when) - \(removeResult)")
                 // remove mdm profile - end
             } else {
                 WriteToLog().message(theMessage: "Checking MDM status shows no MDM Profile.")
@@ -1854,7 +1860,7 @@ class ViewController: NSViewController, URLSessionDelegate {
             if !newEnrollment {
                 WriteToLog().message(theMessage: "Leaving MDM Profile intact - removal will be handled outside ReEnroller.")
             }
-            completion("\(when) - succcess")
+            completion("\(when) - \(removeResult)")
         }
     }
 

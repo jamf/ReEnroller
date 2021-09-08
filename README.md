@@ -27,6 +27,8 @@ Important:
 Thanks @fauxserve for coming up with the idea and initial bash version.
 
 ## History
+- 2021-09-08: Fixed issue where re-enrollment would not complete.
+
 - 2021-09-05: Fixed issue where an attempt to backup/restore existing configuration profiles was done and shouldn't be.
 
 - 2021-07-21: Fixed issue with call automated device enrollment setting was ignored.
