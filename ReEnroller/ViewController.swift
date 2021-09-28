@@ -214,7 +214,6 @@ class ViewController: NSViewController, URLSessionDelegate {
     var startMigrationQ = OperationQueue()
     var enrollmentQ     = OperationQueue()
 
-
     @IBAction func jamfSchool_fn(_ sender: Any) {
         if self.jamfSchool_Button.state.rawValue == 1 {
             self.jamfSchoolBgnd_TextField.isHidden = false
