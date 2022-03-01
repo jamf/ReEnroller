@@ -539,8 +539,6 @@ class ViewController: NSViewController, URLSessionDelegate {
         if randomPassword_button.state.rawValue == 1 {
             mgmtAcctPwd_TextField.isEnabled = false
             mgmtAcctPwd2_TextField.isEnabled = false
-            createPolicy_Button.state = convertToNSControlStateValue(1)
-            createPolicy_Button.isEnabled = false
             rndPwdLen_TextField?.isEnabled = true
             mgmtAcctPwd_TextField.stringValue = ""
             mgmtAcctPwd2_TextField.stringValue = ""
