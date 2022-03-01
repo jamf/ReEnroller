@@ -28,6 +28,7 @@
 		B5E2587025D7252100ABD528 /* settings.plist in Resources */ = {isa = PBXBuildFile; fileRef = B5E2586F25D7252100ABD528 /* settings.plist */; };
 		B5E2587325D725B100ABD528 /* com.jamf.ReEnroller.plist in Resources */ = {isa = PBXBuildFile; fileRef = B5E2587225D725B100ABD528 /* com.jamf.ReEnroller.plist */; };
 		B5E2587625D7273600ABD528 /* ReEnroller-component.plist in Resources */ = {isa = PBXBuildFile; fileRef = B5E2587525D7273600ABD528 /* ReEnroller-component.plist */; };
+		B5F6492127C96423007B7C26 /* JamfPro.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5F6492027C96423007B7C26 /* JamfPro.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -55,6 +56,7 @@
 		B5E2586F25D7252100ABD528 /* settings.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = settings.plist; sourceTree = "<group>"; };
 		B5E2587225D725B100ABD528 /* com.jamf.ReEnroller.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = com.jamf.ReEnroller.plist; sourceTree = "<group>"; };
 		B5E2587525D7273600ABD528 /* ReEnroller-component.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "ReEnroller-component.plist"; sourceTree = "<group>"; };
+		B5F6492027C96423007B7C26 /* JamfPro.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = JamfPro.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -96,6 +98,7 @@
 				B5480DA325D6B4E000BFCC86 /* command.swift */,
 				B5434E4D25D982390013A85B /* Globals.swift */,
 				B5434E3A25D72BD50013A85B /* HelpViewController.swift */,
+				B5F6492027C96423007B7C26 /* JamfPro.swift */,
 				B5480DAD25D6B8FD00BFCC86 /* ObjectXML.swift */,
 				B5480D5D25D6AE1700BFCC86 /* ViewController.swift */,
 				B535677125DB550C0017769D /* WriteToLog.swift */,
@@ -213,6 +216,7 @@
 				B5434E3B25D72BD50013A85B /* HelpViewController.swift in Sources */,
 				B5480DA425D6B4E000BFCC86 /* command.swift in Sources */,
 				B5480D5E25D6AE1700BFCC86 /* ViewController.swift in Sources */,
+				B5F6492127C96423007B7C26 /* JamfPro.swift in Sources */,
 				B5480DAB25D6B8CA00BFCC86 /* ApiCall.swift in Sources */,
 				B5434E4E25D982390013A85B /* Globals.swift in Sources */,
 				B5480D5C25D6AE1700BFCC86 /* AppDelegate.swift in Sources */,
@@ -366,7 +370,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.12;
-				MARKETING_VERSION = 5.5.6;
+				MARKETING_VERSION = 5.6.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.jamf.pse.ReEnroller;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
@@ -389,7 +393,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.12;
-				MARKETING_VERSION = 5.5.6;
+				MARKETING_VERSION = 5.6.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.jamf.pse.ReEnroller;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;

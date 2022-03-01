@@ -422,110 +422,114 @@ class ViewController: NSViewController, URLSessionDelegate {
                 let jpsCredentials = "\(self.jssUsername):\(self.jssPassword)"
                 let jpsBase64Creds = jpsCredentials.data(using: .utf8)?.base64EncodedString() ?? ""
 
-                // get SSL verification settings from new server - start
-//                self.plistData["createConfSwitches"] =
-                CasperJxmlDelegate().casperJxmlGet(server: jssUrl, username: self.jssUsername, password: self.jssPassword) {
-                    (result: String) in
+                JamfPro().getVersion(jpURL: jssUrl, basicCreds: jpsBase64Creds) {
+                    (jpversion: (String,String)) in
+                    print("jpversion: \(jpversion)")
+                    
+                    // get SSL verification settings from new server - start
+                    CasperJxmlDelegate().casperJxmlGet(server: jssUrl, username: self.jssUsername, password: self.jssPassword) {
+                        (result: String) in
 
-                    let verifySslSetting = result
+                        let verifySslSetting = result
 
-                    if "\(verifySslSetting)" == "" {
-                        Alert().display(header: "Alert", message: "Unable to determine verifySSLCert setting on server, setting to always_except_during_enrollment")
-                        self.plistData["createConfSwitches"] = "always_except_during_enrollment" as AnyObject
-                    } else {
-                        self.plistData["createConfSwitches"] = verifySslSetting as AnyObject
-                        print("verifySSLCert setting from server: \(verifySslSetting)")
-                    }
-                    // get SSL verification settings from new server - end
-
-                    self.retainSite_Button.state.rawValue == 1 ? (self.retainSite = "true") : (self.retainSite = "false")
-                    self.mgmtAcctCreate_button.state.rawValue == 1 ? (self.mgmtAcctCreate = "true") : (self.mgmtAcctCreate = "false")
-                    self.mgmtAcctHide_button.state.rawValue == 1 ? (self.mgmtAcctHide = "true") : (self.mgmtAcctHide = "false")
-
-                    self.theNewInvite = ""
-
-                    let invite_request = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?><computer_invitation><lifetime>2147483647</lifetime><multiple_uses_allowed>true</multiple_uses_allowed><ssh_username>" + mgmtAcctNameXml + "</ssh_username><ssh_password_method>\(convertFromNSControlStateValue(self.randomPassword_button.state))</ssh_password_method>\(self.mgmtAcctPwdXml)<enroll_into_site><id>" + self.siteId + "</id></enroll_into_site><keep_existing_site_membership>" + self.retainSite + "</keep_existing_site_membership><create_account_if_does_not_exist>\(self.mgmtAcctCreate)</create_account_if_does_not_exist><hide_account>\(self.mgmtAcctHide)</hide_account><lock_down_ssh>false</lock_down_ssh></computer_invitation>"
-    //                print("invite request: " + invite_request)
-
-                    Xml.objectDict["invitation"] = "\(invite_request)"
-                    Xml.objectArray.append("invitation")
-
-                    // get invitation code
-                    self.apiAction(action: "POST", theServer: jssUrl, token: jpsBase64Creds, xml: Xml.objectDict["invitation"]!, theApiObject: "invitation") {
-                        (result: [Any]) in
-                        let responseCode = result[0] as! Int
-                        let responseMesage = result[1] as! String
-                        if !(responseCode > 199 && responseCode < 300) {
-                            let lightFormat = self.removeTag(xmlString: responseMesage.replacingOccurrences(of: "><", with: ">\n<"))
-                            Alert().display(header: "Attention", message: "Failed to create invitation code.\nMessage: \(lightFormat)\nResponse code: \(responseCode)")
-                            self.spinner.stopAnimation(self)
-                            return
+                        if "\(verifySslSetting)" == "" {
+                            Alert().display(header: "Alert", message: "Unable to determine verifySSLCert setting on server, setting to always_except_during_enrollment")
+                            self.plistData["createConfSwitches"] = "always_except_during_enrollment" as AnyObject
                         } else {
-                            print("full reply for invitation code request:\n\t\(responseMesage)\n")
-                            if let start = responseMesage.range(of: "<invitation>"),
-                                let end  = responseMesage.range(of: "</invitation>", range: start.upperBound..<(responseMesage.endIndex)) {
-                                self.theNewInvite.append((String(responseMesage[start.upperBound..<end.lowerBound])))
-                                if "\(self.theNewInvite)" == "" {
-                                    Alert().display(header: "Alert", message: "Unable to create invitation.  Verify the account, \(self.jssUsername), has been assigned permissions to do so.")
-                                    self.spinner.stopAnimation(self)
-                                    return
-                                } else {
-                                    print("Found invitation code: \(self.theNewInvite)")
+                            self.plistData["createConfSwitches"] = verifySslSetting as AnyObject
+                            print("verifySSLCert setting from server: \(verifySslSetting)")
+                        }
+                        // get SSL verification settings from new server - end
 
-                                    Xml.objectDict.removeAll()
-                                    Xml.objectArray.removeAll()
+                        self.retainSite_Button.state.rawValue == 1 ? (self.retainSite = "true") : (self.retainSite = "false")
+                        self.mgmtAcctCreate_button.state.rawValue == 1 ? (self.mgmtAcctCreate = "true") : (self.mgmtAcctCreate = "false")
+                        self.mgmtAcctHide_button.state.rawValue == 1 ? (self.mgmtAcctHide = "true") : (self.mgmtAcctHide = "false")
 
-                                    if self.createPolicy_Button.state.rawValue == 1 {
+                        self.theNewInvite = ""
 
-                                        Xml.objectDict["migrationCheckPolicy"] = "\(JamfPro.migrationCheckPolicy)"
-                                        Xml.objectArray.append("migrationCheckPolicy")
+                        let invite_request = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?><computer_invitation><lifetime>2147483647</lifetime><multiple_uses_allowed>true</multiple_uses_allowed><ssh_username>" + mgmtAcctNameXml + "</ssh_username><ssh_password_method>\(convertFromNSControlStateValue(self.randomPassword_button.state))</ssh_password_method>\(self.mgmtAcctPwdXml)<enroll_into_site><id>" + self.siteId + "</id></enroll_into_site><keep_existing_site_membership>" + self.retainSite + "</keep_existing_site_membership><create_account_if_does_not_exist>\(self.mgmtAcctCreate)</create_account_if_does_not_exist><hide_account>\(self.mgmtAcctHide)</hide_account><lock_down_ssh>false</lock_down_ssh></computer_invitation>"
+        //                print("invite request: " + invite_request)
 
-                                    }   // if self.createPolicy_Button.state.rawvalue == 1 - end
+                        Xml.objectDict["invitation"] = "\(invite_request)"
+                        Xml.objectArray.append("invitation")
 
-                                    if self.jamfSchool_Button.state.rawValue == 1 {
-                                        self.jamfSchoolUrl    = "\(self.jamfSchoolUrl_TextField.stringValue)"
-                                        var unenrollPolicyXml = JamfSchool.policy.replacingOccurrences(of: "<parameter4>----jamfSchoolUrl----</parameter4>", with: "<parameter4>\(self.jamfSchoolUrl)</parameter4>")
-                                        unenrollPolicyXml = unenrollPolicyXml.replacingOccurrences(of: "<parameter5>---jamfSchoolToken---</parameter5>", with: "<parameter5>\(self.jamfSchoolToken)</parameter5>")
-
-                                        Xml.objectDict["UnenrollCatagory"] = JamfSchool.catagory
-                                        Xml.objectArray.append("UnenrollCatagory")
-                                        Xml.objectDict["UnenrollScript"]   = JamfSchool.script
-                                        Xml.objectArray.append("UnenrollScript")
-                                        Xml.objectDict["UnenrollPolicy"]   = unenrollPolicyXml
-                                        Xml.objectArray.append("UnenrollPolicy")
-                                    }   // if self.jamfSchool_Button.state.rawvalue == 1 - end
-
-                                    if Xml.objectArray.count > 0 {
-                                        self.apiAction(action: "POST", theServer: jssUrl, token: jpsBase64Creds, xml: Xml.objectDict["\(String(describing: Xml.objectArray.first!))"]!, theApiObject: "\(String(describing: Xml.objectArray.first!))") {
-                                            (result: [Any]) in
-                                            let responseCode = result[0] as! Int
-                                            let responseMesage = result[1] as! String
-                                            if !(responseCode > 199 && responseCode < 300) {
-                                                if responseCode == 409 {
-                                                    print("Migration complete policy already exists")
-                                                } else {
-                                                    Alert().display(header: "Attention", message: "Failed to create the migration complete policy.\nSee Help to create it manually.\nResponse code: \(responseCode)")
-                                                }
-                                            } else {
-                                                print("Created new enrollment complete policy")
-                                                print("\(responseMesage)")
-                                            }
-                                            self.buildPackage(jssUrl1: "\(jssUrl)")
-                                        }   // self.apiAction - end
-                                    } else {
-                                        self.buildPackage(jssUrl1: "\(jssUrl)")
-                                    }
-
-                                }
-                            } else {
-                                print("invalid reply from the Jamf server when requesting an invitation code.")
+                        // get invitation code
+                        self.apiAction(action: "POST", theServer: jssUrl, creds: jpsBase64Creds, xml: Xml.objectDict["invitation"]!, theApiObject: "invitation") {
+                            (result: [Any]) in
+                            let responseCode = result[0] as! Int
+                            let responseMesage = result[1] as! String
+                            if !(responseCode > 199 && responseCode < 300) {
+                                let lightFormat = self.removeTag(xmlString: responseMesage.replacingOccurrences(of: "><", with: ">\n<"))
+                                Alert().display(header: "Attention", message: "Failed to create invitation code.\nMessage: \(lightFormat)\nResponse code: \(responseCode)")
                                 self.spinner.stopAnimation(self)
                                 return
+                            } else {
+                                print("full reply for invitation code request:\n\t\(responseMesage)\n")
+                                if let start = responseMesage.range(of: "<invitation>"),
+                                    let end  = responseMesage.range(of: "</invitation>", range: start.upperBound..<(responseMesage.endIndex)) {
+                                    self.theNewInvite.append((String(responseMesage[start.upperBound..<end.lowerBound])))
+                                    if "\(self.theNewInvite)" == "" {
+                                        Alert().display(header: "Alert", message: "Unable to create invitation.  Verify the account, \(self.jssUsername), has been assigned permissions to do so.")
+                                        self.spinner.stopAnimation(self)
+                                        return
+                                    } else {
+                                        print("Found invitation code: \(self.theNewInvite)")
+
+                                        Xml.objectDict.removeAll()
+                                        Xml.objectArray.removeAll()
+
+                                        if self.createPolicy_Button.state.rawValue == 1 {
+
+                                            Xml.objectDict["migrationCheckPolicy"] = "\(JPServer.migrationCheckPolicy)"
+                                            Xml.objectArray.append("migrationCheckPolicy")
+
+                                        }   // if self.createPolicy_Button.state.rawvalue == 1 - end
+
+                                        if self.jamfSchool_Button.state.rawValue == 1 {
+                                            self.jamfSchoolUrl    = "\(self.jamfSchoolUrl_TextField.stringValue)"
+                                            var unenrollPolicyXml = JamfSchool.policy.replacingOccurrences(of: "<parameter4>----jamfSchoolUrl----</parameter4>", with: "<parameter4>\(self.jamfSchoolUrl)</parameter4>")
+                                            unenrollPolicyXml = unenrollPolicyXml.replacingOccurrences(of: "<parameter5>---jamfSchoolToken---</parameter5>", with: "<parameter5>\(self.jamfSchoolToken)</parameter5>")
+
+                                            Xml.objectDict["UnenrollCatagory"] = JamfSchool.catagory
+                                            Xml.objectArray.append("UnenrollCatagory")
+                                            Xml.objectDict["UnenrollScript"]   = JamfSchool.script
+                                            Xml.objectArray.append("UnenrollScript")
+                                            Xml.objectDict["UnenrollPolicy"]   = unenrollPolicyXml
+                                            Xml.objectArray.append("UnenrollPolicy")
+                                        }   // if self.jamfSchool_Button.state.rawvalue == 1 - end
+
+                                        if Xml.objectArray.count > 0 {
+                                            self.apiAction(action: "POST", theServer: jssUrl, creds: jpsBase64Creds, xml: Xml.objectDict["\(String(describing: Xml.objectArray.first!))"]!, theApiObject: "\(String(describing: Xml.objectArray.first!))") {
+                                                (result: [Any]) in
+                                                let responseCode = result[0] as! Int
+                                                let responseMesage = result[1] as! String
+                                                if !(responseCode > 199 && responseCode < 300) {
+                                                    if responseCode == 409 {
+                                                        print("Migration complete policy already exists")
+                                                    } else {
+                                                        Alert().display(header: "Attention", message: "Failed to create the migration complete policy.\nSee Help to create it manually.\nResponse code: \(responseCode)")
+                                                    }
+                                                } else {
+                                                    print("Created new enrollment complete policy")
+                                                    print("\(responseMesage)")
+                                                }
+                                                self.buildPackage(jssUrl1: "\(jssUrl)")
+                                            }   // self.apiAction - end
+                                        } else {
+                                            self.buildPackage(jssUrl1: "\(jssUrl)")
+                                        }
+
+                                    }
+                                } else {
+                                    print("invalid reply from the Jamf server when requesting an invitation code.")
+                                    self.spinner.stopAnimation(self)
+                                    return
+                                }
                             }
                         }
                     }
-                }
 
+                }
             }   // healthcheck - server is reachable - end
         }   // healthCheck(server: jssUrl) - end
 
@@ -565,7 +569,7 @@ class ViewController: NSViewController, URLSessionDelegate {
         }
     }
 
-    func apiAction(action: String, theServer: String, token: String, xml: String, theApiObject: String, completion: @escaping (_ result: [Any]) -> Void) {
+    func apiAction(action: String, theServer: String, creds: String, xml: String, theApiObject: String, completion: @escaping (_ result: [Any]) -> Void) {
         URLCache.shared.removeAllCachedResponses()
         var returnValues = [Any]()
         var endpoint     = ""
@@ -595,7 +599,13 @@ class ViewController: NSViewController, URLSessionDelegate {
         serverRequest.httpMethod = "\(action)"
         serverRequest.httpBody = Data(xml.utf8)
         let serverConf = URLSessionConfiguration.default
-        serverConf.httpAdditionalHeaders = ["Authorization" : "Basic \(token)", "Content-Type" : "application/xml", "Accept" : "application/xml"]
+        
+        switch JamfProServer.authType {
+        case "Basic":
+            serverConf.httpAdditionalHeaders = ["Authorization" : "Basic \(creds)", "Content-Type" : "application/xml", "Accept" : "application/xml"]
+        default:
+            serverConf.httpAdditionalHeaders = ["Authorization" : "Bearer \(token.sourceServer)", "Content-Type" : "application/xml", "Accept" : "application/xml"]
+        }
 
         let session = Foundation.URLSession(configuration: serverConf, delegate: self, delegateQueue: OperationQueue.main)
         let task = session.dataTask(with: serverRequest as URLRequest, completionHandler: {
@@ -624,7 +634,7 @@ class ViewController: NSViewController, URLSessionDelegate {
             } else {
                 // call next item in list
                 let nextObject = Xml.objectArray.firstIndex(of: theApiObject)!+1
-                self.apiAction(action: "POST", theServer: theServer, token: token, xml: Xml.objectDict["\(String(describing: Xml.objectArray[nextObject]))"]!, theApiObject: "\(String(describing: Xml.objectArray[nextObject]))") {
+                self.apiAction(action: "POST", theServer: theServer, creds: creds, xml: Xml.objectDict["\(String(describing: Xml.objectArray[nextObject]))"]!, theApiObject: "\(String(describing: Xml.objectArray[nextObject]))") {
                     (result: [Any]) in
                     completion(result)
                 }
@@ -1591,7 +1601,14 @@ class ViewController: NSViewController, URLSessionDelegate {
         //        print("serverRequest: \(serverRequest)")
         serverRequest.httpMethod = "GET"
         let serverConf = URLSessionConfiguration.default
-        serverConf.httpAdditionalHeaders = ["Authorization" : "Basic \(jssCredsBase64)", "Content-Type" : "application/json", "Accept" : "application/json"]
+        
+        switch JamfProServer.authType {
+        case "Basic":
+            serverConf.httpAdditionalHeaders = ["Authorization" : "Basic \(jssCredsBase64)", "Content-Type" : "application/json", "Accept" : "application/json"]
+        default:
+            serverConf.httpAdditionalHeaders = ["Authorization" : "Bearer \(token.sourceServer)", "Content-Type" : "application/json", "Accept" : "application/json"]
+        }
+        
         let serverSession = Foundation.URLSession(configuration: serverConf, delegate: self, delegateQueue: OperationQueue.main)
         let task = serverSession.dataTask(with: serverRequest as URLRequest, completionHandler: {
             (data, response, error) -> Void in
@@ -1812,7 +1829,9 @@ class ViewController: NSViewController, URLSessionDelegate {
                     WriteToLog().message(theMessage: "High Sierra (10.13) or later.  Checking MDM status.")
                     var counter = 0
                     // try to remove mdm with jamf command
-                    _ = myExitCode(cmd: "/usr/local/bin/jamf", args: "removemdmprofile")
+                    if os.majorVersion < 11 {
+                        _ = myExitCode(cmd: "/usr/local/bin/jamf", args: "removemdmprofile")
+                    }
                     if !mdmInstalled(cmd: "/bin/bash", args: "-c", "/usr/bin/profiles -C | grep 00000000-0000-0000-A000-4A414D460003 | wc -l", message: "looking for MDM Profile") {
                         counter+=1
                         WriteToLog().message(theMessage: "Removed existing MDM profile using the jamf binary.")
@@ -1832,10 +1851,9 @@ class ViewController: NSViewController, URLSessionDelegate {
                             sleep(4)
                             if attempt > 7 {
                                 WriteToLog().message(theMessage: "Failed to remove MDM through remote command.")
-                                //                    unverifiedFallback()
-                                //                    exit(1)
                                 removeResult = "failed"
-//                              completion("\(when) - failed")
+                                completion("\(when) - failed")
+                                return
                             }
                         }   // while mdmInstalled - end
                         WriteToLog().message(theMessage: "Attempt \(attempt-1) removed the MDM profile.")
@@ -2167,6 +2185,8 @@ class ViewController: NSViewController, URLSessionDelegate {
                     WriteToLog().message(theMessage: "call to profiles renew -type enrollment failed")
                     //exit(1)
                 }
+            } else {
+                WriteToLog().message(theMessage: "not calling profiles renew -type enrollment")
             }
 
             // remove config profile if marked as such - start
@@ -2245,8 +2265,15 @@ class ViewController: NSViewController, URLSessionDelegate {
                     WriteToLog().message(theMessage: "= ReEnrollment Complete - this should be the last message logged! =")
                     WriteToLog().message(theMessage: "===================================================================")
                 }
-                if myExitCode(cmd: "/bin/launchctl", args: "unload", "/tmp/com.jamf.ReEnroller.plist") != 0 {
-                    WriteToLog().message(theMessage: "There was a problem unloading the launchd.")
+                if os.majorVersion >= 11 {
+                    //bootout system /Library/LaunchDaemons/com.jamf.ReEnroller.plist
+                    if myExitCode(cmd: "/bin/launchctl", args: "bootout", "system", "/tmp/com.jamf.ReEnroller.plist") != 0 {
+                        WriteToLog().message(theMessage: "There was a problem unloading the launchd.")
+                    }
+                } else {
+                    if myExitCode(cmd: "/bin/launchctl", args: "unload", "/tmp/com.jamf.ReEnroller.plist") != 0 {
+                        WriteToLog().message(theMessage: "There was a problem unloading the launchd.")
+                    }
                 }
 
             } catch {

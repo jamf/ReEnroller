@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct JamfPro {
+struct JPServer {
     static var migrationCheckPolicy = """
 <?xml version="1.0" encoding="UTF-8"?>
 <policy>

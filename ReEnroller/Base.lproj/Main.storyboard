@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="18122" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
+<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="19529" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
     <dependencies>
         <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="18122"/>
-        <plugIn identifier="com.apple.WebKit2IBPlugin" version="18122"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="19529"/>
+        <plugIn identifier="com.apple.WebKit2IBPlugin" version="19529"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
@@ -474,7 +474,7 @@
                                 <constraints>
                                     <constraint firstAttribute="height" constant="36" id="acS-Hp-KWq"/>
                                 </constraints>
-                                <buttonCell key="cell" type="check" bezelStyle="regularSquare" imagePosition="left" controlSize="small" state="on" inset="2" id="nuJ-ao-b2N">
+                                <buttonCell key="cell" type="check" bezelStyle="regularSquare" imagePosition="left" controlSize="small" inset="2" id="nuJ-ao-b2N">
                                     <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                     <string key="title">Create the account 
 if it does not exist</string>
@@ -486,7 +486,7 @@ if it does not exist</string>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="14" id="AHy-VQ-K1M"/>
                                 </constraints>
-                                <buttonCell key="cell" type="check" title="Hide the account" bezelStyle="regularSquare" imagePosition="left" controlSize="small" state="on" inset="2" id="iMT-XF-UYF">
+                                <buttonCell key="cell" type="check" title="Hide the account" bezelStyle="regularSquare" imagePosition="left" controlSize="small" inset="2" id="iMT-XF-UYF">
                                     <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                     <font key="font" metaFont="label" size="11"/>
                                 </buttonCell>
@@ -930,7 +930,7 @@ if it does not exist</string>
                                     <action selector="selectSite_Button:" target="XfG-lQ-9wD" id="2D3-vh-v0p"/>
                                 </connections>
                             </popUpButton>
-                            <button identifier="selectSite" translatesAutoresizingMaskIntoConstraints="NO" id="JpP-v5-6mb">
+                            <button translatesAutoresizingMaskIntoConstraints="NO" id="JpP-v5-6mb">
                                 <rect key="frame" x="61" y="151" width="157" height="14"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="156" id="HOo-NO-qW7"/>

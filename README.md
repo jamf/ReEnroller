@@ -27,6 +27,8 @@ Important:
 Thanks @fauxserve for coming up with the idea and initial bash version.
 
 ## History
+- 2022-02-25: Change default options for management account to not create and not hide (mdm enrollment will handle the management account).  Support bearer token authentication for API access in Jamf Pro 10.35 and later.
+- 
 - 2021-09-08: Fixed issue where re-enrollment would not complete.
 
 - 2021-09-05: Fixed issue where an attempt to backup/restore existing configuration profiles was done and shouldn't be.
