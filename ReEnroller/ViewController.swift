@@ -156,7 +156,7 @@ class ViewController: NSViewController, URLSessionDelegate {
     var siteId              = "-1"
     var mgmtAccount         = ""    // manangement account read from plist
     var mgmtAcctPwdXml      = ""    // static management account password
-    var acctMaintPwdXml     = ""    // ensures the managment account password is properly randomized
+//    var acctMaintPwdXml     = ""    // ensures the managment account password is properly randomized
     var mgmtAcctPwdLen      = 8
     var mgmtAcctCreate      = "true"
     var mgmtAcctHide        = "true"
@@ -322,6 +322,7 @@ class ViewController: NSViewController, URLSessionDelegate {
         let mgmtAcctNameXml = xmlEncode(rawString: mgmtAcct)
 
         if randomPassword_button.state.rawValue == 0 {
+            // known password
             let mgmtAcctPwd = mgmtAcctPwd_TextField.stringValue
             let mgmtAcctPwd2 = mgmtAcctPwd2_TextField.stringValue
             if "\(mgmtAcctPwd)" == "" {
@@ -345,12 +346,14 @@ class ViewController: NSViewController, URLSessionDelegate {
 //            Error: The Managed Account Password could not be changed.
             // acctMaintPwdXml = "<account_maintenance><management_account><action>specified</action><managed_password>\(mgmtAcctPwd)</managed_password></management_account></account_maintenance>"
         } else {
+            // random password
             // like to get rid of this - find way to change password when client and JPS differ
 //          check the local system for the existance of the management account
             if ( userOperation(mgmtUser: mgmtAcct, operation: "find") != "" ) {
                 Alert().display(header: "Attention:", message: "Account \(mgmtAcct) cannot be used with a random password as it exists on this system.")
                 return
             }
+            /*
             // verify random password lenght is an integer - start
             let pattern = "(^[0-9]*$)"
             let regex1 = try! NSRegularExpression(pattern: pattern, options: [])
@@ -370,7 +373,10 @@ class ViewController: NSViewController, URLSessionDelegate {
             // verify random password lenght is an integer - end
             // create a random password
             mgmtAcctPwdXml = myExitValue(cmd: "/bin/bash", args: "-c", "/usr/bin/uuidgen")[0]
-            acctMaintPwdXml = "<account_maintenance><management_account><action>random</action><managed_password_length>\(mgmtAcctPwdLen)</managed_password_length></management_account></account_maintenance>"
+             acctMaintPwdXml = "<account_maintenance><management_account><action>random</action><managed_password_length>\(mgmtAcctPwdLen)</managed_password_length></management_account></account_maintenance>"
+            */
+            mgmtAcctPwdXml = ""
+            
         }
 
         // server is reachable - start
