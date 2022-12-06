@@ -844,6 +844,9 @@ class ViewController: NSViewController, URLSessionDelegate {
                             self.verifyNewEnrollment()
                         }
                     }
+                } else {
+                    self.unverifiedFallback()
+                    exit(1)
                 }
             }
         } else {
