@@ -1219,7 +1219,7 @@ class ViewController: NSViewController, URLSessionDelegate {
         // Create pkg of app and launchd - end
 
         self.spinner.stopAnimation(self)
-
+        
         if self.createPolicy_Button.state.rawValue == 1 {
             self.policyMsg = "\n\nVerify the Migration Complete policy was created on the new server.  "
             if self.randomPassword_button.state.rawValue == 0 {
@@ -2565,7 +2565,7 @@ class ViewController: NSViewController, URLSessionDelegate {
         migratedAttribute_Button.selectItem(withTitle: "Room")
 
         WriteToLog().message(theMessage: "Configuration not found, launching GUI.")
-//        param.runAsDaemon = false
+        param.runAsDaemon = false
         
         retry_TextField.stringValue = "30"
         newEnrollment_Button.state = convertToNSControlStateValue(0)

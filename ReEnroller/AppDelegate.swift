@@ -43,6 +43,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     func applicationWillFinishLaunching(_ notification: Notification) {
+        param.runAsDaemon = true
         if !FileManager.default.fileExists(atPath: param.settingsFile) {
             NSApp.setActivationPolicy(.regular)
             let storyboard = NSStoryboard(name: "Main", bundle: nil)

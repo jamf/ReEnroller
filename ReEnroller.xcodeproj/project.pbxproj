@@ -57,6 +57,7 @@
 		B5E2587225D725B100ABD528 /* com.jamf.ReEnroller.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = com.jamf.ReEnroller.plist; sourceTree = "<group>"; };
 		B5E2587525D7273600ABD528 /* ReEnroller-component.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "ReEnroller-component.plist"; sourceTree = "<group>"; };
 		B5F6492027C96423007B7C26 /* JamfPro.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = JamfPro.swift; sourceTree = "<group>"; };
+		CE3FE44C293FE2E200D27323 /* Notes.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = Notes.md; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -74,6 +75,7 @@
 		B5480D4F25D6AE1700BFCC86 = {
 			isa = PBXGroup;
 			children = (
+				CE3FE44C293FE2E200D27323 /* Notes.md */,
 				B5480D5A25D6AE1700BFCC86 /* ReEnroller */,
 				B5480D5925D6AE1700BFCC86 /* Products */,
 				B5480DB925D6BB6C00BFCC86 /* Frameworks */,
@@ -365,7 +367,7 @@
 				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = PS2F6S478M;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -391,7 +393,7 @@
 				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = PS2F6S478M;
 				ENABLE_HARDENED_RUNTIME = YES;
