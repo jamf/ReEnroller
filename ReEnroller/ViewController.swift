@@ -2565,8 +2565,8 @@ class ViewController: NSViewController, URLSessionDelegate {
         migratedAttribute_Button.selectItem(withTitle: "Room")
 
         WriteToLog().message(theMessage: "Configuration not found, launching GUI.")
-        param.runAsDaemon = false
-
+//        param.runAsDaemon = false
+        
         retry_TextField.stringValue = "30"
         newEnrollment_Button.state = convertToNSControlStateValue(0)
         removeReEnroller_Button.state = convertToNSControlStateValue(1)

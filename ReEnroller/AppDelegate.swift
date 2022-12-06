@@ -44,13 +44,14 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     func applicationWillFinishLaunching(_ notification: Notification) {
         if !FileManager.default.fileExists(atPath: param.settingsFile) {
+            NSApp.setActivationPolicy(.regular)
             let storyboard = NSStoryboard(name: "Main", bundle: nil)
             let mainWindowController = storyboard.instantiateController(withIdentifier: "Main") as! NSWindowController
             mainWindowController.window?.hidesOnDeactivate = false
 
             NSApplication.shared.setActivationPolicy(NSApplication.ActivationPolicy.regular)
             mainWindowController.showWindow(self)
-            NSApplication.shared.activate(ignoringOtherApps: true)
+//            NSApplication.shared.activate(ignoringOtherApps: true)
         } else {
             ViewController().startToMigrate()
         }
