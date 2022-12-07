@@ -101,7 +101,6 @@ class JamfPro: NSObject, URLSessionDelegate {
                         token.sourceExpires  = "\(endpointJSON["expires"] ?? "")"
 //                      print("\n[JamfPro] token for \(serverUrl): \(token.sourceServer)")
                         
-//                      if LogLevel.debug { WriteToLog().message(stringOfText: "[JamfPro.getToken] Retrieved token: \(token)") }
 //                      print("[JamfPro] result of token request: \(endpointJSON)")
                         WriteToLog().message(theMessage: "[JamfPro.getToken] new token created.")
                         if JamfProServer.authType == "Bearer" {
