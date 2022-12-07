@@ -441,6 +441,7 @@ class ViewController: NSViewController, URLSessionDelegate {
                         
                         switch verifySslSetting {
                         case "failedCredentials":
+                            self.spinner.stopAnimation(self)
                             return
                         case "":
                             Alert().display(header: "Alert", message: "Unable to determine verifySSLCert setting on server, setting to always_except_during_enrollment")

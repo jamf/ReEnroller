@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="19529" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
+<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="21225" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
     <dependencies>
         <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="19529"/>
-        <plugIn identifier="com.apple.WebKit2IBPlugin" version="19529"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="21225"/>
+        <plugIn identifier="com.apple.WebKit2IBPlugin" version="21225"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
@@ -530,19 +530,19 @@ if it does not exist</string>
                                 </connections>
                             </button>
                             <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="gEr-Am-Pfv">
-                                <rect key="frame" x="60" y="390" width="131" height="15"/>
+                                <rect key="frame" x="60" y="390" width="160" height="15"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="15" id="Ab8-vW-RQC"/>
-                                    <constraint firstAttribute="width" constant="127" id="pjh-dh-jf3"/>
+                                    <constraint firstAttribute="width" constant="156" id="pjh-dh-jf3"/>
                                 </constraints>
-                                <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Configuration Profile:" id="s18-ST-c9j">
+                                <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="WiFi Configuration Profile:" id="s18-ST-c9j">
                                     <font key="font" metaFont="systemSemibold" size="12"/>
                                     <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
                                     <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
                             </textField>
                             <pathControl verticalHuggingPriority="249" allowsExpansionToolTips="YES" translatesAutoresizingMaskIntoConstraints="NO" id="EvM-Qh-0sM">
-                                <rect key="frame" x="201" y="385" width="184" height="25"/>
+                                <rect key="frame" x="225" y="385" width="184" height="25"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="178" id="Kzq-d8-sda"/>
                                     <constraint firstAttribute="height" constant="19" id="Oor-d9-OgM"/>
@@ -1052,7 +1052,7 @@ if it does not exist</string>
                             <constraint firstItem="Ijm-aZ-UA0" firstAttribute="leading" secondItem="TYg-rK-MtJ" secondAttribute="leading" id="ETn-Sg-wHS"/>
                             <constraint firstItem="Hwx-mE-hc3" firstAttribute="baseline" secondItem="Z0Y-0c-bHE" secondAttribute="firstBaseline" id="G1c-ma-wKg"/>
                             <constraint firstItem="JpP-v5-6mb" firstAttribute="bottom" secondItem="5Vy-LI-2pU" secondAttribute="bottom" constant="-2" id="G4T-Jo-L4R"/>
-                            <constraint firstItem="EvM-Qh-0sM" firstAttribute="leading" secondItem="gEr-Am-Pfv" secondAttribute="trailing" constant="15" id="Gov-cc-yGu"/>
+                            <constraint firstItem="EvM-Qh-0sM" firstAttribute="leading" secondItem="gEr-Am-Pfv" secondAttribute="trailing" constant="10" id="Gov-cc-yGu"/>
                             <constraint firstItem="KBE-8a-tXl" firstAttribute="top" secondItem="0zd-GI-GRx" secondAttribute="bottom" constant="5" id="HHl-mS-BaN"/>
                             <constraint firstItem="JgG-u5-it6" firstAttribute="top" secondItem="VF6-ZT-5ov" secondAttribute="bottom" constant="9" id="HvC-G6-eqh"/>
                             <constraint firstItem="CcP-p6-Gdo" firstAttribute="top" secondItem="rli-u2-V4b" secondAttribute="bottom" constant="8" id="Hxs-PL-4nz"/>
@@ -1108,7 +1108,7 @@ if it does not exist</string>
                             <constraint firstItem="hPG-hA-hRD" firstAttribute="top" secondItem="6sF-BZ-C5w" secondAttribute="bottom" constant="4" id="hRW-L5-fli"/>
                             <constraint firstItem="6sF-BZ-C5w" firstAttribute="leading" secondItem="a8R-tD-Ecl" secondAttribute="leading" id="hdw-Pr-yzl"/>
                             <constraint firstItem="gyf-Li-2jw" firstAttribute="leading" secondItem="KBE-8a-tXl" secondAttribute="trailing" constant="9" id="hgP-YI-bbe"/>
-                            <constraint firstItem="5Vy-LI-2pU" firstAttribute="trailing" secondItem="EvM-Qh-0sM" secondAttribute="trailing" id="hgy-lL-TBc"/>
+                            <constraint firstItem="5Vy-LI-2pU" firstAttribute="trailing" secondItem="EvM-Qh-0sM" secondAttribute="trailing" constant="-24" id="hgy-lL-TBc"/>
                             <constraint firstItem="58c-sa-UIf" firstAttribute="centerX" secondItem="l1R-5j-nWb" secondAttribute="centerX" id="hsr-nD-3Na"/>
                             <constraint firstItem="Hby-7o-AO7" firstAttribute="top" secondItem="gEr-Am-Pfv" secondAttribute="bottom" constant="2" id="iBQ-Qw-JhD"/>
                             <constraint firstAttribute="trailing" secondItem="hMj-z6-APi" secondAttribute="trailing" constant="20" symbolic="YES" id="iYo-OK-tnt"/>
@@ -1130,7 +1130,7 @@ if it does not exist</string>
                             <constraint firstItem="hlx-w1-qbP" firstAttribute="leading" secondItem="JpP-v5-6mb" secondAttribute="trailing" constant="150" id="op5-db-iLg"/>
                             <constraint firstItem="TYg-rK-MtJ" firstAttribute="top" secondItem="Ijm-aZ-UA0" secondAttribute="bottom" constant="4" id="p9o-c2-tzt"/>
                             <constraint firstItem="wca-Nl-uAU" firstAttribute="top" secondItem="l1R-5j-nWb" secondAttribute="bottom" constant="381" id="p9u-fQ-D3f"/>
-                            <constraint firstItem="Ijm-aZ-UA0" firstAttribute="centerX" secondItem="gEr-Am-Pfv" secondAttribute="centerX" constant="1.5" id="pLu-I0-4DD"/>
+                            <constraint firstItem="Ijm-aZ-UA0" firstAttribute="centerX" secondItem="gEr-Am-Pfv" secondAttribute="centerX" constant="-13" id="pLu-I0-4DD"/>
                             <constraint firstItem="DvA-gu-991" firstAttribute="top" secondItem="0Ba-Q5-0U3" secondAttribute="bottom" constant="8" id="q6f-ej-j6e"/>
                             <constraint firstItem="Den-fa-WgB" firstAttribute="top" secondItem="pvq-bO-mOR" secondAttribute="bottom" constant="5" id="qEy-Zp-yyS"/>
                             <constraint firstItem="TYg-rK-MtJ" firstAttribute="top" secondItem="n0M-kN-jDR" secondAttribute="bottom" constant="2" id="qpN-62-l4d"/>
@@ -1217,7 +1217,7 @@ if it does not exist</string>
                             <rect key="frame" x="0.0" y="0.0" width="480" height="270"/>
                             <autoresizingMask key="autoresizingMask"/>
                         </view>
-                        <toolbar key="toolbar" implicitIdentifier="857B000E-3178-40D2-AAC9-02DF37A44451" autosavesConfiguration="NO" allowsUserCustomization="NO" showsBaselineSeparator="NO" displayMode="iconOnly" sizeMode="small" id="C3M-6M-YBB">
+                        <toolbar key="toolbar" implicitIdentifier="857B000E-3178-40D2-AAC9-02DF37A44451" autosavesConfiguration="NO" allowsUserCustomization="NO" showsBaselineSeparator="NO" displayMode="iconOnly" sizeMode="regular" id="C3M-6M-YBB">
                             <allowedToolbarItems>
                                 <toolbarItem implicitItemIdentifier="NSToolbarSpaceItem" id="Hn2-IO-Noi"/>
                                 <toolbarItem implicitItemIdentifier="NSToolbarFlexibleSpaceItem" id="pMr-6d-NNe"/>

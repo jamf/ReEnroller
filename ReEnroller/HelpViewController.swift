@@ -25,7 +25,7 @@ class HelpViewController: NSViewController {
         }
         do {
             try fm.copyItem(atPath: Bundle.main.bundlePath+"/Contents/Resources/apiMDM_remove.txt", toPath: NSHomeDirectory()+"/Downloads/apiMDM_remove.txt")
-            Alert().display(header: "-Attention-", message: "The script (apiMDM_remove.txt) has been copied to Downloads.")
+            Alert().display(header: "-Success-", message: "The script (apiMDM_remove.txt) has been copied to Downloads.")
         } catch {
             Alert().display(header: "-Attention-", message: "Could not copy scipt to Downloads.  Copy manually from Help.")
         }
