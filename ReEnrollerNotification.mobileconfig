@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>PayloadContent</key>
+	<array>
+		<dict>
+			<key>PayloadDisplayName</key>
+			<string>ReEnroller Notification</string>
+			<key>PayloadIdentifier</key>
+			<string>com.apple.servicemanagement.A765458C-44D7-4CD4-9DF3-8D2AED3C42CD</string>
+			<key>PayloadType</key>
+			<string>com.apple.servicemanagement</string>
+			<key>PayloadUUID</key>
+			<string>528163DA-C612-4C3B-9734-E8D115DCAC97</string>
+			<key>PayloadVersion</key>
+			<integer>1</integer>
+			<key>Rules</key>
+			<array>
+				<dict>
+					<key>RuleType</key>
+					<string>Label</string>
+					<key>RuleValue</key>
+					<string>com.jamf.ReEnroller</string>
+				</dict>
+			</array>
+		</dict>
+	</array>
+	<key>PayloadDisplayName</key>
+	<string>ReEnroller Notification</string>
+	<key>PayloadIdentifier</key>
+	<string>ladmins-Virtual-Machine.924A87DB-2E8E-4576-AF93-0C768A510F10</string>
+	<key>PayloadType</key>
+	<string>Configuration</string>
+	<key>PayloadUUID</key>
+	<string>5192E661-DB1F-4F9C-B6DF-CB8DE015A7EE</string>
+	<key>PayloadVersion</key>
+	<integer>1</integer>
+</dict>
+</plist>

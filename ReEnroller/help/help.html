@@ -150,6 +150,7 @@ a:hover
 <div id="main_body" style="position:relative;">
 <div style="font-family:Arial;font-size:13px;line-height:15px;color:#000000;">
     <div>Use the ReEnroller app to generate a custom Quickadd package for your clients to (re)enroll the Mac.  Packages can be created to help migrate from one server to another or perform an initial enrollment.  The process, if successful, will enroll the machine into the new Jamf Pro server so that policies can be run.  To enable MDM functionality additional steps are required.</div>
+    <div><strong>Important:</strong> If deploying the package to macOS 13+ be sure to deploy the ReEnrollerNotification.mobileconf before deploying the package to suppress unwanted notifications.</div>
 <ul style="margin-left:17px;line-height: 1.4;">
     <li>Enter the URL and Jamf administrator credentials, or an account with at least enrollment privileges, for the new Jamf server.</li>
     <li>If you wish to retain the existing management account and the password enter those credentials.&nbsp; If you wish to change the management account and or password, or wish to use a random password a new management account must be entered.&nbsp; This must be an account not currently on the machine, it will be created during (re)enrollment.&nbsp;&nbsp; </li>
@@ -160,8 +161,11 @@ a:hover
     <li>To automatically create the policy used on the destination server to verity enrollment check the 'Create Migration Complete policy' box.</li>
     <li>If APNs is not being used on the destination server, or you wish to skip the APNs test for some other reason, check the box 'Skip MDM verification'.</li>
     <li>If you'd like to run a specific policy after migration has been verified and recon is complete select the option to do so.  Be sure to use the correct policy id from the policy on the destination server.</li>
+    <li>If calling device enrollment be sure the devicd has been assigned to a prestage in the new environment.</li>
+    <li>You can mark the machine as migrated by updating an attribute in the device record in the old server.</li>
+    <li>Select when to remove the MDM profile installed by the old Jamf Pro server, or leave it on the machine to be removed later.</li>
     <li>By default the package cleans up once migration is complete.&nbsp; If you'd like to keep things in place uncheck the box for removing the ReEnroller folder.</li>
-    <li>If desired set the number of time the client will try the enrollment process in the event it fails for some reason.  Leaving the field blank will set the client to keep retrying until successful.</li>
+    <li>If desired set the number of times the client will try the enrollment process in the event it fails for some reason.  Leaving the field blank will set the client to keep retrying until successful.</li>
     <li>Set an interval for the process to retry re-enrollment (5 minutes or greater) in the event it fails, or keep the default of 30 minutes.  You are able to separate the launch daemon/postinstall script from the re-enrollment application by checking the box, 'Create Separate Package'.  With the box checked 2 packages will be created, one with the launchdaemon and postinstall script, the other with the re-enrollment application and settings.  This allows one to stage the application then deploy the launch daemon at a later date, or create a custom launch daemon, say to repair enrollments that have failed over time.</li>
     </ul>
 <div>Once everything is configured click Build.</div>
@@ -388,7 +392,7 @@ echo "unmanage machine: curl -X POST -sku ${uname}:******** ${server}JSSResource
 <div id="jpsImage2">
 <img src="images/mdmRemove_script.png" alt=""></div>
 </div>
-    The script could also be added to the policy that deploys the reEnrollment package. Be mindful that once the MDM profile is removed all other profiles will be removed, potentially impacting the user experience. 
+    The script could also be added to the policy that deploys the reEnrollment package, if you'd like the profile removed before the new enrollment. Be mindful that once the MDM profile is removed all other profiles will be removed, potentially impacting the user experience. 
 <div><hr></div>
 </div>
 </body>

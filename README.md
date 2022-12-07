@@ -8,17 +8,17 @@ Easily migrate a computer from one Jamf server to another.
 
 
 Use ReEnroller to build a package to take a macOS device enrolled in one Jamf server and enroll it into another.
-* Ability to add (and then remove) a profile to the package.  This can help maintain a WiFi connection while migrating.
+* Ability to add (and then remove) a wifi profile to the package.  This can help maintain a WiFi connection while migrating.
 * Machine attempts to fail back to original server if enrollment in the new server fails.
 * Specify the number of attempts and interval between attempts for enrolling in the new server.
 * Can also be used for initial enrollments.
 * Enroll into a specific site.
 * Can automatically create a policy to verify enrollment in the new server.
 * Select a policy to run after a successful enrollment.
-* Deploy the package with policy or push it to an individual machine from within the app.
 
 Important: 
 
+* When deploying to machines running macOS 13+ be sure to deploy ReEnrollerNotifications.mobileconfig before the package.
 * After enrolling in the new server the user must approve the MDM profile for macOS 10.13 and above.
 * Big Sur and later that fail back to the source server will not automatically (re)install the MDM profile.
 
@@ -27,8 +27,10 @@ Important:
 Thanks @fauxserve for coming up with the idea and initial bash version.
 
 ## History
+- 2022-11-07: Add ability to suppress notifications about a background process ReEnroller installs.
+
 - 2022-02-25: Change default options for management account to not create and not hide (mdm enrollment will handle the management account).  Support bearer token authentication for API access in Jamf Pro 10.35 and later.
-- 
+
 - 2021-09-08: Fixed issue where re-enrollment would not complete.
 
 - 2021-09-05: Fixed issue where an attempt to backup/restore existing configuration profiles was done and shouldn't be.

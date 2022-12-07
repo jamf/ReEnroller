@@ -845,7 +845,6 @@ class ViewController: NSViewController, URLSessionDelegate {
                             self.unverifiedFallback()
                             exit(1)
                         } else {
-                            // Verify the enrollment
                             self.verifyNewEnrollment()
                         }
                     }
@@ -863,8 +862,12 @@ class ViewController: NSViewController, URLSessionDelegate {
                 } else {
                     self.removeMDMProfile(when: "After") {
                         (result: String) in
-                        // Verify the enrollment
-                        self.verifyNewEnrollment()
+                        if ( result != "After - failed" ) {
+                            self.verifyNewEnrollment()
+                        } else {
+                            self.unverifiedFallback()
+                            exit(1)
+                        }
                     }
                 }
             }
@@ -1683,7 +1686,7 @@ class ViewController: NSViewController, URLSessionDelegate {
 
         WriteToLog().message(theMessage: "\(message)")
         if message != "" {
-            WriteToLog().message(theMessage: "profile list: \n\(String(describing: profileList))")
+            WriteToLog().message(theMessage: "Found existing MDM profile")
         }
 
         let mdmCount = Int(profileList.trimmingCharacters(in: .whitespacesAndNewlines))!
