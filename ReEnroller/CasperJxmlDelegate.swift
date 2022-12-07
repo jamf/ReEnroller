@@ -47,8 +47,13 @@ class CasperJxmlDelegate: NSObject, URLSessionDelegate {
                     if httpResponse.statusCode > 199 && httpResponse.statusCode <= 299 {
 
                         let rawXml = String(data: data!, encoding: .utf8)
-                        print("[CasperJxmlDelegate.casperJxmlGet] raw fileServerXml: \(String(describing: rawXml!))")
                         var sslVerification = ""
+                        print("[CasperJxmlDelegate.casperJxmlGet] raw fileServerXml: \(String(describing: rawXml!))")
+                        if self.betweenTags(xmlString: rawXml!, startTag: "<response>", endTag: "</response>") == "Bad username or password" {
+                            Alert().display(header: "Attention:", message: "Verify Jamf Pro username and password.")
+                            completion("failedCredentials")
+                            return
+                        }
                         sslVerification = self.betweenTags(xmlString: rawXml!, startTag: "<verifySSLCert>", endTag: "</verifySSLCert>")
 
                         WriteToLog().message(theMessage: "[CasperJxmlDelegate.casperJxmlGet] completion\n")

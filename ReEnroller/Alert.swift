@@ -14,8 +14,23 @@ class Alert: NSObject {
             dialog.messageText = header
             dialog.informativeText = message
             dialog.alertStyle = NSAlert.Style.warning
-            dialog.addButton(withTitle: "OK")
-            dialog.runModal()
+            let okButton   = dialog.addButton(withTitle: "OK")
+            if header == "Process Complete" {
+                let viewButton = dialog.addButton(withTitle: "View")
+                okButton.keyEquivalent = "o"
+                viewButton.keyEquivalent = "\r"
+            }
+            let theButton = dialog.runModal()
+            switch theButton {
+            case .alertFirstButtonReturn:
+                break
+            default:
+                let thePath = NSString(string: "~/Downloads/\(fullPackageName)").expandingTildeInPath
+                if FileManager.default.fileExists(atPath: thePath) {
+                    let theApp = [URL(fileURLWithPath: thePath)]
+                    NSWorkspace.shared.activateFileViewerSelecting(theApp)
+                }
+            }
         }
     }
 }

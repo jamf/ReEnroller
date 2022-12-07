@@ -414,16 +414,17 @@ class ViewController: NSViewController, URLSessionDelegate {
                 // server is reachable
                 self.jssUsername = self.jssUsername_TextField.stringValue
                 self.jssPassword = self.jssPassword_TextField.stringValue
-                // save Jamf Pro URL and user
-                self.userDefaults.set("\(self.jssUrl_TextField.stringValue)", forKey: "jamfProUrl")
-                self.userDefaults.set("\(self.jssUsername_TextField.stringValue)", forKey: "jamfProUser")
-                self.userDefaults.synchronize()
-
+                
                 if "\(self.jssUsername)" == "" || "\(self.jssPassword))" == "" {
                     Alert().display(header: "Alert", message: "Please provide both a username and password for the server.")
                     self.spinner.stopAnimation(self)
                     return
                 }
+                
+                // save Jamf Pro URL and user
+                self.userDefaults.set("\(self.jssUrl_TextField.stringValue)", forKey: "jamfProUrl")
+                self.userDefaults.set("\(self.jssUsername_TextField.stringValue)", forKey: "jamfProUser")
+                self.userDefaults.synchronize()
 
                 let jpsCredentials = "\(self.jssUsername):\(self.jssPassword)"
                 let jpsBase64Creds = jpsCredentials.data(using: .utf8)?.base64EncodedString() ?? ""
@@ -437,11 +438,14 @@ class ViewController: NSViewController, URLSessionDelegate {
                         (result: String) in
 
                         let verifySslSetting = result
-
-                        if "\(verifySslSetting)" == "" {
+                        
+                        switch verifySslSetting {
+                        case "failedCredentials":
+                            return
+                        case "":
                             Alert().display(header: "Alert", message: "Unable to determine verifySSLCert setting on server, setting to always_except_during_enrollment")
                             self.plistData["createConfSwitches"] = "always_except_during_enrollment" as AnyObject
-                        } else {
+                        default:
                             self.plistData["createConfSwitches"] = verifySslSetting as AnyObject
                             print("verifySSLCert setting from server: \(verifySslSetting)")
                         }
@@ -1195,11 +1199,11 @@ class ViewController: NSViewController, URLSessionDelegate {
         let packageName = (self.newEnrollment_Button.state.rawValue == 1) ? "Enroller":"ReEnroller"
 
         // rename existing ReEnroller.pkg if it exists - start
-        if self.fm.fileExists(atPath: NSHomeDirectory()+"/Desktop/\(packageName)-\(self.shortHostname).pkg") {
+        if self.fm.fileExists(atPath: NSHomeDirectory()+"/Downloads/\(packageName)-\(self.shortHostname).pkg") {
             do {
-                try self.fm.moveItem(atPath: NSHomeDirectory()+"/Desktop/\(packageName)-\(self.shortHostname).pkg", toPath: NSHomeDirectory()+"/Desktop/\(packageName)-\(self.shortHostname)-"+self.getDateTime(x: 1)+".pkg")
+                try self.fm.moveItem(atPath: NSHomeDirectory()+"/Downloads/\(packageName)-\(self.shortHostname).pkg", toPath: NSHomeDirectory()+"/Downloads/\(packageName)-\(self.shortHostname)-"+self.getDateTime(x: 1)+".pkg")
             } catch {
-                Alert().display(header: "Alert", message: "Unable to rename an existing \(packageName)-\(self.shortHostname).pkg file on the Desktop.  Try renaming/removing it manually: sudo mv ~/Desktop/\(packageName)-\(self.shortHostname).pkg ~/Desktop/\(packageName)-\(self.shortHostname)-old.pkg.")
+                Alert().display(header: "Alert", message: "Unable to rename an existing \(packageName)-\(self.shortHostname).pkg file in Downloads.  Try renaming/removing it manually: sudo mv ~/Downloads/\(packageName)-\(self.shortHostname).pkg ~/Downloads/\(packageName)-\(self.shortHostname)-old.pkg.")
                 exit(1)
             }
         }
@@ -1208,12 +1212,12 @@ class ViewController: NSViewController, URLSessionDelegate {
         // Create pkg of app and launchd - start
         if self.separatePackage_button.state.rawValue == 0 {
             print("building single package")
-            self.pkgBuildResult = self.myExitCode(cmd: "/usr/bin/pkgbuild", args: "--identifier", "com.jamf.ReEnroller", "--root", buildFolder, "--scripts", self.myBundlePath+"/Contents/Resources/1", "--component-plist", self.myBundlePath+"/Contents/Resources/ReEnroller-component.plist", NSHomeDirectory()+"/Desktop/\(packageName)-\(self.shortHostname).pkg")
+            self.pkgBuildResult = self.myExitCode(cmd: "/usr/bin/pkgbuild", args: "--identifier", "com.jamf.ReEnroller", "--root", buildFolder, "--scripts", self.myBundlePath+"/Contents/Resources/1", "--component-plist", self.myBundlePath+"/Contents/Resources/ReEnroller-component.plist", NSHomeDirectory()+"/Downloads/\(packageName)-\(self.shortHostname).pkg")
 
         } else {
             print("building two packages")
-            self.pkgBuildResult = self.myExitCode(cmd: "/usr/bin/pkgbuild", args: "--identifier", "com.jamf.ReEnroller", "--root", buildFolder, "--scripts", self.myBundlePath+"/Contents/Resources/2", "--component-plist", self.myBundlePath+"/Contents/Resources/ReEnroller-component.plist", NSHomeDirectory()+"/Desktop/\(packageName)-\(self.shortHostname).pkg")
-            self.pkgBuildResult = self.myExitCode(cmd: "/usr/bin/pkgbuild", args: "--identifier", "com.jamf.ReEnrollerd", "--root", buildFolderd, "--scripts", self.myBundlePath+"/Contents/Resources/1", NSHomeDirectory()+"/Desktop/\(packageName)Daemon-\(self.shortHostname).pkg")
+            self.pkgBuildResult = self.myExitCode(cmd: "/usr/bin/pkgbuild", args: "--identifier", "com.jamf.ReEnroller", "--root", buildFolder, "--scripts", self.myBundlePath+"/Contents/Resources/2", "--component-plist", self.myBundlePath+"/Contents/Resources/ReEnroller-component.plist", NSHomeDirectory()+"/Downloads/\(packageName)-\(self.shortHostname).pkg")
+            self.pkgBuildResult = self.myExitCode(cmd: "/usr/bin/pkgbuild", args: "--identifier", "com.jamf.ReEnrollerd", "--root", buildFolderd, "--scripts", self.myBundlePath+"/Contents/Resources/1", NSHomeDirectory()+"/Downloads/\(packageName)Daemon-\(self.shortHostname).pkg")
         }
         if self.pkgBuildResult != 0 {
             Alert().display(header: "-Attention-", message: "Could not create the \(packageName)(Daemon) package - exiting.")
@@ -1234,8 +1238,9 @@ class ViewController: NSViewController, URLSessionDelegate {
             self.policyMsg = "\n\nBe sure to create a migration complete policy before starting to migrate, see help or more information."
         }
 
+        fullPackageName = "\(packageName)-\(self.shortHostname).pkg"
         // alert the user, we're done
-        Alert().display(header: "Attention:", message: "A package (\(packageName)-\(self.shortHostname).pkg) has been created on your desktop which is ready to be deployed with your current Jamf server.\n\nThe package \(self.includesMsg) a postinstall script to load the launch daemon and start the \(packageName) app.\(self.includesMsg2)\(self.policyMsg)")
+        Alert().display(header: "Process Complete", message: "A package (\(packageName)-\(self.shortHostname).pkg) has been created in Downloads which is ready to be deployed with your current Jamf server.\n\nThe package \(self.includesMsg) a postinstall script to load the launch daemon and start the \(packageName) app.\(self.includesMsg2)\(self.policyMsg)")
 
         let _ = self.myExitCode(cmd: "/bin/bash", args: "-c", "/bin/rm -fr /private/tmp/reEnroller-*")
     }

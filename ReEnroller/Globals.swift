@@ -7,6 +7,7 @@
 
 import Foundation
 
+var fullPackageName = ""
 
 struct JamfProServer {
     static var majorVersion = 0
