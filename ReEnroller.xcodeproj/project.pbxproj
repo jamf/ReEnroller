@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		B535676B25DB4BED0017769D /* CasperJxmlDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B535676A25DB4BED0017769D /* CasperJxmlDelegate.swift */; };
 		B535677225DB550C0017769D /* WriteToLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = B535677125DB550C0017769D /* WriteToLog.swift */; };
 		B535677525DB56110017769D /* Alert.swift in Sources */ = {isa = PBXBuildFile; fileRef = B535677425DB56110017769D /* Alert.swift */; };
 		B5434E3B25D72BD50013A85B /* HelpViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5434E3A25D72BD50013A85B /* HelpViewController.swift */; };
@@ -32,7 +31,6 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		B535676A25DB4BED0017769D /* CasperJxmlDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CasperJxmlDelegate.swift; sourceTree = "<group>"; };
 		B535677125DB550C0017769D /* WriteToLog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WriteToLog.swift; sourceTree = "<group>"; };
 		B535677425DB56110017769D /* Alert.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Alert.swift; sourceTree = "<group>"; };
 		B5434E3A25D72BD50013A85B /* HelpViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelpViewController.swift; sourceTree = "<group>"; };
@@ -96,7 +94,6 @@
 				B5480DAA25D6B8CA00BFCC86 /* ApiCall.swift */,
 				B535677425DB56110017769D /* Alert.swift */,
 				B5480D5B25D6AE1700BFCC86 /* AppDelegate.swift */,
-				B535676A25DB4BED0017769D /* CasperJxmlDelegate.swift */,
 				B5480DA325D6B4E000BFCC86 /* command.swift */,
 				B5434E4D25D982390013A85B /* Globals.swift */,
 				B5434E3A25D72BD50013A85B /* HelpViewController.swift */,
@@ -223,7 +220,6 @@
 				B5434E4E25D982390013A85B /* Globals.swift in Sources */,
 				B5480D5C25D6AE1700BFCC86 /* AppDelegate.swift in Sources */,
 				B535677525DB56110017769D /* Alert.swift in Sources */,
-				B535676B25DB4BED0017769D /* CasperJxmlDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -376,7 +372,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.12;
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
 				MARKETING_VERSION = 5.6.2;
 				PRODUCT_BUNDLE_IDENTIFIER = com.jamf.pse.ReEnroller;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -402,7 +398,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.12;
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
 				MARKETING_VERSION = 5.6.2;
 				PRODUCT_BUNDLE_IDENTIFIER = com.jamf.pse.ReEnroller;
 				PRODUCT_NAME = "$(TARGET_NAME)";

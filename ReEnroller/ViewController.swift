@@ -434,11 +434,14 @@ class ViewController: NSViewController, URLSessionDelegate {
                     print("jpversion: \(jpversion)")
                     
                     // get SSL verification settings from new server - start
-                    CasperJxmlDelegate().casperJxmlGet(server: jssUrl, username: self.jssUsername, password: self.jssPassword) {
-                        (result: String) in
-
-                        let verifySslSetting = result
+                    // removed 230419
+//                    CasperJxmlDelegate().casperJxmlGet(server: jssUrl, username: self.jssUsername, password: self.jssPassword) {
+//                        (result: String) in
+//
+//                        let verifySslSetting = result
                         
+                        let verifySslSetting = "<verifySSLCert>always</verifySSLCert>"
+                    
                         switch verifySslSetting {
                         case "failedCredentials":
                             self.spinner.stopAnimation(self)
@@ -538,7 +541,7 @@ class ViewController: NSViewController, URLSessionDelegate {
                                 }
                             }
                         }
-                    }
+//                    }
 
                 }
             }   // healthcheck - server is reachable - end

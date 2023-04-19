@@ -19,7 +19,7 @@ class WriteToLog {
         if !fileManager.fileExists(atPath: logPath) {
             fileManager.createFile(atPath: logPath, contents: nil, attributes: [.ownerAccountID:0, .groupOwnerAccountID:80, .posixPermissions:0o664])
         }
-        writeToLogQ.sync {
+//        writeToLogQ.sync {
 
             logFileW = FileHandle(forUpdatingAtPath: logPath)
 
@@ -28,6 +28,6 @@ class WriteToLog {
             let historyText = (fullMessage as NSString).data(using: String.Encoding.utf8.rawValue)
             logFileW?.write(historyText!)
 //            self.logFileW?.closeFile()
-        }
+//        }
     }
 }
