@@ -433,116 +433,107 @@ class ViewController: NSViewController, URLSessionDelegate {
                     (jpversion: (String,String)) in
                     print("jpversion: \(jpversion)")
                     
-                    // get SSL verification settings from new server - start
-                    // removed 230419
-//                    CasperJxmlDelegate().casperJxmlGet(server: jssUrl, username: self.jssUsername, password: self.jssPassword) {
-//                        (result: String) in
-//
-//                        let verifySslSetting = result
-                        
-                        let verifySslSetting = "<verifySSLCert>always</verifySSLCert>"
-                    
-                        switch verifySslSetting {
-                        case "failedCredentials":
+                    let verifySslSetting = "<verifySSLCert>always</verifySSLCert>"
+                
+                    switch verifySslSetting {
+                    case "failedCredentials":
+                        self.spinner.stopAnimation(self)
+                        return
+                    case "":
+                        Alert().display(header: "Alert", message: "Unable to determine verifySSLCert setting on server, setting to always_except_during_enrollment")
+                        self.plistData["createConfSwitches"] = "always_except_during_enrollment" as AnyObject
+                    default:
+                        self.plistData["createConfSwitches"] = verifySslSetting as AnyObject
+                        print("verifySSLCert setting from server: \(verifySslSetting)")
+                    }
+                    // get SSL verification settings from new server - end
+
+                    self.retainSite_Button.state.rawValue == 1 ? (self.retainSite = "true") : (self.retainSite = "false")
+                    self.mgmtAcctCreate_button.state.rawValue == 1 ? (self.mgmtAcctCreate = "true") : (self.mgmtAcctCreate = "false")
+                    self.mgmtAcctHide_button.state.rawValue == 1 ? (self.mgmtAcctHide = "true") : (self.mgmtAcctHide = "false")
+
+                    self.theNewInvite = ""
+
+                    let invite_request = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?><computer_invitation><lifetime>2147483647</lifetime><multiple_uses_allowed>true</multiple_uses_allowed><ssh_username>" + mgmtAcctNameXml + "</ssh_username><ssh_password_method>\(convertFromNSControlStateValue(self.randomPassword_button.state))</ssh_password_method>\(self.mgmtAcctPwdXml)<enroll_into_site><id>" + self.siteId + "</id></enroll_into_site><keep_existing_site_membership>" + self.retainSite + "</keep_existing_site_membership><create_account_if_does_not_exist>\(self.mgmtAcctCreate)</create_account_if_does_not_exist><hide_account>\(self.mgmtAcctHide)</hide_account><lock_down_ssh>false</lock_down_ssh></computer_invitation>"
+    //                print("invite request: " + invite_request)
+
+                    Xml.objectDict["invitation"] = "\(invite_request)"
+                    Xml.objectArray.append("invitation")
+
+                    // get invitation code
+                    self.apiAction(action: "POST", theServer: jssUrl, creds: jpsBase64Creds, xml: Xml.objectDict["invitation"]!, theApiObject: "invitation") {
+                        (result: [Any]) in
+                        let responseCode = result[0] as! Int
+                        let responseMesage = result[1] as! String
+                        if !(responseCode > 199 && responseCode < 300) {
+                            let lightFormat = self.removeTag(xmlString: responseMesage.replacingOccurrences(of: "><", with: ">\n<"))
+                            Alert().display(header: "Attention", message: "Failed to create invitation code.\nMessage: \(lightFormat)\nResponse code: \(responseCode)")
                             self.spinner.stopAnimation(self)
                             return
-                        case "":
-                            Alert().display(header: "Alert", message: "Unable to determine verifySSLCert setting on server, setting to always_except_during_enrollment")
-                            self.plistData["createConfSwitches"] = "always_except_during_enrollment" as AnyObject
-                        default:
-                            self.plistData["createConfSwitches"] = verifySslSetting as AnyObject
-                            print("verifySSLCert setting from server: \(verifySslSetting)")
-                        }
-                        // get SSL verification settings from new server - end
-
-                        self.retainSite_Button.state.rawValue == 1 ? (self.retainSite = "true") : (self.retainSite = "false")
-                        self.mgmtAcctCreate_button.state.rawValue == 1 ? (self.mgmtAcctCreate = "true") : (self.mgmtAcctCreate = "false")
-                        self.mgmtAcctHide_button.state.rawValue == 1 ? (self.mgmtAcctHide = "true") : (self.mgmtAcctHide = "false")
-
-                        self.theNewInvite = ""
-
-                        let invite_request = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?><computer_invitation><lifetime>2147483647</lifetime><multiple_uses_allowed>true</multiple_uses_allowed><ssh_username>" + mgmtAcctNameXml + "</ssh_username><ssh_password_method>\(convertFromNSControlStateValue(self.randomPassword_button.state))</ssh_password_method>\(self.mgmtAcctPwdXml)<enroll_into_site><id>" + self.siteId + "</id></enroll_into_site><keep_existing_site_membership>" + self.retainSite + "</keep_existing_site_membership><create_account_if_does_not_exist>\(self.mgmtAcctCreate)</create_account_if_does_not_exist><hide_account>\(self.mgmtAcctHide)</hide_account><lock_down_ssh>false</lock_down_ssh></computer_invitation>"
-        //                print("invite request: " + invite_request)
-
-                        Xml.objectDict["invitation"] = "\(invite_request)"
-                        Xml.objectArray.append("invitation")
-
-                        // get invitation code
-                        self.apiAction(action: "POST", theServer: jssUrl, creds: jpsBase64Creds, xml: Xml.objectDict["invitation"]!, theApiObject: "invitation") {
-                            (result: [Any]) in
-                            let responseCode = result[0] as! Int
-                            let responseMesage = result[1] as! String
-                            if !(responseCode > 199 && responseCode < 300) {
-                                let lightFormat = self.removeTag(xmlString: responseMesage.replacingOccurrences(of: "><", with: ">\n<"))
-                                Alert().display(header: "Attention", message: "Failed to create invitation code.\nMessage: \(lightFormat)\nResponse code: \(responseCode)")
-                                self.spinner.stopAnimation(self)
-                                return
-                            } else {
-                                print("full reply for invitation code request:\n\t\(responseMesage)\n")
-                                if let start = responseMesage.range(of: "<invitation>"),
-                                    let end  = responseMesage.range(of: "</invitation>", range: start.upperBound..<(responseMesage.endIndex)) {
-                                    self.theNewInvite.append((String(responseMesage[start.upperBound..<end.lowerBound])))
-                                    if "\(self.theNewInvite)" == "" {
-                                        Alert().display(header: "Alert", message: "Unable to create invitation.  Verify the account, \(self.jssUsername), has been assigned permissions to do so.")
-                                        self.spinner.stopAnimation(self)
-                                        return
-                                    } else {
-                                        print("Found invitation code: \(self.theNewInvite)")
-
-                                        Xml.objectDict.removeAll()
-                                        Xml.objectArray.removeAll()
-
-                                        if self.createPolicy_Button.state.rawValue == 1 {
-
-                                            Xml.objectDict["migrationCheckPolicy"] = "\(JPServer.migrationCheckPolicy)"
-                                            Xml.objectArray.append("migrationCheckPolicy")
-
-                                        }   // if self.createPolicy_Button.state.rawvalue == 1 - end
-
-                                        if self.jamfSchool_Button.state.rawValue == 1 {
-                                            self.jamfSchoolUrl    = "\(self.jamfSchoolUrl_TextField.stringValue)"
-                                            var unenrollPolicyXml = JamfSchool.policy.replacingOccurrences(of: "<parameter4>----jamfSchoolUrl----</parameter4>", with: "<parameter4>\(self.jamfSchoolUrl)</parameter4>")
-                                            unenrollPolicyXml = unenrollPolicyXml.replacingOccurrences(of: "<parameter5>---jamfSchoolToken---</parameter5>", with: "<parameter5>\(self.jamfSchoolToken)</parameter5>")
-
-                                            Xml.objectDict["UnenrollCatagory"] = JamfSchool.catagory
-                                            Xml.objectArray.append("UnenrollCatagory")
-                                            Xml.objectDict["UnenrollScript"]   = JamfSchool.script
-                                            Xml.objectArray.append("UnenrollScript")
-                                            Xml.objectDict["UnenrollPolicy"]   = unenrollPolicyXml
-                                            Xml.objectArray.append("UnenrollPolicy")
-                                        }   // if self.jamfSchool_Button.state.rawvalue == 1 - end
-
-                                        if Xml.objectArray.count > 0 {
-                                            self.apiAction(action: "POST", theServer: jssUrl, creds: jpsBase64Creds, xml: Xml.objectDict["\(String(describing: Xml.objectArray.first!))"]!, theApiObject: "\(String(describing: Xml.objectArray.first!))") {
-                                                (result: [Any]) in
-                                                let responseCode = result[0] as! Int
-                                                let responseMesage = result[1] as! String
-                                                if !(responseCode > 199 && responseCode < 300) {
-                                                    if responseCode == 409 {
-                                                        print("Migration complete policy already exists")
-                                                    } else {
-                                                        Alert().display(header: "Attention", message: "Failed to create the migration complete policy.\nSee Help to create it manually.\nResponse code: \(responseCode)")
-                                                    }
-                                                } else {
-                                                    print("Created new enrollment complete policy")
-                                                    print("\(responseMesage)")
-                                                }
-                                                self.buildPackage(jssUrl1: "\(jssUrl)")
-                                            }   // self.apiAction - end
-                                        } else {
-                                            self.buildPackage(jssUrl1: "\(jssUrl)")
-                                        }
-
-                                    }
-                                } else {
-                                    print("invalid reply from the Jamf server when requesting an invitation code.")
+                        } else {
+                            print("full reply for invitation code request:\n\t\(responseMesage)\n")
+                            if let start = responseMesage.range(of: "<invitation>"),
+                                let end  = responseMesage.range(of: "</invitation>", range: start.upperBound..<(responseMesage.endIndex)) {
+                                self.theNewInvite.append((String(responseMesage[start.upperBound..<end.lowerBound])))
+                                if "\(self.theNewInvite)" == "" {
+                                    Alert().display(header: "Alert", message: "Unable to create invitation.  Verify the account, \(self.jssUsername), has been assigned permissions to do so.")
                                     self.spinner.stopAnimation(self)
                                     return
+                                } else {
+                                    print("Found invitation code: \(self.theNewInvite)")
+
+                                    Xml.objectDict.removeAll()
+                                    Xml.objectArray.removeAll()
+
+                                    if self.createPolicy_Button.state.rawValue == 1 {
+
+                                        Xml.objectDict["migrationCheckPolicy"] = "\(JPServer.migrationCheckPolicy)"
+                                        Xml.objectArray.append("migrationCheckPolicy")
+
+                                    }   // if self.createPolicy_Button.state.rawvalue == 1 - end
+
+                                    if self.jamfSchool_Button.state.rawValue == 1 {
+                                        self.jamfSchoolUrl    = "\(self.jamfSchoolUrl_TextField.stringValue)"
+                                        var unenrollPolicyXml = JamfSchool.policy.replacingOccurrences(of: "<parameter4>----jamfSchoolUrl----</parameter4>", with: "<parameter4>\(self.jamfSchoolUrl)</parameter4>")
+                                        unenrollPolicyXml = unenrollPolicyXml.replacingOccurrences(of: "<parameter5>---jamfSchoolToken---</parameter5>", with: "<parameter5>\(self.jamfSchoolToken)</parameter5>")
+
+                                        Xml.objectDict["UnenrollCatagory"] = JamfSchool.catagory
+                                        Xml.objectArray.append("UnenrollCatagory")
+                                        Xml.objectDict["UnenrollScript"]   = JamfSchool.script
+                                        Xml.objectArray.append("UnenrollScript")
+                                        Xml.objectDict["UnenrollPolicy"]   = unenrollPolicyXml
+                                        Xml.objectArray.append("UnenrollPolicy")
+                                    }   // if self.jamfSchool_Button.state.rawvalue == 1 - end
+
+                                    if Xml.objectArray.count > 0 {
+                                        self.apiAction(action: "POST", theServer: jssUrl, creds: jpsBase64Creds, xml: Xml.objectDict["\(String(describing: Xml.objectArray.first!))"]!, theApiObject: "\(String(describing: Xml.objectArray.first!))") {
+                                            (result: [Any]) in
+                                            let responseCode = result[0] as! Int
+                                            let responseMesage = result[1] as! String
+                                            if !(responseCode > 199 && responseCode < 300) {
+                                                if responseCode == 409 {
+                                                    print("Migration complete policy already exists")
+                                                } else {
+                                                    Alert().display(header: "Attention", message: "Failed to create the migration complete policy.\nSee Help to create it manually.\nResponse code: \(responseCode)")
+                                                }
+                                            } else {
+                                                print("Created new enrollment complete policy")
+                                                print("\(responseMesage)")
+                                            }
+                                            self.buildPackage(jssUrl1: "\(jssUrl)")
+                                        }   // self.apiAction - end
+                                    } else {
+                                        self.buildPackage(jssUrl1: "\(jssUrl)")
+                                    }
+
                                 }
+                            } else {
+                                print("invalid reply from the Jamf server when requesting an invitation code.")
+                                self.spinner.stopAnimation(self)
+                                return
                             }
                         }
-//                    }
-
+                    }
                 }
             }   // healthcheck - server is reachable - end
         }   // healthCheck(server: jssUrl) - end
