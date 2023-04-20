@@ -5,3 +5,9 @@ chmod -R 750 "/Library/Application Support/JAMF/ReEnroller"
 if [ -e /private/var/root/Library/Preferences/com.jamf.pse.ReEnroller.plist ];then
     rm /private/var/root/Library/Preferences/com.jamf.pse.ReEnroller.plist
 fi
+
+if [ ! -d "/Library/Application Support/JAMF/ReEnroller/ReEnroller.app" ]; then
+    logger -t ReEnroller -f /var/log/jamf.log "ReEnroller app failed to install"
+    echo "ReEnroller app failed to install"
+    exit 1
+fi

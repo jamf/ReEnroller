@@ -14,6 +14,8 @@ if [ "$loaded" != "" ];then
     sleep 1
 fi
 
-if [ -d "/Library/Application Support/JAMF/ReEnroller" ];
+if [ -d "/Library/Application Support/JAMF/ReEnroller" ]; then
+    pkgutil --forget com.jamf.ReEnroller
 	rm -fr "/Library/Application Support/JAMF/ReEnroller"
+    sleep 1
 fi
