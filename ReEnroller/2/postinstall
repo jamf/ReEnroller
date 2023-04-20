@@ -1,5 +1,7 @@
 #!/bin/bash
 
+/bin/mv "/Library/Application Support/JAMF/ReEnroller/tmp/ReEnroller.app" "/Library/Application Support/JAMF/ReEnroller/"
+
 chmod -R 750 "/Library/Application Support/JAMF/ReEnroller"
 
 if [ -e /private/var/root/Library/Preferences/com.jamf.pse.ReEnroller.plist ];then

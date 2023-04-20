@@ -976,12 +976,12 @@ class ViewController: NSViewController, URLSessionDelegate {
 
         // create build location and place items
         do {
-            try self.fm.createDirectory(atPath: buildFolder+"/Library/Application Support/JAMF/ReEnroller", withIntermediateDirectories: true, attributes: nil)
+            try self.fm.createDirectory(atPath: buildFolder+"/Library/Application Support/JAMF/ReEnroller/tmp", withIntermediateDirectories: true, attributes: nil)
 
             // copy the app into the pkg building location
             do {
                 print("copying ReEnroller.app from \(self.myBundlePath)")
-                try self.fm.copyItem(atPath: self.myBundlePath, toPath: buildFolder+"/Library/Application Support/JAMF/ReEnroller/ReEnroller.app")
+                try self.fm.copyItem(atPath: self.myBundlePath, toPath: buildFolder+"/Library/Application Support/JAMF/ReEnroller/tmp/ReEnroller.app")
             } catch {
                 Alert().display(header: "-Attention-", message: "Could not copy app to build folder - exiting.")
                 exit(1)
@@ -1218,6 +1218,10 @@ class ViewController: NSViewController, URLSessionDelegate {
             self.pkgBuildResult = self.myExitCode(cmd: "/usr/bin/pkgbuild", args: "--identifier", "com.jamf.ReEnroller", "--root", buildFolder, "--scripts", self.myBundlePath+"/Contents/Resources/2", "--component-plist", self.myBundlePath+"/Contents/Resources/ReEnroller-component.plist", NSHomeDirectory()+"/Downloads/\(packageName)-\(self.shortHostname).pkg")
             self.pkgBuildResult = self.myExitCode(cmd: "/usr/bin/pkgbuild", args: "--identifier", "com.jamf.ReEnrollerd", "--root", buildFolderd, "--scripts", self.myBundlePath+"/Contents/Resources/1", NSHomeDirectory()+"/Downloads/\(packageName)Daemon-\(self.shortHostname).pkg")
         }
+        
+        // remove build folder
+        let _ = self.myExitCode(cmd: "/bin/bash", args: "-c", "/bin/rm -fr /private/tmp/reEnroller-*")
+        
         if self.pkgBuildResult != 0 {
             Alert().display(header: "-Attention-", message: "Could not create the \(packageName)(Daemon) package - exiting.")
             exit(1)
@@ -1241,7 +1245,6 @@ class ViewController: NSViewController, URLSessionDelegate {
         // alert the user, we're done
         Alert().display(header: "Process Complete", message: "A package (\(packageName)-\(self.shortHostname).pkg) has been created in Downloads which is ready to be deployed with your current Jamf server.\n\nThe package \(self.includesMsg) a postinstall script to load the launch daemon and start the \(packageName) app.\(self.includesMsg2)\(self.policyMsg)")
 
-        let _ = self.myExitCode(cmd: "/bin/bash", args: "-c", "/bin/rm -fr /private/tmp/reEnroller-*")
     }
 
     func connectedToNetwork() -> Bool {

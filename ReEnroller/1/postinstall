@@ -4,6 +4,8 @@ OLDIFS=$IFS
 IFS='.' read osvers_major osvers_minor osvers_dot_version <<< "$(/usr/bin/sw_vers -productVersion)"
 IFS=$OLDIFS
 
+/bin/mv "/Library/Application Support/JAMF/ReEnroller/tmp/ReEnroller.app" "/Library/Application Support/JAMF/ReEnroller/"
+
 chmod -R 750 "/Library/Application Support/JAMF/ReEnroller"
 loaded=$(sudo launchctl list | grep com.jamf.ReEnroller)
 if [ "$loaded" != "" ];then

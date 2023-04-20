@@ -12,7 +12,7 @@
 		<key>BundleOverwriteAction</key>
 		<string>upgrade</string>
 		<key>RootRelativeBundlePath</key>
-		<string>Library/Application Support/JAMF/ReEnroller/ReEnroller.app</string>
+		<string>Library/Application Support/JAMF/ReEnroller/tmp/ReEnroller.app</string>
 	</dict>
 </array>
 </plist>
