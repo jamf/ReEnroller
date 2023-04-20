@@ -160,8 +160,9 @@
 		B5480D5025D6AE1700BFCC86 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
+				BuildIndependentTargetsInParallel = YES;
 				LastSwiftUpdateCheck = 1210;
-				LastUpgradeCheck = 1400;
+				LastUpgradeCheck = 1430;
 				TargetAttributes = {
 					B5480D5725D6AE1700BFCC86 = {
 						CreatedOnToolsVersion = 12.1;
@@ -396,7 +397,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.13;
+				MACOSX_DEPLOYMENT_TARGET = "$(RECOMMENDED_MACOSX_DEPLOYMENT_TARGET)";
 				MARKETING_VERSION = 5.6.3;
 				PRODUCT_BUNDLE_IDENTIFIER = com.jamf.pse.ReEnroller;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -423,7 +424,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.13;
+				MACOSX_DEPLOYMENT_TARGET = "$(RECOMMENDED_MACOSX_DEPLOYMENT_TARGET)";
 				MARKETING_VERSION = 5.6.3;
 				PRODUCT_BUNDLE_IDENTIFIER = com.jamf.pse.ReEnroller;
 				PRODUCT_NAME = "$(TARGET_NAME)";
