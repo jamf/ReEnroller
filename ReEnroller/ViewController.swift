@@ -980,6 +980,7 @@ class ViewController: NSViewController, URLSessionDelegate {
 
             // copy the app into the pkg building location
             do {
+                print("copying ReEnroller.app from \(self.myBundlePath)")
                 try self.fm.copyItem(atPath: self.myBundlePath, toPath: buildFolder+"/Library/Application Support/JAMF/ReEnroller/ReEnroller.app")
             } catch {
                 Alert().display(header: "-Attention-", message: "Could not copy app to build folder - exiting.")

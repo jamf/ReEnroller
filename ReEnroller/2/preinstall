@@ -1,0 +1,19 @@
+#!/bin/bash
+
+OLDIFS=$IFS
+IFS='.' read osvers_major osvers_minor osvers_dot_version <<< "$(/usr/bin/sw_vers -productVersion)"
+IFS=$OLDIFS
+
+loaded=$(sudo launchctl list | grep com.jamf.ReEnroller)
+if [ "$loaded" != "" ];then
+    if [[ ${osvers_major} -ge 11 ]]; then
+        launchctl bootout system /Library/LaunchDaemons/com.jamf.ReEnroller.plist
+    else
+        launchctl unload /Library/LaunchDaemons/com.jamf.ReEnroller.plist
+    fi
+    sleep 1
+fi
+
+if [ -d "/Library/Application Support/JAMF/ReEnroller" ];
+	rm -fr "/Library/Application Support/JAMF/ReEnroller"
+fi
