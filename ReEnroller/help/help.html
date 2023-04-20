@@ -153,6 +153,7 @@ a:hover
     <div><strong>Important:</strong> If deploying the package to macOS 13+ be sure to deploy the ReEnrollerNotification.mobileconf before deploying the package to suppress unwanted notifications.</div>
 <ul style="margin-left:17px;line-height: 1.4;">
     <li>Enter the URL and Jamf administrator credentials, or an account with at least enrollment privileges, for the new Jamf server.</li>
+    <li>The server must have a trusted certificate used to encrypt https traffic.</li>
     <li>If you wish to retain the existing management account and the password enter those credentials.&nbsp; If you wish to change the management account and or password, or wish to use a random password a new management account must be entered.&nbsp; This must be an account not currently on the machine, it will be created during (re)enrollment.&nbsp;&nbsp; </li>
     <li>If you choose to add a configuration profile containing a network payload either browse to the file or drag it in.&nbsp; A common profile may include a WiFi payload used to maintain network connectivity during the re-enrollment process. Note, 802.1x profiles are not supported.</li>
     <li>If you wish to generate a package for an initial enrollment check 'Use for new enrollment'.</li>
