@@ -1607,62 +1607,71 @@ class ViewController: NSViewController, URLSessionDelegate {
         return(local_theHost, local_thePort)
     }
 
-    func getSites(completion: @escaping (Dictionary<String, Int>) -> Dictionary<String, Int>) {
-        var local_allSites = Dictionary<String, Int>()
-
-        let serverEncodedURL = NSURL(string: resourcePath)
-        let serverRequest = NSMutableURLRequest(url: serverEncodedURL! as URL)
-        //        print("serverRequest: \(serverRequest)")
-        serverRequest.httpMethod = "GET"
-        let serverConf = URLSessionConfiguration.default
+    func getSites(completion: @escaping ([String:Int]) -> [String:Int]) {
+        var local_allSites = [String:Int]()
+        var serverURL = jssUrl_TextField.stringValue
+        serverURL = dropTrailingSlash(theSentString: serverURL)
         
-        switch JamfProServer.authType {
-        case "Basic":
-            serverConf.httpAdditionalHeaders = ["Authorization" : "Basic \(jssCredsBase64)", "Content-Type" : "application/json", "Accept" : "application/json"]
-        default:
-            serverConf.httpAdditionalHeaders = ["Authorization" : "Bearer \(token.sourceServer)", "Content-Type" : "application/json", "Accept" : "application/json"]
-        }
-        
-        let serverSession = Foundation.URLSession(configuration: serverConf, delegate: self, delegateQueue: OperationQueue.main)
-        let task = serverSession.dataTask(with: serverRequest as URLRequest, completionHandler: {
-            (data, response, error) -> Void in
-            if let httpResponse = response as? HTTPURLResponse {
-    //                print("[getSites] httpResponse: \(String(describing: response))")
-                    let json = try? JSONSerialization.jsonObject(with: data!, options: .allowFragments)
-                    //                    print("\(json)")
-                    if let endpointJSON = json as? [String: Any] {
-                        if let siteEndpoints = endpointJSON["sites"] as? [Any] {
-                            let siteCount = siteEndpoints.count
-                            if siteCount > 0 {
-                                for i in (0..<siteCount) {
-                                    let theSite = siteEndpoints[i] as! [String:Any]
-                                    let theSiteName = theSite["name"] as! String
-                                    local_allSites[theSiteName] = theSite["id"] as? Int
+        JamfPro().getVersion(jpURL: serverURL, basicCreds: jssCredsBase64) { [self]
+            (jpversion: (String,String)) in
+            print("jpversion: \(jpversion)")
+            print("authType: \(JamfProServer.authType)")
+            
+            let serverEncodedURL = NSURL(string: resourcePath)
+            let serverRequest = NSMutableURLRequest(url: serverEncodedURL! as URL)
+            //        print("serverRequest: \(serverRequest)")
+            serverRequest.httpMethod = "GET"
+            let serverConf = URLSessionConfiguration.default
+            
+            switch JamfProServer.authType {
+            case "Basic":
+                serverConf.httpAdditionalHeaders = ["Authorization" : "Basic \(jssCredsBase64)", "Content-Type" : "application/json", "Accept" : "application/json"]
+            default:
+                serverConf.httpAdditionalHeaders = ["Authorization" : "Bearer \(token.sourceServer)", "Content-Type" : "application/json", "Accept" : "application/json"]
+            }
+            
+            let serverSession = Foundation.URLSession(configuration: serverConf, delegate: self, delegateQueue: OperationQueue.main)
+            let task = serverSession.dataTask(with: serverRequest as URLRequest, completionHandler: {
+                (data, response, error) -> Void in
+                if let httpResponse = response as? HTTPURLResponse {
+        //                print("[getSites] httpResponse: \(String(describing: response))")
+                        let json = try? JSONSerialization.jsonObject(with: data!, options: .allowFragments)
+                        //                    print("\(json)")
+                        if let endpointJSON = json as? [String: Any] {
+                            if let siteEndpoints = endpointJSON["sites"] as? [Any] {
+                                let siteCount = siteEndpoints.count
+                                if siteCount > 0 {
+                                    for i in (0..<siteCount) {
+                                        let theSite = siteEndpoints[i] as! [String:Any]
+                                        let theSiteName = theSite["name"] as! String
+                                        local_allSites[theSiteName] = theSite["id"] as? Int
+                                    }
                                 }
                             }
-                        }
-                    }   // if let serverEndpointJSON - end
+                        }   // if let serverEndpointJSON - end
 
-                if httpResponse.statusCode >= 199 && httpResponse.statusCode <= 299 {
-                    //print(httpResponse.statusCode)
+                    if httpResponse.statusCode >= 199 && httpResponse.statusCode <= 299 {
 
-                    self.site_Button.isEnabled = true
-    //                    print("[getSites] local_allSites: \(String(describing: local_allSites))")
-                    completion(local_allSites)
-                } else {
-                    // something went wrong
-                    print("status code: \(httpResponse.statusCode)")
-                        Alert().display(header: "Alert", message: "Unable to look up Sites.  Verify the account being used is able to login and view Sites.\nStatus Code: \(httpResponse.statusCode)")
+                        self.site_Button.isEnabled = true
+        //                    print("[getSites] local_allSites: \(String(describing: local_allSites))")
+                        completion(local_allSites)
+                    } else {
+                        // something went wrong
+                        print("Sile lookup response code: \(httpResponse.statusCode)")
+                            Alert().display(header: "Alert", message: "Unable to look up Sites.  Verify the account being used is able to login and view Sites.\nStatus Code: \(httpResponse.statusCode)")
 
-                    self.enableSites_Button.state = convertToNSControlStateValue(0)
-                    self.site_Button.isEnabled = false
-                    completion([:])
+                        self.enableSites_Button.state = convertToNSControlStateValue(0)
+                        self.site_Button.isEnabled = false
+                        completion([:])
 
-                }   // if httpResponse/else - end
-            }   // if let httpResponse - end
-            //            semaphore.signal()
-        })  // let task = - end
-        task.resume()
+                    }   // if httpResponse/else - end
+                }   // if let httpResponse - end
+                //            semaphore.signal()
+            })  // let task = - end
+            task.resume()
+        }
+        
+        
     }
 
     // function to return mdm status - start
@@ -2599,7 +2608,7 @@ class ViewController: NSViewController, URLSessionDelegate {
         maxRetries_Textfield.nextKeyView   = retry_TextField
 
         DispatchQueue.main.async {
-            self.view.layer?.backgroundColor = CGColor(red: 0x6c/255.0, green:0x82/255.0, blue:0x94/255.0, alpha: 1.0)
+//            self.view.layer?.backgroundColor = CGColor(red: 0x6c/255.0, green:0x82/255.0, blue:0x94/255.0, alpha: 1.0)
             NSApplication.shared.setActivationPolicy(.regular)
             NSApplication.shared.activate(ignoringOtherApps: true)
         }

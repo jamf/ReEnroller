@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="21507" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
+<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="21701" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
     <dependencies>
-        <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="21507"/>
-        <plugIn identifier="com.apple.WebKit2IBPlugin" version="21507"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="21701"/>
+        <plugIn identifier="com.apple.WebKit2IBPlugin" version="21701"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
@@ -497,17 +496,20 @@ if it does not exist</string>
                                     <constraint firstAttribute="width" constant="44" id="Ykv-z1-THf"/>
                                 </constraints>
                             </progressIndicator>
-                            <button toolTip="Build Package" verticalCompressionResistancePriority="749" translatesAutoresizingMaskIntoConstraints="NO" id="hMj-z6-APi">
-                                <rect key="frame" x="512" y="20" width="72" height="32"/>
+                            <button toolTip="Build Package" verticalHuggingPriority="750" verticalCompressionResistancePriority="749" translatesAutoresizingMaskIntoConstraints="NO" id="hMj-z6-APi">
+                                <rect key="frame" x="506" y="14" width="84" height="44"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="32" id="4DN-pS-599"/>
                                     <constraint firstAttribute="width" constant="72" id="5N9-lI-RL3"/>
                                     <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="32" id="dT5-Qv-rdj"/>
                                     <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="72" id="oeE-Pw-Sav"/>
                                 </constraints>
-                                <buttonCell key="cell" type="square" bezelStyle="shadowlessSquare" image="build-reenroller" imagePosition="only" alignment="center" imageScaling="proportionallyUpOrDown" inset="2" id="akP-Sc-KfX">
-                                    <behavior key="behavior" lightByContents="YES"/>
-                                    <font key="font" metaFont="system"/>
+                                <buttonCell key="cell" type="push" title="Build" bezelStyle="rounded" alignment="center" controlSize="large" borderStyle="border" imageScaling="proportionallyUpOrDown" inset="2" id="akP-Sc-KfX">
+                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                    <font key="font" metaFont="system" size="16"/>
+                                    <string key="keyEquivalent" base64-UTF8="YES">
+DQ
+</string>
                                 </buttonCell>
                                 <connections>
                                     <action selector="process:" target="XfG-lQ-9wD" id="jhg-Ke-4ZH"/>
@@ -1285,7 +1287,4 @@ if it does not exist</string>
             <point key="canvasLocation" x="787" y="1244"/>
         </scene>
     </scenes>
-    <resources>
-        <image name="build-reenroller" width="146" height="69"/>
-    </resources>
 </document>

@@ -13,6 +13,7 @@ class JamfPro: NSObject, URLSessionDelegate {
     var renewQ = DispatchQueue(label: "com.jamfpse.token_refreshQ", qos: DispatchQoS.background)   // running background process for refreshing token
     
     func getVersion(jpURL: String, basicCreds: String, completion: @escaping (_ jpversion: (String,String)) -> Void) {
+        print("[getVersion] jpURL: \(jpURL)")
         var versionString  = ""
         let semaphore      = DispatchSemaphore(value: 0)
         
