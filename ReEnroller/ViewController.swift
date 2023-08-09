@@ -153,8 +153,6 @@ class ViewController: NSViewController, URLSessionDelegate {
     
     var ssid                = ""
     var ssidKey             = ""
-//    let salt                = "76f6cdd0c38e6aa1"
-//    let phrase              = "64712d6ccab191de17b895b5cb8a68a8e7b72d32746bd77c117c76b5fdec643dc7fd20e7907f636984409c8eed8e09068f03e804c4c5884b23740115da903d7cba338dff949c0030f8e684a16bb9a91ee22f43a82c060c48402a40b7dbb6db56476a353e18d39c04e055e0a4a9ece244a1f84506c832393d4f4ac910aaf5ecdc"
     let base64SymetricKey   = "weTN8wXVCHux62FyovLeMJs7VuAM49TlIwe1EQEF0Ww="
 
     let safeCharSet         = CharacterSet.alphanumerics
@@ -1031,9 +1029,7 @@ class ViewController: NSViewController, URLSessionDelegate {
             } catch {
                 
             }
-//            ssidKey = "\(encryptedSealedBox.ciphertext.base64EncodedString())"
-//            ssidKey = command().genericTask(args: "echo \"\(tmpKey)\" | openssl enc -aes256 -a -A -S \(salt) -k \(phrase)")
-            print("ssidKey encoded: \(ssidKey)")
+
             plistData["ssid"] = ssid as AnyObject
             plistData["ssidKey"] = ssidKey as AnyObject
             if self.removeProfile_Button.state.rawValue == 0 {
@@ -1790,7 +1786,6 @@ class ViewController: NSViewController, URLSessionDelegate {
         
         WriteToLog().message(theMessage: "[profileInstall]       en: \(en)")
         WriteToLog().message(theMessage: "[profileInstall]     ssid: \(ssid)")
-        WriteToLog().message(theMessage: "[profileInstall]  ssidKey: \(ssidKey)")
         
         var security = "None"
         if plistData["security"] != nil {
@@ -2549,7 +2544,6 @@ class ViewController: NSViewController, URLSessionDelegate {
                 }
                 
                 WriteToLog().message(theMessage: "[startToMigrate] SSID is set to \(ssid)")
-                WriteToLog().message(theMessage: "[startToMigrate]         key: \(ssidKey)")
                 
             } else {
                 WriteToLog().message(theMessage: "No WiFi configuration found.")

@@ -10,36 +10,6 @@ import Foundation
 
 class command {
     
-    func genericTask(args: String...) -> String {
-
-        var cmdArgs = ["-c"]
-        for theArg in args {
-            cmdArgs.append(theArg)
-        }
-        var status  = ""
-        var statusArray  = [String]()
-        let pipe    = Pipe()
-        let task    = Process()
-        
-        task.launchPath     = "/bin/sh"
-        task.arguments      = cmdArgs
-        WriteToLog().message(theMessage: "[genericTask] cmdArgs: \(String(describing: task.arguments))")
-        task.standardOutput = pipe
-        
-        task.launch()
-        
-        let outdata = pipe.fileHandleForReading.readDataToEndOfFile()
-        if var string = String(data: outdata, encoding: .utf8) {
-            string = string.trimmingCharacters(in: .newlines)
-            statusArray = string.components(separatedBy: "\n")
-            WriteToLog().message(theMessage: "[genericTask] statusArray \(statusArray)")
-            status = statusArray[0]
-        }
-        
-        task.waitUntilExit()
-        return status
-    }
-    
     // function to return exit code of bash command - start
     func myExitCode(cmd: String, args: String...) -> Int8 {
         //var pipe_pkg = Pipe()
