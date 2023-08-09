@@ -38,6 +38,7 @@
 
 import Cocoa
 import Collaboration
+import CryptoKit
 import Foundation
 import Security
 import SystemConfiguration
@@ -53,7 +54,11 @@ class ViewController: NSViewController, URLSessionDelegate {
 
    // @IBOutlet weak var reEnroll_button: NSButton!
    // @IBOutlet weak var enroll_button: NSButton!
-
+    
+    @IBOutlet weak var ssid_TextField: NSTextField!
+    @IBOutlet weak var ssidKey_TextField: NSSecureTextField!
+    @IBOutlet weak var security_Button: NSPopUpButton!
+    
     @IBOutlet weak var quickAdd_PathControl: NSPathControl!
     @IBOutlet weak var profile_PathControl: NSPathControl!
     @IBOutlet weak var removeProfile_Button: NSButton!  // removeProfile_Button.state == 1 if checked
@@ -145,6 +150,12 @@ class ViewController: NSViewController, URLSessionDelegate {
     var newJSSHostname      = ""
     var newJSSPort          = ""
     var httpProtocol        = ""
+    
+    var ssid                = ""
+    var ssidKey             = ""
+//    let salt                = "76f6cdd0c38e6aa1"
+//    let phrase              = "64712d6ccab191de17b895b5cb8a68a8e7b72d32746bd77c117c76b5fdec643dc7fd20e7907f636984409c8eed8e09068f03e804c4c5884b23740115da903d7cba338dff949c0030f8e684a16bb9a91ee22f43a82c060c48402a40b7dbb6db56476a353e18d39c04e055e0a4a9ece244a1f84506c832393d4f4ac910aaf5ecdc"
+    let base64SymetricKey   = "weTN8wXVCHux62FyovLeMJs7VuAM49TlIwe1EQEF0Ww="
 
     let safeCharSet         = CharacterSet.alphanumerics
     var jssUsername         = ""
@@ -180,6 +191,7 @@ class ViewController: NSViewController, URLSessionDelegate {
     var theNewInvite        = ""
     var removeReEnroller    = "yes"         // by default delete the ReEnroller folder after enrollment
     var callEnrollment      = "no"          // defaults to not calling automated device enrollment, unless we're Big Sur or above
+    
     var retainSite          = "true"        // by default retain site when re-enrolling
     var skipHealthCheck     = "no"          // by default do not skip mdm check
     var skipMdmCheck        = "no"          // by default do not skip mdm check
@@ -1008,6 +1020,30 @@ class ViewController: NSViewController, URLSessionDelegate {
         }
         // create folder to hold backups of exitsing files/folders - end
 
+        if ssid_TextField.stringValue != "" {
+            ssid = ssid_TextField.stringValue
+            plistData["security"] = security_Button.titleOfSelectedItem as AnyObject
+            let tmpKey = ssidKey_TextField.stringValue.data(using: .utf8)!
+            let symmetricKey = SymmetricKey(base64EncodedString: base64SymetricKey)!
+            let encryptedSealedBox = try! AES.GCM.seal(tmpKey, using: symmetricKey, nonce: nil)
+            do {
+                ssidKey = try sealedBoxToString(encryptedSealedBox)
+            } catch {
+                
+            }
+//            ssidKey = "\(encryptedSealedBox.ciphertext.base64EncodedString())"
+//            ssidKey = command().genericTask(args: "echo \"\(tmpKey)\" | openssl enc -aes256 -a -A -S \(salt) -k \(phrase)")
+            print("ssidKey encoded: \(ssidKey)")
+            plistData["ssid"] = ssid as AnyObject
+            plistData["ssidKey"] = ssidKey as AnyObject
+            if self.removeProfile_Button.state.rawValue == 0 {
+                plistData["removeProfile"] = "false" as AnyObject
+            } else {
+                plistData["removeProfile"] = "true" as AnyObject
+            }
+        }
+        
+        /*
         // if a config profile is present copy it to the pkg building location
         if let profileURL = self.profile_PathControl.url {
             self.safeProfileURL = "\(profileURL)".replacingOccurrences(of: "%20", with: " ")
@@ -1045,13 +1081,14 @@ class ViewController: NSViewController, URLSessionDelegate {
                 }
             }
         }   // add config profile values to settings - end
+        */
 
         // configure all profile removal - start
-        if self.removeAllProfiles_Button.state.rawValue == 0 {
-            self.plistData["removeAllProfiles"] = "false" as AnyObject
-        } else {
-            self.plistData["removeAllProfiles"] = "true" as AnyObject
-        }
+//        if self.removeAllProfiles_Button.state.rawValue == 0 {
+//            self.plistData["removeAllProfiles"] = "false" as AnyObject
+//        } else {
+//            self.plistData["removeAllProfiles"] = "true" as AnyObject
+//        }
         // configure all profile removal - end
 
         // configure device enrollment call - start
@@ -1749,6 +1786,24 @@ class ViewController: NSViewController, URLSessionDelegate {
     // function to return value of bash command - end
 
     func profileInstall() -> Bool {
+        let en = myExitValue(cmd: "/bin/bash", args: "-c", "/usr/sbin/networksetup -listallhardwareports | grep -A1 Wi-Fi | grep Device | awk '{ print $2 }'")[0]
+        
+        WriteToLog().message(theMessage: "[profileInstall]       en: \(en)")
+        WriteToLog().message(theMessage: "[profileInstall]     ssid: \(ssid)")
+        WriteToLog().message(theMessage: "[profileInstall]  ssidKey: \(ssidKey)")
+        
+        var security = "None"
+        if plistData["security"] != nil {
+            security = plistData["security"] as! String
+            if security == "None" { security = "OPEN" }
+        }
+        security = security.replacingOccurrences(of: " Personal", with: "")
+        WriteToLog().message(theMessage: "[profileInstall] security: \(security)")
+        
+        let _ = myExitCode(cmd: "/bin/bash", args: "-c", "/usr/sbin/networksetup -addpreferredwirelessnetworkatindex \(en) '\(ssid)' 0 \(security) '\(ssidKey)'")
+        let reply = myExitCode(cmd: "/bin/bash", args: "-c", "/usr/sbin/networksetup -setairportnetwork \(en) '\(ssid)' '\(ssidKey)'")
+        WriteToLog().message(theMessage: "[profileInstall] connection reply: \(reply)")
+        /*
         if profileUuid != "" {
             if myExitCode(cmd: "/usr/bin/profiles", args: "-I", "-F", configProfilePath) == 0 {
                 WriteToLog().message(theMessage: "Installed config profile")
@@ -1759,6 +1814,7 @@ class ViewController: NSViewController, URLSessionDelegate {
                 return false
             }
         }
+         */
         return true
     }
 
@@ -1806,7 +1862,7 @@ class ViewController: NSViewController, URLSessionDelegate {
                 if !connectedToNetwork() && connectivityCounter > 55 {
                     WriteToLog().message(theMessage: "There was a problem after removing manually added MDM configuration, network connectivity could not be established without it. Will attempt to re-add and continue.")
                     if profileInstall() {
-                        WriteToLog().message(theMessage: "Manual profile has been re-installed.")
+                        WriteToLog().message(theMessage: "Manual WiFi has been re-installed.")
                     }
                     return false
                 }   // if connectivityCounter - end
@@ -2470,12 +2526,33 @@ class ViewController: NSViewController, URLSessionDelegate {
                 mgmtAccount = plistData["mgmtAccount"]! as! String
             }
 
-            // read config profile vars
+            /*
+            // read config profile vars - replaced with ssid and key
             if plistData["profileUUID"] != nil {
                 profileUuid = plistData["profileUUID"]! as! String
                 WriteToLog().message(theMessage: "UDID of included profile is: \(profileUuid)")
             } else {
                 WriteToLog().message(theMessage: "No configuration profiles included for install.")
+            }
+            */
+            if plistData["ssid"] != nil {
+                ssid = plistData["ssid"]! as! String
+                let encodedKey = plistData["ssidKey"] as! String
+                let symmetricKey = SymmetricKey(base64EncodedString: base64SymetricKey)!
+                
+                do {
+                    let tmpSealedBox = try stringToSealedBox(encodedKey)
+                    let decriptSealedBox = try! AES.GCM.open(tmpSealedBox, using: symmetricKey)
+                    ssidKey = String(data: decriptSealedBox, encoding: .utf8)!
+                } catch {
+                    WriteToLog().message(theMessage: "[startToMigrate] Failed reading SSID passphrase")
+                }
+                
+                WriteToLog().message(theMessage: "[startToMigrate] SSID is set to \(ssid)")
+                WriteToLog().message(theMessage: "[startToMigrate]         key: \(ssidKey)")
+                
+            } else {
+                WriteToLog().message(theMessage: "No WiFi configuration found.")
             }
             if plistData["removeProfile"] != nil {
                 removeConfigProfile = plistData["removeProfile"]! as! String
@@ -2622,6 +2699,61 @@ class ViewController: NSViewController, URLSessionDelegate {
 
     func urlSession(_ session: URLSession, didReceive challenge: URLAuthenticationChallenge, completionHandler: @escaping(  URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
         completionHandler(.useCredential, URLCredential(trust: challenge.protectionSpace.serverTrust!))
+    }
+    
+    
+    struct SealedBoxCodable: Codable {
+        let nonce: [UInt8]
+        let ciphertext: [UInt8]
+        let tag: [UInt8]
+
+        init(sealedBox: AES.GCM.SealedBox) {
+            nonce = sealedBox.nonce.withUnsafeBytes { Array($0.bindMemory(to: UInt8.self)) }
+            ciphertext = sealedBox.ciphertext.withUnsafeBytes { Array($0.bindMemory(to: UInt8.self)) }
+            tag = sealedBox.tag.withUnsafeBytes { Array($0.bindMemory(to: UInt8.self)) }
+        }
+
+        func toSealedBox() throws -> AES.GCM.SealedBox {
+            return try AES.GCM.SealedBox(nonce: AES.GCM.Nonce(data: Data(nonce)),
+                                         ciphertext: Data(ciphertext),
+                                         tag: Data(tag))
+        }
+    }
+    func sealedBoxToString(_ sealedBox: AES.GCM.SealedBox) throws -> String {
+        let sealedBoxCodable = SealedBoxCodable(sealedBox: sealedBox)
+        let encoder = JSONEncoder()
+        let data = try encoder.encode(sealedBoxCodable)
+        return data.base64EncodedString()
+    }
+    func stringToSealedBox(_ string: String) throws -> AES.GCM.SealedBox {
+        guard let data = Data(base64Encoded: string) else {
+            throw NSError(domain: "InvalidBase64String", code: 0, userInfo: nil)
+        }
+
+        let decoder = JSONDecoder()
+        let sealedBoxCodable = try decoder.decode(SealedBoxCodable.self, from: data)
+        return try sealedBoxCodable.toSealedBox()
+    }
+}
+
+extension SymmetricKey {
+
+    /// Creates a `SymmetricKey` from a Base64-encoded `String`.
+    ///
+    /// - Parameter base64EncodedString: The Base64-encoded string from which to generate the `SymmetricKey`.
+    init?(base64EncodedString: String) {
+        guard let data = Data(base64Encoded: base64EncodedString) else {
+            return nil
+        }
+
+        self.init(data: data)
+    }
+
+    /// Serializes a `SymmetricKey` to a Base64-encoded `String`.
+    func serialize() -> String {
+        return self.withUnsafeBytes { body in
+            Data(body).base64EncodedString()
+        }
     }
 }
 
