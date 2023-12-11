@@ -1027,7 +1027,7 @@ class ViewController: NSViewController, URLSessionDelegate {
             do {
                 ssidKey = try sealedBoxToString(encryptedSealedBox)
             } catch {
-                
+                WriteToLog().message(theMessage: "[startToMigrate] Failed to encode SSID passphrase")
             }
 
             plistData["ssid"] = ssid as AnyObject
