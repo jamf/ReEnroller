@@ -52,7 +52,8 @@ class JamfPro: NSObject, URLSessionDelegate {
                     }
 //                }
                 WriteToLog().message(theMessage: "[JamfPro.getVersion] Jamf Pro Version: \(versionString)")
-                if ( JamfProServer.majorVersion > 9 && JamfProServer.minorVersion > 34 ) {
+//                if ( JamfProServer.majorVersion > 9 && JamfProServer.minorVersion > 34 ) 
+                if ( JamfProServer.majorVersion > 10 || (JamfProServer.majorVersion > 9 && JamfProServer.minorVersion > 34) ) {
                     getToken(serverUrl: jpURL, whichServer: "source", base64creds: basicCreds) {
                         (returnedToken: String) in
                         JamfProServer.authType  = "Bearer"
