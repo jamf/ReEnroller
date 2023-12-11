@@ -153,6 +153,7 @@ class ViewController: NSViewController, URLSessionDelegate {
     
     var ssid                = ""
     var ssidKey             = ""
+    // change the below key and build the app to secure your WiFi passphrase
     let base64SymetricKey   = "weTN8wXVCHux62FyovLeMJs7VuAM49TlIwe1EQEF0Ww="
 
     let safeCharSet         = CharacterSet.alphanumerics
