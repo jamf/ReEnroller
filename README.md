@@ -27,6 +27,9 @@ Important:
 Thanks @fauxserve for coming up with the idea and initial bash version.
 
 ## History
+
+- 2023-12-10: Fix authentication issue with Jamf Pro 11.
+ 
 - 2023-04-20: Remove check for SSL verification.  Require a trusted server certificate.  Better notification if package install fails.
   
 - 2022-11-07: Add ability to suppress notifications about a background process ReEnroller installs.
