@@ -68,15 +68,26 @@ minorVer=$( /bin/echo "$macOS_Version" | /usr/bin/awk -F. '{print $2}' )
 uname="$4"
 pwd="$5"
 
+if [ "$uname" == "" ];then
+    echo "missing client ID - exiting."
+    exit 1
+fi
+
+if [ "$pwd" == "" ];then
+    echo "missing client secret - exiting."
+    exit 1
+fi
+
 if [ "$6" != "" ];then
 	server="$6"
 else
-	## get current Jamf server
+	## get current Jamf Pro server
 	server=$(/usr/bin/defaults read /Library/Preferences/com.jamfsoftware.jamf.plist jss_url)
+    echo "using server read from com.jamfsoftware.jamf.plist: ${server}"
 fi
 
 if [ "$server" == "" ];then
-    echo "unable to determine current Jamf server - exiting."
+    echo "unable to determine current Jamf Pro server - exiting."
     exit 1
 fi
 
@@ -97,14 +108,17 @@ else
 fi
 
 ## get token
-tokenURL="${server}api/v1/auth/token"
-response=$(curl -m 20 -su "${uname}:${pwd}" $tokenURL -X POST)
+tokenURL="${server}api/oauth/token"
 
+clientString="grant_type=client_credentials&client_id=${uname}&client_secret=${pwd}"
+
+response=$(curl -m 20 -s $tokenURL -X POST -H "Content-Type: application/x-www-form-urlencoded" -d "${clientString}")
+## echo "response: $response"
 token=$(/usr/bin/osascript -l JavaScript << EoS
-    var theToken = $response.token
-    ObjC.unwrap($response.token)
+    ObjC.unwrap($response.access_token)
 EoS
 )
+## echo "theToken: $token"
 
 ## get computer ID from Jamf server
 echo "get computer ID: "curl -m 20 ${server}JSSResource/computers/udid/\"$udid\"/subset/general -H \"Accept: application/xml\" -H \"Authorization: Bearer $(echo $token | head -n15)...\""

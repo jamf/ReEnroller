@@ -261,6 +261,7 @@ Starting with 10.13 Apple added /var/db/ConfigurationProfiles to SIP.  To ensure
     The following sample script can be used:
     <pre><span style="font-family:'Courier New';">
         <hr>
+        <code>
 #!/bin/bash
 
 ##########################################################################################
@@ -301,23 +302,24 @@ Starting with 10.13 Apple added /var/db/ConfigurationProfiles to SIP.  To ensure
 # ABOUT THIS PROGRAM
 #
 # NAME - apiMDM_remove.sh
-# 
+#
 # DESCRIPTION - Script is used to remove MDM from macOS clients 10.13 (High Sierra) and later.
-#               Parameters passed to the script include a Jamf server username and password and 
+#               Parameters passed to the script include a Jamf server username and password and
 #               optionally the Jamf server URL in the form: https://FQDN:port/.
 #
-#               The jamf user aaccount must have at least computer create and read (JSS Objects) 
+#               The jamf user aaccount must have at least computer create and read (JSS Objects)
 #               along with Send Computer Unmanage Command (JSS Actions).
-# 	
+#
 ####################################################################################################
 #
 # HISTORY
 #
-#	Version: 1.3
+#    Version: 1.4
 #
-#	- Created by Leslie Helou, Professional Services Engineer, JAMF Software on December 12, 2017
+#   - Created by Leslie Helou, Professional Services Engineer, JAMF Software on December 12, 2017
 #   - updated 20190124: Provide additional feedback as it runs
 #   - updated 20200918: Updates due to changes in xpath for Big Sur
+#   - updated 20240726: Update to use token for authentication
 #
 ####################################################################################################
 
@@ -330,15 +332,26 @@ minorVer=$( /bin/echo "$macOS_Version" | /usr/bin/awk -F. '{print $2}' )
 uname="$4"
 pwd="$5"
 
+if [ "$uname" == "" ];then
+    echo "missing client ID - exiting."
+    exit 1
+fi
+
+if [ "$pwd" == "" ];then
+    echo "missing client secret - exiting."
+    exit 1
+fi
+
 if [ "$6" != "" ];then
-	server="$6"
+    server="$6"
 else
-	## get current Jamf server
-	server=$(/usr/bin/defaults read /Library/Preferences/com.jamfsoftware.jamf.plist jss_url)
+    ## get current Jamf Pro server
+    server=$(/usr/bin/defaults read /Library/Preferences/com.jamfsoftware.jamf.plist jss_url)
+    echo "using server read from com.jamfsoftware.jamf.plist: ${server}"
 fi
 
 if [ "$server" == "" ];then
-    echo "unable to determine current Jamf server - exiting."
+    echo "unable to determine current Jamf Pro server - exiting."
     exit 1
 fi
 
@@ -358,8 +371,22 @@ else
     echo "computer UUID: $udid"
 fi
 
+## get token
+tokenURL="${server}api/oauth/token"
+
+clientString="grant_type=client_credentials&client_id=${uname}&client_secret=${pwd}"
+
+response=$(curl -m 20 -s $tokenURL -X POST -H "Content-Type: application/x-www-form-urlencoded" -d "${clientString}")
+## echo "response: $response"
+token=$(/usr/bin/osascript -l JavaScript << EoS
+    ObjC.unwrap($response.access_token)
+EoS
+)
+## echo "theToken: $token"
+
 ## get computer ID from Jamf server
-compXml=$(/usr/bin/curl -sku "${uname}:${pwd}" ${server}JSSResource/computers/udid/"$udid"/subset/general -H "Accept: application/xml")
+echo "get computer ID: "curl -m 20 ${server}JSSResource/computers/udid/\"$udid\"/subset/general -H \"Accept: application/xml\" -H \"Authorization: Bearer $(echo $token | head -n15)...\""
+compXml=$(/usr/bin/curl -m 20 ${server}JSSResource/computers/udid/"$udid"/subset/general -H "Accept: application/xml" -H "Authorization: Bearer $token")
 
 if [[ $(echo "${compXml}" | grep "The server has not found anything matching the request URI") == "" ]];then
     if [ $majorVer -gt 10 ] || ([ $majorVer eq 10 ] && [ $majorMinor -gt 15 ]);then
@@ -374,9 +401,9 @@ else
 fi
 
 ## send unmanage command to machine
-echo "unmanage machine: curl -X POST -sku ${uname}:******** ${server}JSSResource/computercommands/command/UnmanageDevice/id/${compId}"
-/usr/bin/curl -X POST -sku "${uname}:${pwd}" ${server}JSSResource/computercommands/command/UnmanageDevice/id/${compId}
-
+echo "unmanage machine: curl -m 20 ${server}JSSResource/computercommands/command/UnmanageDevice/id/${compId} -X POST -H \"Authorization: Bearer $(echo $token | head -n15)...\""
+/usr/bin/curl -m 20 ${server}JSSResource/computercommands/command/UnmanageDevice/id/${compId} -X POST -H "Authorization: Bearer $token"
+</code>
 
 <br><hr>
 <?php
@@ -387,7 +414,9 @@ echo "unmanage machine: curl -X POST -sku ${uname}:******** ${server}JSSResource
     Create a policy to deploy the script on the source server (server you are migrating from).  <b>The policy must have a custom trigger of apiMDM_remove</b>.  Also set the policy to Ongoing.
 <div id="jpsImage2">
 <img src="images/mdmRemove_general.png" alt=""></div>
-        The script requires 2 parameters, a Jamf server username and password, if the MDM profile is to be removed prior to enrolling in the new serve.  Set the script/policy up on the server being unenrolled from.  The account must have at least Computers Create and Read (Jamf Pro Server Objects) along with Send Computer Unmanage Command (Jamf Pro Server Actions). The account is always set up on the server being unenrolled from.<p>
+    The script requires 2 parameters, a Jamf Pro API client and secret. If the MDM profile is to be removed prior to (before) enrolling in the new serve, add the script/policy to the Jamf Pro server that the machine is being unenrolled.<p>
+
+    The account must have at least Computers Create and Read (Jamf Pro Server Objects) along with Send Computer Unmanage Command (Jamf Pro Server Actions). The account (API client) is always set up on the Jamf Pro server that the machine is being unenrolled.<p>
     
     A third parameter may be also be provided, the current Jamf server the client has received it's MDM profile from.  If the parameter is not provided the server will be read from com.jamfsoftware.jamf.plist.  <strong>If the MDM profile is removed after enrollment in the new server the Jamf URL parameter must be provided, the URL being the server the client was migrated from.  The script/policy must also be set up on the destination server.</strong>
 <div id="jpsImage2">
