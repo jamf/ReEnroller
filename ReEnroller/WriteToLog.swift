@@ -7,6 +7,9 @@
 
 import Foundation
 class WriteToLog {
+    
+    static let shared = WriteToLog()
+    private init() { }
 
     let fileManager = FileManager.default
     let logPath     = "/var/log/jamf.log"

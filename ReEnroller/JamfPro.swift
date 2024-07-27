@@ -51,8 +51,7 @@ class JamfPro: NSObject, URLSessionDelegate {
                         }
                     }
 //                }
-                WriteToLog().message(theMessage: "[JamfPro.getVersion] Jamf Pro Version: \(versionString)")
-//                if ( JamfProServer.majorVersion > 9 && JamfProServer.minorVersion > 34 ) 
+                WriteToLog.shared.message(theMessage: "[JamfPro.getVersion] Jamf Pro Version: \(versionString)")
                 if ( JamfProServer.majorVersion > 10 || (JamfProServer.majorVersion > 9 && JamfProServer.minorVersion > 34) ) {
                     getToken(serverUrl: jpURL, whichServer: "source", base64creds: basicCreds) {
                         (returnedToken: String) in
@@ -89,7 +88,7 @@ class JamfPro: NSObject, URLSessionDelegate {
         var request        = URLRequest(url: tokenUrl!)
         request.httpMethod = "POST"
         
-        WriteToLog().message(theMessage: "[JamfPro.getToken] Attempting to retrieve token from \(String(describing: tokenUrl!)).")
+        WriteToLog.shared.message(theMessage: "[JamfPro.getToken] Attempting to retrieve token from \(String(describing: tokenUrl!)).")
         
         configuration.httpAdditionalHeaders = ["Authorization" : "Basic \(base64creds)", "Content-Type" : "application/json", "Accept" : "application/json"]
         let session = Foundation.URLSession(configuration: configuration, delegate: self as URLSessionDelegate, delegateQueue: OperationQueue.main)
@@ -104,24 +103,24 @@ class JamfPro: NSObject, URLSessionDelegate {
 //                      print("\n[JamfPro] token for \(serverUrl): \(token.sourceServer)")
                         
 //                      print("[JamfPro] result of token request: \(endpointJSON)")
-                        WriteToLog().message(theMessage: "[JamfPro.getToken] new token created.")
+                        WriteToLog.shared.message(theMessage: "[JamfPro.getToken] new token created.")
                         if JamfProServer.authType == "Bearer" {
                             self.refresh(server: serverUrl, whichServer: whichServer, b64Creds: base64creds)
                         }
                         completion("success")
                         return
                     } else {    // if let endpointJSON error
-                        WriteToLog().message(theMessage: "[JamfPro.getToken] JSON error.\n\(String(describing: json))")
+                        WriteToLog.shared.message(theMessage: "[JamfPro.getToken] JSON error.\n\(String(describing: json))")
                         completion("failed")
                         return
                     }
                 } else {    // if httpResponse.statusCode <200 or >299
-                    WriteToLog().message(theMessage: "[JamfPro.getToken] response error: \(httpResponse.statusCode).")
+                    WriteToLog.shared.message(theMessage: "[JamfPro.getToken] response error: \(httpResponse.statusCode).")
                     completion("failed")
                     return
                 }
             } else {
-                WriteToLog().message(theMessage: "[JamfPro.getToken] token response error.  Verify url and port.")
+                WriteToLog.shared.message(theMessage: "[JamfPro.getToken] token response error.  Verify url and port.")
                 completion("failed")
                 return
             }
