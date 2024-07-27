@@ -8,6 +8,10 @@
 import Cocoa
 
 class Alert: NSObject {
+    
+    static let shared = Alert()
+    private override init() { }
+    
     func display(header: String, message: String) {
         if !param.runAsDaemon {
             let dialog: NSAlert = NSAlert()

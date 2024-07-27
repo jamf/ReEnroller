@@ -315,16 +315,17 @@ class ViewController: NSViewController, URLSessionDelegate {
     // process function - start
     @IBAction func process(_ sender: Any) {
         // get invitation code - start
-        var jssUrl = jssUrl_TextField.stringValue
-        if "\(jssUrl)" == "" {
-            Alert().display(header: "Alert", message: "Please provide the URL for the new server.")
+//        var jssUrl = jssUrl_TextField.stringValue.baseUrl
+        JamfProServer.destination = jssUrl_TextField.stringValue.baseUrl
+        if "\(JamfProServer.destination)" == "" {
+            Alert.shared.display(header: "Alert", message: "Please provide the URL for the new server.")
             return
         }
-        jssUrl = dropTrailingSlash(theSentString: jssUrl)
+//        jssUrl = dropTrailingSlash(theSentString: jssUrl)
 
         let mgmtAcct = mgmtAccount_TextField.stringValue
         if "\(mgmtAcct)" == "" {
-            Alert().display(header: "Attention", message: "You must supply a management account username.")
+            Alert.shared.display(header: "Attention", message: "You must supply a management account username.")
             mgmtAccount_TextField.becomeFirstResponder()
             return
         }
@@ -337,12 +338,12 @@ class ViewController: NSViewController, URLSessionDelegate {
             let mgmtAcctPwd = mgmtAcctPwd_TextField.stringValue
             let mgmtAcctPwd2 = mgmtAcctPwd2_TextField.stringValue
             if "\(mgmtAcctPwd)" == "" {
-                Alert().display(header: "Attention", message: "Password cannot be left blank.")
+                Alert.shared.display(header: "Attention", message: "Password cannot be left blank.")
                 mgmtAccount_TextField.becomeFirstResponder()
                 return
             }
             if "\(mgmtAcctPwd)" != "\(mgmtAcctPwd2)" {
-                Alert().display(header: "Attention", message: "Management account passwords do not match.")
+                Alert.shared.display(header: "Attention", message: "Management account passwords do not match.")
                 mgmtAcctPwd_TextField.becomeFirstResponder()
                 return
             }
@@ -361,7 +362,7 @@ class ViewController: NSViewController, URLSessionDelegate {
             // like to get rid of this - find way to change password when client and JPS differ
 //          check the local system for the existance of the management account
             if ( userOperation(mgmtUser: mgmtAcct, operation: "find") != "" ) {
-                Alert().display(header: "Attention:", message: "Account \(mgmtAcct) cannot be used with a random password as it exists on this system.")
+                Alert.shared.display(header: "Attention:", message: "Account \(mgmtAcct) cannot be used with a random password as it exists on this system.")
                 return
             }
             /*
@@ -374,11 +375,11 @@ class ViewController: NSViewController, URLSessionDelegate {
                 mgmtAcctPwdLen = Int((rndPwdLen_TextField?.stringValue)!)!
 //                print("pwd len: \(mgmtAcctPwdLen)")
                 if (mgmtAcctPwdLen) > 255 || (mgmtAcctPwdLen) < 8 {
-                    Alert().display(header: "Attention:", message: "Verify an random password length is between 8 and 255.")
+                    Alert.shared.display(header: "Attention:", message: "Verify an random password length is between 8 and 255.")
                     return
                 }
             } else {
-                Alert().display(header: "Attention:", message: "Verify an interger value was entered for the random password length.")
+                Alert.shared.display(header: "Attention:", message: "Verify an interger value was entered for the random password length.")
                 return
             }
             // verify random password lenght is an integer - end
@@ -390,16 +391,10 @@ class ViewController: NSViewController, URLSessionDelegate {
             
         }
 
-        // server is reachable - start
-//        if !(checkURL(theUrl: jssUrl) == 0) {
-//            Alert().display(header: "Attention", message: "The new server, \(jssUrl), could not be contacted.")
-//            return
-//        }
-
         // Jamf School check - start
         if jamfSchool_Button.state.rawValue == 1 {
             if networkId_TextField.stringValue == "" || apiKey_TextField.stringValue == "" {
-                Alert().display(header: "Attention:", message: "Migrating from Jamf School requires the server URL, the Network ID, and API key.")
+                Alert.shared.display(header: "Attention:", message: "Migrating from Jamf School requires the server URL, the Network ID, and API key.")
                 return
             } else {
                // generate token for Jamf School API
@@ -413,12 +408,12 @@ class ViewController: NSViewController, URLSessionDelegate {
 
         self.spinner.startAnimation(self)
 
-        healthCheck(server: jssUrl) {
+        healthCheck(server: JamfProServer.destination) {
             (result: [String]) in
             print("health check result: \(result)")
             if ( result[1] != "[]" ) {
                 let lightFormat = self.removeTag(xmlString: result[1].replacingOccurrences(of: "><", with: ">\n<"))
-                Alert().display(header: "Attention", message: "The new server, \(jssUrl), does not appear ready for enrollments.\nResult of healthCheck: \(lightFormat)\nResponse code: \(result[0])")
+                Alert.shared.display(header: "Attention", message: "The new server, \(JamfProServer.destination), does not appear ready for enrollments.\nResult of healthCheck: \(lightFormat)\nResponse code: \(result[0])")
                 self.spinner.stopAnimation(self)
                 return
             } else {
@@ -427,127 +422,136 @@ class ViewController: NSViewController, URLSessionDelegate {
                 self.jssPassword = self.jssPassword_TextField.stringValue
                 
                 if "\(self.jssUsername)" == "" || "\(self.jssPassword))" == "" {
-                    Alert().display(header: "Alert", message: "Please provide both a username and password for the server.")
+                    Alert.shared.display(header: "Alert", message: "Please provide both a username and password for the server.")
                     self.spinner.stopAnimation(self)
                     return
                 }
                 
                 // save Jamf Pro URL and user
-                self.userDefaults.set("\(self.jssUrl_TextField.stringValue)", forKey: "jamfProUrl")
+                self.userDefaults.set("\(self.jssUrl_TextField.stringValue.baseUrl)", forKey: "jamfProUrl")
                 self.userDefaults.set("\(self.jssUsername_TextField.stringValue)", forKey: "jamfProUser")
                 self.userDefaults.synchronize()
 
                 let jpsCredentials = "\(self.jssUsername):\(self.jssPassword)"
                 let jpsBase64Creds = jpsCredentials.data(using: .utf8)?.base64EncodedString() ?? ""
 
-                JamfPro().getVersion(jpURL: jssUrl, basicCreds: jpsBase64Creds) {
-                    (jpversion: (String,String)) in
-                    print("jpversion: \(jpversion)")
-                    
-                    let verifySslSetting = "<verifySSLCert>always</verifySSLCert>"
                 
-                    switch verifySslSetting {
-                    case "failedCredentials":
-                        self.spinner.stopAnimation(self)
-                        return
-                    case "":
-                        Alert().display(header: "Alert", message: "Unable to determine verifySSLCert setting on server, setting to always_except_during_enrollment")
-                        self.plistData["createConfSwitches"] = "always_except_during_enrollment" as AnyObject
-                    default:
-                        self.plistData["createConfSwitches"] = verifySslSetting as AnyObject
-                        print("verifySSLCert setting from server: \(verifySslSetting)")
-                    }
-                    // get SSL verification settings from new server - end
-
-                    self.retainSite_Button.state.rawValue == 1 ? (self.retainSite = "true") : (self.retainSite = "false")
-                    self.mgmtAcctCreate_button.state.rawValue == 1 ? (self.mgmtAcctCreate = "true") : (self.mgmtAcctCreate = "false")
-                    self.mgmtAcctHide_button.state.rawValue == 1 ? (self.mgmtAcctHide = "true") : (self.mgmtAcctHide = "false")
-
-                    self.theNewInvite = ""
-
-                    let invite_request = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?><computer_invitation><lifetime>2147483647</lifetime><multiple_uses_allowed>true</multiple_uses_allowed><ssh_username>" + mgmtAcctNameXml + "</ssh_username><ssh_password_method>\(convertFromNSControlStateValue(self.randomPassword_button.state))</ssh_password_method>\(self.mgmtAcctPwdXml)<enroll_into_site><id>" + self.siteId + "</id></enroll_into_site><keep_existing_site_membership>" + self.retainSite + "</keep_existing_site_membership><create_account_if_does_not_exist>\(self.mgmtAcctCreate)</create_account_if_does_not_exist><hide_account>\(self.mgmtAcctHide)</hide_account><lock_down_ssh>false</lock_down_ssh></computer_invitation>"
-    //                print("invite request: " + invite_request)
-
-                    Xml.objectDict["invitation"] = "\(invite_request)"
-                    Xml.objectArray.append("invitation")
-
-                    // get invitation code
-                    self.apiAction(action: "POST", theServer: jssUrl, creds: jpsBase64Creds, xml: Xml.objectDict["invitation"]!, theApiObject: "invitation") {
-                        (result: [Any]) in
-                        let responseCode = result[0] as! Int
-                        let responseMesage = result[1] as! String
-                        if !(responseCode > 199 && responseCode < 300) {
-                            let lightFormat = self.removeTag(xmlString: responseMesage.replacingOccurrences(of: "><", with: ">\n<"))
-                            Alert().display(header: "Attention", message: "Failed to create invitation code.\nMessage: \(lightFormat)\nResponse code: \(responseCode)")
+                JamfPro().getToken(serverUrl: JamfProServer.destination, base64creds: jpsBase64Creds) {
+                    authResult in
+                    
+                    let (statusCode,theResult) = authResult
+                    switch theResult {
+                    case "success":
+                        print("jpversion: \(JamfProServer.version)")
+                        
+                        let verifySslSetting = "<verifySSLCert>always</verifySSLCert>"
+                    
+                        switch verifySslSetting {
+                        case "failedCredentials":
                             self.spinner.stopAnimation(self)
                             return
-                        } else {
-                            print("full reply for invitation code request:\n\t\(responseMesage)\n")
-                            if let start = responseMesage.range(of: "<invitation>"),
-                                let end  = responseMesage.range(of: "</invitation>", range: start.upperBound..<(responseMesage.endIndex)) {
-                                self.theNewInvite.append((String(responseMesage[start.upperBound..<end.lowerBound])))
-                                if "\(self.theNewInvite)" == "" {
-                                    Alert().display(header: "Alert", message: "Unable to create invitation.  Verify the account, \(self.jssUsername), has been assigned permissions to do so.")
-                                    self.spinner.stopAnimation(self)
-                                    return
-                                } else {
-                                    print("Found invitation code: \(self.theNewInvite)")
+                        case "":
+                            Alert.shared.display(header: "Alert", message: "Unable to determine verifySSLCert setting on server, setting to always_except_during_enrollment")
+                            self.plistData["createConfSwitches"] = "always_except_during_enrollment" as AnyObject
+                        default:
+                            self.plistData["createConfSwitches"] = verifySslSetting as AnyObject
+                            print("verifySSLCert setting from server: \(verifySslSetting)")
+                        }
+                        // get SSL verification settings from new server - end
 
-                                    Xml.objectDict.removeAll()
-                                    Xml.objectArray.removeAll()
+                        self.retainSite_Button.state.rawValue == 1 ? (self.retainSite = "true") : (self.retainSite = "false")
+                        self.mgmtAcctCreate_button.state.rawValue == 1 ? (self.mgmtAcctCreate = "true") : (self.mgmtAcctCreate = "false")
+                        self.mgmtAcctHide_button.state.rawValue == 1 ? (self.mgmtAcctHide = "true") : (self.mgmtAcctHide = "false")
 
-                                    if self.createPolicy_Button.state.rawValue == 1 {
+                        self.theNewInvite = ""
 
-                                        Xml.objectDict["migrationCheckPolicy"] = "\(JPServer.migrationCheckPolicy)"
-                                        Xml.objectArray.append("migrationCheckPolicy")
+                        let invite_request = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?><computer_invitation><lifetime>2147483647</lifetime><multiple_uses_allowed>true</multiple_uses_allowed><ssh_username>" + mgmtAcctNameXml + "</ssh_username><ssh_password_method>\(convertFromNSControlStateValue(self.randomPassword_button.state))</ssh_password_method>\(self.mgmtAcctPwdXml)<enroll_into_site><id>" + self.siteId + "</id></enroll_into_site><keep_existing_site_membership>" + self.retainSite + "</keep_existing_site_membership><create_account_if_does_not_exist>\(self.mgmtAcctCreate)</create_account_if_does_not_exist><hide_account>\(self.mgmtAcctHide)</hide_account><lock_down_ssh>false</lock_down_ssh></computer_invitation>"
+        //                print("invite request: " + invite_request)
 
-                                    }   // if self.createPolicy_Button.state.rawvalue == 1 - end
+                        Xml.objectDict["invitation"] = "\(invite_request)"
+                        Xml.objectArray.append("invitation")
 
-                                    if self.jamfSchool_Button.state.rawValue == 1 {
-                                        self.jamfSchoolUrl    = "\(self.jamfSchoolUrl_TextField.stringValue)"
-                                        var unenrollPolicyXml = JamfSchool.policy.replacingOccurrences(of: "<parameter4>----jamfSchoolUrl----</parameter4>", with: "<parameter4>\(self.jamfSchoolUrl)</parameter4>")
-                                        unenrollPolicyXml = unenrollPolicyXml.replacingOccurrences(of: "<parameter5>---jamfSchoolToken---</parameter5>", with: "<parameter5>\(self.jamfSchoolToken)</parameter5>")
-
-                                        Xml.objectDict["UnenrollCatagory"] = JamfSchool.catagory
-                                        Xml.objectArray.append("UnenrollCatagory")
-                                        Xml.objectDict["UnenrollScript"]   = JamfSchool.script
-                                        Xml.objectArray.append("UnenrollScript")
-                                        Xml.objectDict["UnenrollPolicy"]   = unenrollPolicyXml
-                                        Xml.objectArray.append("UnenrollPolicy")
-                                    }   // if self.jamfSchool_Button.state.rawvalue == 1 - end
-
-                                    if Xml.objectArray.count > 0 {
-                                        self.apiAction(action: "POST", theServer: jssUrl, creds: jpsBase64Creds, xml: Xml.objectDict["\(String(describing: Xml.objectArray.first!))"]!, theApiObject: "\(String(describing: Xml.objectArray.first!))") {
-                                            (result: [Any]) in
-                                            let responseCode = result[0] as! Int
-                                            let responseMesage = result[1] as! String
-                                            if !(responseCode > 199 && responseCode < 300) {
-                                                if responseCode == 409 {
-                                                    print("Migration complete policy already exists")
-                                                } else {
-                                                    Alert().display(header: "Attention", message: "Failed to create the migration complete policy.\nSee Help to create it manually.\nResponse code: \(responseCode)")
-                                                }
-                                            } else {
-                                                print("Created new enrollment complete policy")
-                                                print("\(responseMesage)")
-                                            }
-                                            self.buildPackage(jssUrl1: "\(jssUrl)")
-                                        }   // self.apiAction - end
-                                    } else {
-                                        self.buildPackage(jssUrl1: "\(jssUrl)")
-                                    }
-
-                                }
-                            } else {
-                                print("invalid reply from the Jamf server when requesting an invitation code.")
+                        // get invitation code
+                        self.apiAction(action: "POST", xml: Xml.objectDict["invitation"]!, theApiObject: "invitation") {
+                            (result: [Any]) in
+                            let responseCode = result[0] as! Int
+                            let responseMesage = result[1] as! String
+                            if !(responseCode > 199 && responseCode < 300) {
+                                let lightFormat = self.removeTag(xmlString: responseMesage.replacingOccurrences(of: "><", with: ">\n<"))
+                                Alert.shared.display(header: "Attention", message: "Failed to create invitation code.\nMessage: \(lightFormat)\nResponse code: \(responseCode)")
                                 self.spinner.stopAnimation(self)
                                 return
+                            } else {
+                                print("full reply for invitation code request:\n\t\(responseMesage)\n")
+                                if let start = responseMesage.range(of: "<invitation>"),
+                                    let end  = responseMesage.range(of: "</invitation>", range: start.upperBound..<(responseMesage.endIndex)) {
+                                    self.theNewInvite.append((String(responseMesage[start.upperBound..<end.lowerBound])))
+                                    if "\(self.theNewInvite)" == "" {
+                                        Alert.shared.display(header: "Alert", message: "Unable to create invitation.  Verify the account, \(self.jssUsername), has been assigned permissions to do so.")
+                                        self.spinner.stopAnimation(self)
+                                        return
+                                    } else {
+                                        print("Found invitation code: \(self.theNewInvite)")
+
+                                        Xml.objectDict.removeAll()
+                                        Xml.objectArray.removeAll()
+
+                                        if self.createPolicy_Button.state.rawValue == 1 {
+
+                                            Xml.objectDict["migrationCheckPolicy"] = "\(JPServer.migrationCheckPolicy)"
+                                            Xml.objectArray.append("migrationCheckPolicy")
+
+                                        }   // if self.createPolicy_Button.state.rawvalue == 1 - end
+
+                                        if self.jamfSchool_Button.state.rawValue == 1 {
+                                            self.jamfSchoolUrl    = "\(self.jamfSchoolUrl_TextField.stringValue)"
+                                            var unenrollPolicyXml = JamfSchool.policy.replacingOccurrences(of: "<parameter4>----jamfSchoolUrl----</parameter4>", with: "<parameter4>\(self.jamfSchoolUrl)</parameter4>")
+                                            unenrollPolicyXml = unenrollPolicyXml.replacingOccurrences(of: "<parameter5>---jamfSchoolToken---</parameter5>", with: "<parameter5>\(self.jamfSchoolToken)</parameter5>")
+
+                                            Xml.objectDict["UnenrollCatagory"] = JamfSchool.catagory
+                                            Xml.objectArray.append("UnenrollCatagory")
+                                            Xml.objectDict["UnenrollScript"]   = JamfSchool.script
+                                            Xml.objectArray.append("UnenrollScript")
+                                            Xml.objectDict["UnenrollPolicy"]   = unenrollPolicyXml
+                                            Xml.objectArray.append("UnenrollPolicy")
+                                        }   // if self.jamfSchool_Button.state.rawvalue == 1 - end
+
+                                        if Xml.objectArray.count > 0 {
+                                            self.apiAction(action: "POST", xml: Xml.objectDict["\(String(describing: Xml.objectArray.first!))"]!, theApiObject: "\(String(describing: Xml.objectArray.first!))") {
+                                                (result: [Any]) in
+                                                let responseCode = result[0] as! Int
+                                                let responseMesage = result[1] as! String
+                                                if !(responseCode > 199 && responseCode < 300) {
+                                                    if responseCode == 409 {
+                                                        print("Migration complete policy already exists")
+                                                    } else {
+                                                        Alert.shared.display(header: "Attention", message: "Failed to create the migration complete policy.\nSee Help to create it manually.\nResponse code: \(responseCode)")
+                                                    }
+                                                } else {
+                                                    print("Created new enrollment complete policy")
+                                                    print("\(responseMesage)")
+                                                }
+                                                self.buildPackage(jssUrl1: "\(JamfProServer.destination)")
+                                            }   // self.apiAction - end
+                                        } else {
+                                            self.buildPackage(jssUrl1: "\(JamfProServer.destination)")
+                                        }
+
+                                    }
+                                } else {
+                                    print("invalid reply from the Jamf server when requesting an invitation code.")
+                                    self.spinner.stopAnimation(self)
+                                    return
+                                }
                             }
                         }
+                    default:
+                        break
                     }
+                    
                 }
             }   // healthcheck - server is reachable - end
-        }   // healthCheck(server: jssUrl) - end
+        }   // healthCheck(server: JamfProServer.destination) - end
 
     }
 
@@ -558,7 +562,7 @@ class ViewController: NSViewController, URLSessionDelegate {
             rndPwdLen_TextField?.isEnabled = true
             mgmtAcctPwd_TextField.stringValue = ""
             mgmtAcctPwd2_TextField.stringValue = ""
-            Alert().display(header: "Attention:", message: "A new account must be used when utilizing a random password.  Using an existing account will result in a mismatch between the client and server.\n\nThe new account will be created automatically during enrollment.")
+            Alert.shared.display(header: "Attention:", message: "A new account must be used when utilizing a random password.  Using an existing account will result in a mismatch between the client and server.\n\nThe new account will be created automatically during enrollment.")
         } else {
             mgmtAcctPwd_TextField.isEnabled = true
             mgmtAcctPwd2_TextField.isEnabled = true
@@ -583,7 +587,7 @@ class ViewController: NSViewController, URLSessionDelegate {
         }
     }
 
-    func apiAction(action: String, theServer: String, creds: String, xml: String, theApiObject: String, completion: @escaping (_ result: [Any]) -> Void) {
+    func apiAction(action: String, xml: String, theApiObject: String, completion: @escaping (_ result: [Any]) -> Void) {
         URLCache.shared.removeAllCachedResponses()
         var returnValues = [Any]()
         var endpoint     = ""
@@ -594,13 +598,13 @@ class ViewController: NSViewController, URLSessionDelegate {
 
         switch theApiObject {
         case "invitation":
-            endpoint = "\(theServer)/JSSResource/computerinvitations/id/0"
+            endpoint = "\(JamfProServer.destination)/JSSResource/computerinvitations/id/0"
         case "migrationCheckPolicy", "UnenrollPolicy":
-            endpoint = "\(theServer)/JSSResource/policies/id/0"
+            endpoint = "\(JamfProServer.destination)/JSSResource/policies/id/0"
         case "UnenrollCatagory":
-            endpoint = "\(theServer)/JSSResource/categories/id/0"
+            endpoint = "\(JamfProServer.destination)/JSSResource/categories/id/0"
         case "UnenrollScript":
-            endpoint = "\(theServer)/JSSResource/scripts/id/0"
+            endpoint = "\(JamfProServer.destination)/JSSResource/scripts/id/0"
         default:
             endpoint = ""
         }
@@ -617,11 +621,11 @@ class ViewController: NSViewController, URLSessionDelegate {
         switch JamfProServer.authType {
         case "Basic":
             print("[apiAction] using basic auth")
-            serverConf.httpAdditionalHeaders = ["Authorization" : "Basic \(creds)", "Content-Type" : "application/xml", "Accept" : "application/xml"]
+//            serverConf.httpAdditionalHeaders = ["Authorization" : "\(JamfProServer.authType) \(JamfProServer.authCreds)", "Content-Type" : "application/xml", "Accept" : "application/xml"]
         default:
             print("[apiAction] using token auth")
-            serverConf.httpAdditionalHeaders = ["Authorization" : "Bearer \(token.sourceServer)", "Content-Type" : "application/xml", "Accept" : "application/xml"]
         }
+        serverConf.httpAdditionalHeaders = ["Authorization" : "\(JamfProServer.authType) \(JamfProServer.authCreds)", "Content-Type" : "application/xml", "Accept" : "application/xml"]
 
         let session = Foundation.URLSession(configuration: serverConf, delegate: self, delegateQueue: OperationQueue.main)
         let task = session.dataTask(with: serverRequest as URLRequest, completionHandler: {
@@ -650,7 +654,7 @@ class ViewController: NSViewController, URLSessionDelegate {
             } else {
                 // call next item in list
                 let nextObject = Xml.objectArray.firstIndex(of: theApiObject)!+1
-                self.apiAction(action: "POST", theServer: theServer, creds: creds, xml: Xml.objectDict["\(String(describing: Xml.objectArray[nextObject]))"]!, theApiObject: "\(String(describing: Xml.objectArray[nextObject]))") {
+                self.apiAction(action: "POST", xml: Xml.objectDict["\(String(describing: Xml.objectArray[nextObject]))"]!, theApiObject: "\(String(describing: Xml.objectArray[nextObject]))") {
                     (result: [Any]) in
                     completion(result)
                 }
@@ -893,7 +897,7 @@ class ViewController: NSViewController, URLSessionDelegate {
                         try fm.moveItem(atPath: destination, toPath: destination+"-"+backupDate)
                         WriteToLog.shared.message(theMessage: "Backed up existing, \(destination), to "+destination+"-"+backupDate)
                     } catch {
-                        Alert().display(header: "Alert", message: "Unable to rename existing item, \(destination).")
+                        Alert.shared.display(header: "Alert", message: "Unable to rename existing item, \(destination).")
                         WriteToLog.shared.message(theMessage: "Failed to rename \(destination).")
                         success = false
                     }
@@ -996,19 +1000,19 @@ class ViewController: NSViewController, URLSessionDelegate {
                 print("copying ReEnroller.app from \(self.myBundlePath)")
                 try self.fm.copyItem(atPath: self.myBundlePath, toPath: buildFolder+"/Library/Application Support/JAMF/ReEnroller/tmp/ReEnroller.app")
             } catch {
-                Alert().display(header: "-Attention-", message: "Could not copy app to build folder - exiting.")
+                Alert.shared.display(header: "-Attention-", message: "Could not copy app to build folder - exiting.")
                 exit(1)
             }
             // put settings.plist into place
             do {
                 try self.fm.copyItem(atPath: self.blankSettingsPlistPath, toPath: settingsPlistPath)
             } catch {
-                Alert().display(header: "-Attention-", message: "Could not copy settings.plist to build folder - exiting.")
+                Alert.shared.display(header: "-Attention-", message: "Could not copy settings.plist to build folder - exiting.")
                 exit(1)
             }
 
         } catch {
-            Alert().display(header: "-Attention-", message: "Could not create build folder - exiting.")
+            Alert.shared.display(header: "-Attention-", message: "Could not create build folder - exiting.")
             exit(1)
         }
 
@@ -1016,7 +1020,7 @@ class ViewController: NSViewController, URLSessionDelegate {
         do {
             try self.fm.createDirectory(atPath: buildFolder+"/Library/Application Support/JAMF/ReEnroller/backup", withIntermediateDirectories: true, attributes: nil)
         } catch {
-            Alert().display(header: "-Attention-", message: "Could not create backup folder - exiting.")
+            Alert.shared.display(header: "-Attention-", message: "Could not create backup folder - exiting.")
             exit(1)
         }
         // create folder to hold backups of exitsing files/folders - end
@@ -1053,7 +1057,7 @@ class ViewController: NSViewController, URLSessionDelegate {
                 do {
                     try self.fm.copyItem(atPath: self.safeProfileURL, toPath: buildFolder+"/Library/Application Support/JAMF/ReEnroller/profile.mobileconfig")
                 } catch {
-                    Alert().display(header: "-Attention-", message: "Could not copy config profile.  If there are spaces in the profile name try removing them. Unable to create pkg - exiting.")
+                    Alert.shared.display(header: "-Attention-", message: "Could not copy config profile.  If there are spaces in the profile name try removing them. Unable to create pkg - exiting.")
                     WriteToLog.shared.message(theMessage: "Could not copy config profile.  If there are spaces in the profile name try removing them. Unable to create pkg - exiting.")
                     exit(1)
                 }
@@ -1158,7 +1162,7 @@ class ViewController: NSViewController, URLSessionDelegate {
         if maxRetriesString != "" {
             if maxRetriesString.rangeOfCharacter(from: CharacterSet.decimalDigits.inverted) != nil {
                 self.spinner.stopAnimation(self)
-                Alert().display(header: "-Attention-", message: "Invalid value entered for the maximum number of retries.")
+                Alert.shared.display(header: "-Attention-", message: "Invalid value entered for the maximum number of retries.")
                 return
             } else {
                 self.plistData["maxRetries"] = self.maxRetries_Textfield.stringValue as AnyObject
@@ -1176,7 +1180,7 @@ class ViewController: NSViewController, URLSessionDelegate {
             }
         } else {
             self.spinner.stopAnimation(self)
-            Alert().display(header: "-Attention-", message: "Invalid value entered for the retry interval.")
+            Alert.shared.display(header: "-Attention-", message: "Invalid value entered for the retry interval.")
             return
         }
         // set retry interval in launchd - end
@@ -1196,13 +1200,13 @@ class ViewController: NSViewController, URLSessionDelegate {
                 try self.fm.copyItem(atPath: self.myBundlePath+"/Contents/Resources/com.jamf.ReEnroller.plist", toPath: buildFolderd+"/Library/LaunchDaemons/com.jamf.ReEnroller.plist")
             } catch {
                 WriteToLog.shared.message(theMessage: "Could not copy launchd, unable to create pkg")
-                Alert().display(header: "-Attention-", message: "Could not copy launchd to build folder - exiting.")
+                Alert.shared.display(header: "-Attention-", message: "Could not copy launchd to build folder - exiting.")
                 exit(1)
             }
 
         } catch {
             WriteToLog.shared.message(theMessage: "Unable to place launch daemon.")
-            Alert().display(header: "-Attention-", message: "Could not LaunchDeamons folder in build folder - exiting.")
+            Alert.shared.display(header: "-Attention-", message: "Could not LaunchDeamons folder in build folder - exiting.")
             exit(1)
         }
         // put launch daemon in place - end
@@ -1238,7 +1242,7 @@ class ViewController: NSViewController, URLSessionDelegate {
             do {
                 try self.fm.moveItem(atPath: NSHomeDirectory()+"/Downloads/\(packageName)-\(self.shortHostname).pkg", toPath: NSHomeDirectory()+"/Downloads/\(packageName)-\(self.shortHostname)-"+self.getDateTime(x: 1)+".pkg")
             } catch {
-                Alert().display(header: "Alert", message: "Unable to rename an existing \(packageName)-\(self.shortHostname).pkg file in Downloads.  Try renaming/removing it manually: sudo mv ~/Downloads/\(packageName)-\(self.shortHostname).pkg ~/Downloads/\(packageName)-\(self.shortHostname)-old.pkg.")
+                Alert.shared.display(header: "Alert", message: "Unable to rename an existing \(packageName)-\(self.shortHostname).pkg file in Downloads.  Try renaming/removing it manually: sudo mv ~/Downloads/\(packageName)-\(self.shortHostname).pkg ~/Downloads/\(packageName)-\(self.shortHostname)-old.pkg.")
                 exit(1)
             }
         }
@@ -1259,7 +1263,7 @@ class ViewController: NSViewController, URLSessionDelegate {
         let _ = self.myExitCode(cmd: "/bin/bash", args: "-c", "/bin/rm -fr /private/tmp/reEnroller-*")
         
         if self.pkgBuildResult != 0 {
-            Alert().display(header: "-Attention-", message: "Could not create the \(packageName)(Daemon) package - exiting.")
+            Alert.shared.display(header: "-Attention-", message: "Could not create the \(packageName)(Daemon) package - exiting.")
             exit(1)
         }
         // Create pkg of app and launchd - end
@@ -1279,7 +1283,7 @@ class ViewController: NSViewController, URLSessionDelegate {
 
         fullPackageName = "\(packageName)-\(self.shortHostname).pkg"
         // alert the user, we're done
-        Alert().display(header: "Process Complete", message: "A package (\(packageName)-\(self.shortHostname).pkg) has been created in Downloads which is ready to be deployed with your current Jamf server.\n\nThe package \(self.includesMsg) a postinstall script to load the launch daemon and start the \(packageName) app.\(self.includesMsg2)\(self.policyMsg)")
+        Alert.shared.display(header: "Process Complete", message: "A package (\(packageName)-\(self.shortHostname).pkg) has been created in Downloads which is ready to be deployed with your current Jamf server.\n\nThe package \(self.includesMsg) a postinstall script to load the launch daemon and start the \(packageName) app.\(self.includesMsg2)\(self.policyMsg)")
 
     }
 
@@ -1510,18 +1514,18 @@ class ViewController: NSViewController, URLSessionDelegate {
         if enableSites_Button.state.rawValue == 1 {
             // get site info - start
             var siteArray = [String]()
-            let jssUrl = jssUrl_TextField.stringValue
+            let jssUrl = jssUrl_TextField.stringValue.baseUrl
             jssUsername = jssUsername_TextField.stringValue
             jssPassword = jssPassword_TextField.stringValue
 
             if "\(jssUrl)" == "" {
-                Alert().display(header: "Attention:", message: "Jamf server is required.")
+                Alert.shared.display(header: "Attention:", message: "Jamf server is required.")
                 enableSites_Button.state = convertToNSControlStateValue(0)
                 return
             }
 
             if "\(jssUsername)" == "" || "\(jssPassword)" == "" {
-                Alert().display(header: "Attention:", message: "Jamf server username and password are required in order to use Sites.")
+                Alert.shared.display(header: "Attention:", message: "Jamf server username and password are required in order to use Sites.")
                 enableSites_Button.state = convertToNSControlStateValue(0)
                 return
             }
@@ -1644,70 +1648,86 @@ class ViewController: NSViewController, URLSessionDelegate {
     }
 
     func getSites(completion: @escaping ([String:Int]) -> [String:Int]) {
+        print("[getSites] enter")
         var local_allSites = [String:Int]()
-        var serverURL = jssUrl_TextField.stringValue
-        serverURL = dropTrailingSlash(theSentString: serverURL)
+        JamfProServer.destination = jssUrl_TextField.stringValue.baseUrl
+//        var serverURL = jssUrl_TextField.stringValue
+//        serverURL = dropTrailingSlash(theSentString: serverURL)
         
-        JamfPro().getVersion(jpURL: serverURL, basicCreds: jssCredsBase64) { [self]
-            (jpversion: (String,String)) in
-            print("jpversion: \(jpversion)")
-            print("authType: \(JamfProServer.authType)")
-            
-            let serverEncodedURL = NSURL(string: resourcePath)
-            let serverRequest = NSMutableURLRequest(url: serverEncodedURL! as URL)
-            //        print("serverRequest: \(serverRequest)")
-            serverRequest.httpMethod = "GET"
-            let serverConf = URLSessionConfiguration.default
-            
-            switch JamfProServer.authType {
-            case "Basic":
-                serverConf.httpAdditionalHeaders = ["Authorization" : "Basic \(jssCredsBase64)", "Content-Type" : "application/json", "Accept" : "application/json"]
-            default:
-                serverConf.httpAdditionalHeaders = ["Authorization" : "Bearer \(token.sourceServer)", "Content-Type" : "application/json", "Accept" : "application/json"]
-            }
-            
-            let serverSession = Foundation.URLSession(configuration: serverConf, delegate: self, delegateQueue: OperationQueue.main)
-            let task = serverSession.dataTask(with: serverRequest as URLRequest, completionHandler: {
-                (data, response, error) -> Void in
-                if let httpResponse = response as? HTTPURLResponse {
-        //                print("[getSites] httpResponse: \(String(describing: response))")
-                        let json = try? JSONSerialization.jsonObject(with: data!, options: .allowFragments)
-                        //                    print("\(json)")
-                        if let endpointJSON = json as? [String: Any] {
-                            if let siteEndpoints = endpointJSON["sites"] as? [Any] {
-                                let siteCount = siteEndpoints.count
-                                if siteCount > 0 {
-                                    for i in (0..<siteCount) {
-                                        let theSite = siteEndpoints[i] as! [String:Any]
-                                        let theSiteName = theSite["name"] as! String
-                                        local_allSites[theSiteName] = theSite["id"] as? Int
+        let jpsCredentials = "\(jssUsername_TextField.stringValue):\(jssPassword_TextField.stringValue)"
+        let jpsBase64Creds = jpsCredentials.data(using: .utf8)?.base64EncodedString() ?? ""
+        spinner.startAnimation(self)
+        JamfPro().getToken(serverUrl: JamfProServer.destination, base64creds: jpsBase64Creds) { [self]
+            authResult in
+            print("[getSites] authResult: \(authResult)")
+            spinner.stopAnimation(self)
+            let (statusCode,theResult) = authResult
+            switch theResult {
+            case "failedToAuthenticate":
+                Alert.shared.display(header: "Attention:", message: "Failed to authenticate.")
+                enableSites_Button.state = convertToNSControlStateValue(0)
+                return
+            case "success":
+                print("jpversion: \(JamfProServer.version)")
+                print("authType: \(JamfProServer.authType)")
+                
+                let serverEncodedURL = NSURL(string: resourcePath)
+                let serverRequest = NSMutableURLRequest(url: serverEncodedURL! as URL)
+                //        print("serverRequest: \(serverRequest)")
+                serverRequest.httpMethod = "GET"
+                let serverConf = URLSessionConfiguration.default
+                
+    //            switch JamfProServer.authType {
+    //            case "Basic":
+    //                serverConf.httpAdditionalHeaders = ["Authorization" : "\(JamfProServer.authType) \(JamfProServer.authCreds)", "Content-Type" : "application/json", "Accept" : "application/json"]
+    //            default:
+    //                serverConf.httpAdditionalHeaders = ["Authorization" : "\(JamfProServer.authType) \(JamfProServer.authCreds)", "Content-Type" : "application/json", "Accept" : "application/json"]
+    //            }
+                serverConf.httpAdditionalHeaders = ["Authorization" : "\(JamfProServer.authType) \(JamfProServer.authCreds)", "Content-Type" : "application/json", "Accept" : "application/json"]
+                
+                let serverSession = Foundation.URLSession(configuration: serverConf, delegate: self, delegateQueue: OperationQueue.main)
+                let task = serverSession.dataTask(with: serverRequest as URLRequest, completionHandler: {
+                    (data, response, error) -> Void in
+                    if let httpResponse = response as? HTTPURLResponse {
+            //                print("[getSites] httpResponse: \(String(describing: response))")
+                            let json = try? JSONSerialization.jsonObject(with: data!, options: .allowFragments)
+                            //                    print("\(json)")
+                            if let endpointJSON = json as? [String: Any] {
+                                if let siteEndpoints = endpointJSON["sites"] as? [Any] {
+                                    let siteCount = siteEndpoints.count
+                                    if siteCount > 0 {
+                                        for i in (0..<siteCount) {
+                                            let theSite = siteEndpoints[i] as! [String:Any]
+                                            let theSiteName = theSite["name"] as! String
+                                            local_allSites[theSiteName] = theSite["id"] as? Int
+                                        }
                                     }
                                 }
-                            }
-                        }   // if let serverEndpointJSON - end
+                            }   // if let serverEndpointJSON - end
 
-                    if httpResponse.statusCode >= 199 && httpResponse.statusCode <= 299 {
+                        if httpResponse.statusCode >= 199 && httpResponse.statusCode <= 299 {
 
-                        self.site_Button.isEnabled = true
-        //                    print("[getSites] local_allSites: \(String(describing: local_allSites))")
-                        completion(local_allSites)
-                    } else {
-                        // something went wrong
-                        print("Sile lookup response code: \(httpResponse.statusCode)")
-                            Alert().display(header: "Alert", message: "Unable to look up Sites.  Verify the account being used is able to login and view Sites.\nStatus Code: \(httpResponse.statusCode)")
+                            self.site_Button.isEnabled = true
+            //                    print("[getSites] local_allSites: \(String(describing: local_allSites))")
+                            completion(local_allSites)
+                        } else {
+                            // something went wrong
+                            print("Sile lookup response code: \(httpResponse.statusCode)")
+                                Alert.shared.display(header: "Alert", message: "Unable to look up Sites.  Verify the account being used is able to login and view Sites.\nStatus Code: \(httpResponse.statusCode)")
 
-                        self.enableSites_Button.state = convertToNSControlStateValue(0)
-                        self.site_Button.isEnabled = false
-                        completion([:])
+                            self.enableSites_Button.state = convertToNSControlStateValue(0)
+                            self.site_Button.isEnabled = false
+                            completion([:])
 
-                    }   // if httpResponse/else - end
-                }   // if let httpResponse - end
-                //            semaphore.signal()
-            })  // let task = - end
-            task.resume()
+                        }   // if httpResponse/else - end
+                    }   // if let httpResponse - end
+                    //            semaphore.signal()
+                })  // let task = - end
+                task.resume()
+            default:
+                break
+            }
         }
-        
-        
     }
 
     // function to return mdm status - start
@@ -2730,6 +2750,21 @@ class ViewController: NSViewController, URLSessionDelegate {
         let decoder = JSONDecoder()
         let sealedBoxCodable = try decoder.decode(SealedBoxCodable.self, from: data)
         return try sealedBoxCodable.toSealedBox()
+    }
+}
+
+extension String {
+    var baseUrl: String {
+        get {
+            var fqdn = ""
+            let nameArray = self.components(separatedBy: "/")
+            if nameArray.count > 2 {
+                fqdn = nameArray[2]
+            } else {
+                fqdn =  self
+            }
+            return "\(nameArray[0])//\(fqdn)"
+        }
     }
 }
 

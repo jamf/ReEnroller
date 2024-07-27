@@ -19,15 +19,15 @@ class HelpViewController: NSViewController {
             do {
                 try fm.moveItem(atPath: NSHomeDirectory()+"/Downloads/apiMDM_remove.txt", toPath: NSHomeDirectory()+"/Downloads/apiMDM_remove-"+ViewController().getDateTime(x: 1)+".txt")
             } catch {
-                Alert().display(header: "Alert", message: "The script (apiMDM_remove.txt) already exists in Downloads and we couldn't rename it.  Either delete/rename the file and download again or copy the script from Help.")
+                Alert.shared.display(header: "Alert", message: "The script (apiMDM_remove.txt) already exists in Downloads and we couldn't rename it.  Either delete/rename the file and download again or copy the script from Help.")
                 return
             }
         }
         do {
             try fm.copyItem(atPath: Bundle.main.bundlePath+"/Contents/Resources/apiMDM_remove.txt", toPath: NSHomeDirectory()+"/Downloads/apiMDM_remove.txt")
-            Alert().display(header: "-Success-", message: "The script (apiMDM_remove.txt) has been copied to Downloads.")
+            Alert.shared.display(header: "-Success-", message: "The script (apiMDM_remove.txt) has been copied to Downloads.")
         } catch {
-            Alert().display(header: "-Attention-", message: "Could not copy scipt to Downloads.  Copy manually from Help.")
+            Alert.shared.display(header: "-Attention-", message: "Could not copy scipt to Downloads.  Copy manually from Help.")
         }
     }
 

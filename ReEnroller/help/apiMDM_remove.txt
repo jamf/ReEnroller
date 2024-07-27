@@ -95,8 +95,19 @@ else
     echo "computer UUID: $udid"
 fi
 
+## get token
+tokenURL="${server}api/v1/auth/token"
+response=$(curl -m 20 -su "${uname}:${pwd}" $tokenURL -X POST)
+
+token=$(/usr/bin/osascript -l JavaScript << EoS
+    var theToken = $response.token
+    ObjC.unwrap($response.token)
+EoS
+)
+
 ## get computer ID from Jamf server
-compXml=$(/usr/bin/curl -sku "${uname}:${pwd}" ${server}JSSResource/computers/udid/"$udid"/subset/general -H "Accept: application/xml")
+echo "get computer ID: "curl -m 20 ${server}JSSResource/computers/udid/\"$udid\"/subset/general -H \"Accept: application/xml\" -H \"Authorization: Bearer $(echo $token | head -n15)...\""
+compXml=$(/usr/bin/curl -m 20 ${server}JSSResource/computers/udid/"$udid"/subset/general -H "Accept: application/xml" -H "Authorization: Bearer $token")
 
 if [[ $(echo "${compXml}" | grep "The server has not found anything matching the request URI") == "" ]];then
     if [ $majorVer -gt 10 ] || ([ $majorVer eq 10 ] && [ $majorMinor -gt 15 ]);then
@@ -111,6 +122,6 @@ else
 fi
 
 ## send unmanage command to machine
-echo "unmanage machine: curl -X POST -sku ${uname}:******** ${server}JSSResource/computercommands/command/UnmanageDevice/id/${compId}"
-/usr/bin/curl -X POST -sku "${uname}:${pwd}" ${server}JSSResource/computercommands/command/UnmanageDevice/id/${compId}
+echo "unmanage machine: curl -m 20 ${server}JSSResource/computercommands/command/UnmanageDevice/id/${compId} -X POST -H \"Authorization: Bearer $(echo $token | head -n15)...\""
+/usr/bin/curl -m 20 ${server}JSSResource/computercommands/command/UnmanageDevice/id/${compId} -X POST -H "Authorization: Bearer $token"
 
