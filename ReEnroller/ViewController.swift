@@ -677,6 +677,7 @@ class ViewController: NSViewController, URLSessionDelegate {
             self.verifiedCleanup(type: "partial")
             NSApplication.shared.terminate(self)
         }
+        
         retryCount += 1
         userDefaults.set(retryCount, forKey: "retryCount")
 
@@ -2338,7 +2339,7 @@ class ViewController: NSViewController, URLSessionDelegate {
                 WriteToLog.shared.message(theMessage: "Unable to remove /private/var/root/Library/Preferences/com.jamf.pse.ReEnroller.plist")
             }
         }
-        userDefaults.set(1, forKey: "retryCount")
+        userDefaults.set(0, forKey: "retryCount")
 
 
         // remove a previous launchd, if it exists, from /private/tmp
@@ -2472,6 +2473,8 @@ class ViewController: NSViewController, URLSessionDelegate {
         LogFileW = FileHandle(forUpdatingAtPath: (logFilePath))
 
         retryCount = userDefaults.integer(forKey: "retryCount")
+        WriteToLog.shared.message(theMessage: "initial retry count: \(retryCount)")
+        
         var isDir: ObjCBool = true
         if !fm.fileExists(atPath: "/usr/local/jamf/bin", isDirectory: &isDir) {
             do {
