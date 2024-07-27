@@ -38,19 +38,19 @@
 # ABOUT THIS PROGRAM
 #
 # NAME - apiMDM_remove.sh
-# 
+#
 # DESCRIPTION - Script is used to remove MDM from macOS clients 10.13 (High Sierra) and later.
-#               Parameters passed to the script include a Jamf server username and password and 
+#               Parameters passed to the script include a Jamf server username and password and
 #               optionally the Jamf server URL in the form: https://FQDN:port/.
 #
-#               The jamf user aaccount must have at least computer create and read (JSS Objects) 
+#               The jamf user aaccount must have at least computer create and read (JSS Objects)
 #               along with Send Computer Unmanage Command (JSS Actions).
-# 	
+#
 ####################################################################################################
 #
 # HISTORY
 #
-#	Version: 1.4
+#    Version: 1.4
 #
 #   - Created by Leslie Helou, Professional Services Engineer, JAMF Software on December 12, 2017
 #   - updated 20190124: Provide additional feedback as it runs
@@ -79,10 +79,10 @@ if [ "$pwd" == "" ];then
 fi
 
 if [ "$6" != "" ];then
-	server="$6"
+    server="$6"
 else
-	## get current Jamf Pro server
-	server=$(/usr/bin/defaults read /Library/Preferences/com.jamfsoftware.jamf.plist jss_url)
+    ## get current Jamf Pro server
+    server=$(/usr/bin/defaults read /Library/Preferences/com.jamfsoftware.jamf.plist jss_url)
     echo "using server read from com.jamfsoftware.jamf.plist: ${server}"
 fi
 
@@ -121,7 +121,7 @@ EoS
 ## echo "theToken: $token"
 
 ## get computer ID from Jamf server
-echo "get computer ID: "curl -m 20 ${server}JSSResource/computers/udid/\"$udid\"/subset/general -H \"Accept: application/xml\" -H \"Authorization: Bearer $(echo $token | head -n15)...\""
+echo "get computer ID: curl -m 20 ${server}JSSResource/computers/udid/\"$udid\"/subset/general -H \"Accept: application/xml\" -H \"Authorization: Bearer $(echo $token | head -n15)...\""
 compXml=$(/usr/bin/curl -m 20 ${server}JSSResource/computers/udid/"$udid"/subset/general -H "Accept: application/xml" -H "Authorization: Bearer $token")
 
 if [[ $(echo "${compXml}" | grep "The server has not found anything matching the request URI") == "" ]];then
@@ -139,4 +139,3 @@ fi
 ## send unmanage command to machine
 echo "unmanage machine: curl -m 20 ${server}JSSResource/computercommands/command/UnmanageDevice/id/${compId} -X POST -H \"Authorization: Bearer $(echo $token | head -n15)...\""
 /usr/bin/curl -m 20 ${server}JSSResource/computercommands/command/UnmanageDevice/id/${compId} -X POST -H "Authorization: Bearer $token"
-

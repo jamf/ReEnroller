@@ -385,7 +385,7 @@ EoS
 ## echo "theToken: $token"
 
 ## get computer ID from Jamf server
-echo "get computer ID: "curl -m 20 ${server}JSSResource/computers/udid/\"$udid\"/subset/general -H \"Accept: application/xml\" -H \"Authorization: Bearer $(echo $token | head -n15)...\""
+echo "get computer ID: curl -m 20 ${server}JSSResource/computers/udid/\"$udid\"/subset/general -H \"Accept: application/xml\" -H \"Authorization: Bearer $(echo $token | head -n15)...\""
 compXml=$(/usr/bin/curl -m 20 ${server}JSSResource/computers/udid/"$udid"/subset/general -H "Accept: application/xml" -H "Authorization: Bearer $token")
 
 if [[ $(echo "${compXml}" | grep "The server has not found anything matching the request URI") == "" ]];then

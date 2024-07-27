@@ -1946,7 +1946,7 @@ class ViewController: NSViewController, URLSessionDelegate {
                             }
 
                             sleep(4)
-                            if attempt > 7 {
+                            if attempt > 5 {
                                 WriteToLog.shared.message(theMessage: "Failed to remove MDM through remote command.")
                                 removeResult = "failed"
                                 completion("\(when) - failed")
