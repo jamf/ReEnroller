@@ -18,7 +18,7 @@
 		B5480D6325D6AE1A00BFCC86 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B5480D6125D6AE1A00BFCC86 /* Main.storyboard */; };
 		B5480D7025D6B39200BFCC86 /* help.html in Resources */ = {isa = PBXBuildFile; fileRef = B5480D6F25D6B39200BFCC86 /* help.html */; };
 		B5480D7325D6B3B600BFCC86 /* apiMDM_remove.txt in Resources */ = {isa = PBXBuildFile; fileRef = B5480D7225D6B3B600BFCC86 /* apiMDM_remove.txt */; };
-		B5480DA425D6B4E000BFCC86 /* command.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5480DA325D6B4E000BFCC86 /* command.swift */; };
+		B5480DA425D6B4E000BFCC86 /* Command.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5480DA325D6B4E000BFCC86 /* Command.swift */; };
 		B5480DAB25D6B8CA00BFCC86 /* ApiCall.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5480DAA25D6B8CA00BFCC86 /* ApiCall.swift */; };
 		B5480DAE25D6B8FD00BFCC86 /* ObjectXML.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5480DAD25D6B8FD00BFCC86 /* ObjectXML.swift */; };
 		B5480DBB25D6BB6C00BFCC86 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B5480DBA25D6BB6C00BFCC86 /* WebKit.framework */; };
@@ -45,7 +45,7 @@
 		B5480D6525D6AE1A00BFCC86 /* ReEnroller.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ReEnroller.entitlements; sourceTree = "<group>"; };
 		B5480D6F25D6B39200BFCC86 /* help.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = help.html; sourceTree = "<group>"; };
 		B5480D7225D6B3B600BFCC86 /* apiMDM_remove.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = apiMDM_remove.txt; sourceTree = "<group>"; };
-		B5480DA325D6B4E000BFCC86 /* command.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = command.swift; sourceTree = "<group>"; };
+		B5480DA325D6B4E000BFCC86 /* Command.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Command.swift; sourceTree = "<group>"; };
 		B5480DAA25D6B8CA00BFCC86 /* ApiCall.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ApiCall.swift; sourceTree = "<group>"; };
 		B5480DAD25D6B8FD00BFCC86 /* ObjectXML.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ObjectXML.swift; sourceTree = "<group>"; };
 		B5480DBA25D6BB6C00BFCC86 /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
@@ -94,7 +94,7 @@
 				B5480DAA25D6B8CA00BFCC86 /* ApiCall.swift */,
 				B535677425DB56110017769D /* Alert.swift */,
 				B5480D5B25D6AE1700BFCC86 /* AppDelegate.swift */,
-				B5480DA325D6B4E000BFCC86 /* command.swift */,
+				B5480DA325D6B4E000BFCC86 /* Command.swift */,
 				B5434E4D25D982390013A85B /* Globals.swift */,
 				B5434E3A25D72BD50013A85B /* HelpViewController.swift */,
 				B5F6492027C96423007B7C26 /* JamfPro.swift */,
@@ -237,7 +237,7 @@
 				B5480DAE25D6B8FD00BFCC86 /* ObjectXML.swift in Sources */,
 				B535677225DB550C0017769D /* WriteToLog.swift in Sources */,
 				B5434E3B25D72BD50013A85B /* HelpViewController.swift in Sources */,
-				B5480DA425D6B4E000BFCC86 /* command.swift in Sources */,
+				B5480DA425D6B4E000BFCC86 /* Command.swift in Sources */,
 				B5480D5E25D6AE1700BFCC86 /* ViewController.swift in Sources */,
 				B5F6492127C96423007B7C26 /* JamfPro.swift in Sources */,
 				B5480DAB25D6B8CA00BFCC86 /* ApiCall.swift in Sources */,
@@ -399,7 +399,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.15;
-				MARKETING_VERSION = 5.8.0;
+				MARKETING_VERSION = 5.8.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.jamf.pse.ReEnroller;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
@@ -427,7 +427,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.15;
-				MARKETING_VERSION = 5.8.0;
+				MARKETING_VERSION = 5.8.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.jamf.pse.ReEnroller;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;

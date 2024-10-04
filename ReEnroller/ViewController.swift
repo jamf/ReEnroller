@@ -712,7 +712,7 @@ class ViewController: NSViewController, URLSessionDelegate {
                             WriteToLog.shared.message(theMessage: "Unable to remove included configuration profile")
                         }
                     }
-                    if self.myExitCode(cmd: "/usr/local/jamf/bin/jamf", args: "mdm") == 0 {
+                    if Command.shared.myExitCode(cmd: "/usr/local/jamf/bin/jamf", args: "mdm") == 0 {
                         WriteToLog.shared.message(theMessage: "Re-enabled MDM.")
                     }
                     exit(1)
@@ -720,7 +720,7 @@ class ViewController: NSViewController, URLSessionDelegate {
                     // run recon and mark device as migrated
                     if self.markAsMigrated {
                         WriteToLog.shared.message(theMessage: "Using \(self.migratedAttribute) to track migration.")
-                        if self.myExitCode(cmd: "/usr/local/jamf/bin/jamf", args: "recon", "-\(self.migratedAttribute)", "migrated - \(self.getDateTime(x: 1))") == 0 {
+                        if Command.shared.myExitCode(cmd: "/usr/local/jamf/bin/jamf", args: "recon", "-\(self.migratedAttribute)", "migrated - \(self.getDateTime(x: 1))") == 0 {
                             WriteToLog.shared.message(theMessage: "Marked machine as migrated. Updated \(self.migratedAttribute) attribute.")
                         } else {
                             WriteToLog.shared.message(theMessage: "Unable to update attribute \(self.migratedAttribute) noting migration.")
@@ -746,9 +746,9 @@ class ViewController: NSViewController, URLSessionDelegate {
                                 WriteToLog.shared.message(theMessage: "Downloaded jamf binary from new server (\(self.newJssMgmtUrl)).")
                                 binaryDownloaded = true
                                 if self.backup(operation: "move", source: self.origBinary, destination: self.bakBinary) {
-                                    if self.myExitCode(cmd: "/bin/bash", args: "-c", "gunzip -f '/Library/Application Support/JAMF/ReEnroller/jamf.gz'") == 0 {
+                                    if Command.shared.myExitCode(cmd: "/bin/bash", args: "-c", "gunzip -f '/Library/Application Support/JAMF/ReEnroller/jamf.gz'") == 0 {
                                         do {
-                                            _ = self.myExitCode(cmd: "/bin/bash", args: "-c", "killall jamf")
+                                            _ = Command.shared.myExitCode(cmd: "/bin/bash", args: "-c", "killall jamf")
                                             try self.fm.moveItem(atPath: "/Library/Application Support/JAMF/ReEnroller/jamf", toPath: self.origBinary)
                                             WriteToLog.shared.message(theMessage: "Using jamf binary from the new server.")
                                             // set permissions to read and execute
@@ -758,7 +758,7 @@ class ViewController: NSViewController, URLSessionDelegate {
                                                 try self.fm.removeItem(atPath: "/usr/local/bin/jamf")
                                             }
                                             // create new sym link to jamf binary
-                                            if self.myExitCode(cmd: "/bin/bash", args: "-c", "ln -s /usr/local/jamf/bin/jamf /usr/local/bin/jamf") == 0 {
+                                            if Command.shared.myExitCode(cmd: "/bin/bash", args: "-c", "ln -s /usr/local/jamf/bin/jamf /usr/local/bin/jamf") == 0 {
                                                 WriteToLog.shared.message(theMessage: "Re-created alias for jamf binary in /usr/local/bin.")
                                             } else {
                                                 WriteToLog.shared.message(theMessage: "Failed to re-created alias for jamf binary in /usr/local/bin.")
@@ -987,7 +987,7 @@ class ViewController: NSViewController, URLSessionDelegate {
         // put app in place
         let buildFolder = "/private/tmp/reEnroller-"+self.getDateTime(x: 1)
 
-        let _ = self.myExitCode(cmd: "/bin/rm", args: "/private/tmp/reEnroller*")
+        let _ = Command.shared.myExitCode(cmd: "/bin/rm", args: "/private/tmp/reEnroller*")
 
         var buildFolderd = "" // build folder for launchd items, may be outside build folder if separating app from launchd
         let settingsPlistPath = buildFolder+"/Library/Application Support/JAMF/ReEnroller/settings.plist"
@@ -1252,16 +1252,16 @@ class ViewController: NSViewController, URLSessionDelegate {
         // Create pkg of app and launchd - start
         if self.separatePackage_button.state.rawValue == 0 {
             print("building single package")
-            self.pkgBuildResult = self.myExitCode(cmd: "/usr/bin/pkgbuild", args: "--identifier", "com.jamf.ReEnroller", "--root", buildFolder, "--scripts", self.myBundlePath+"/Contents/Resources/1", "--component-plist", self.myBundlePath+"/Contents/Resources/ReEnroller-component.plist", NSHomeDirectory()+"/Downloads/\(packageName)-\(self.shortHostname).pkg")
+            self.pkgBuildResult = Command.shared.myExitCode(cmd: "/usr/bin/pkgbuild", args: "--identifier", "com.jamf.ReEnroller", "--root", buildFolder, "--scripts", self.myBundlePath+"/Contents/Resources/1", "--component-plist", self.myBundlePath+"/Contents/Resources/ReEnroller-component.plist", NSHomeDirectory()+"/Downloads/\(packageName)-\(self.shortHostname).pkg")
 
         } else {
             print("building two packages")
-            self.pkgBuildResult = self.myExitCode(cmd: "/usr/bin/pkgbuild", args: "--identifier", "com.jamf.ReEnroller", "--root", buildFolder, "--scripts", self.myBundlePath+"/Contents/Resources/2", "--component-plist", self.myBundlePath+"/Contents/Resources/ReEnroller-component.plist", NSHomeDirectory()+"/Downloads/\(packageName)-\(self.shortHostname).pkg")
-            self.pkgBuildResult = self.myExitCode(cmd: "/usr/bin/pkgbuild", args: "--identifier", "com.jamf.ReEnrollerd", "--root", buildFolderd, "--scripts", self.myBundlePath+"/Contents/Resources/1", NSHomeDirectory()+"/Downloads/\(packageName)Daemon-\(self.shortHostname).pkg")
+            self.pkgBuildResult = Command.shared.myExitCode(cmd: "/usr/bin/pkgbuild", args: "--identifier", "com.jamf.ReEnroller", "--root", buildFolder, "--scripts", self.myBundlePath+"/Contents/Resources/2", "--component-plist", self.myBundlePath+"/Contents/Resources/ReEnroller-component.plist", NSHomeDirectory()+"/Downloads/\(packageName)-\(self.shortHostname).pkg")
+            self.pkgBuildResult = Command.shared.myExitCode(cmd: "/usr/bin/pkgbuild", args: "--identifier", "com.jamf.ReEnrollerd", "--root", buildFolderd, "--scripts", self.myBundlePath+"/Contents/Resources/1", NSHomeDirectory()+"/Downloads/\(packageName)Daemon-\(self.shortHostname).pkg")
         }
         
         // remove build folder
-        let _ = self.myExitCode(cmd: "/bin/bash", args: "-c", "/bin/rm -fr /private/tmp/reEnroller-*")
+        let _ = Command.shared.myExitCode(cmd: "/bin/bash", args: "-c", "/bin/rm -fr /private/tmp/reEnroller-*")
         
         if self.pkgBuildResult != 0 {
             Alert.shared.display(header: "-Attention-", message: "Could not create the \(packageName)(Daemon) package - exiting.")
@@ -1420,7 +1420,7 @@ class ViewController: NSViewController, URLSessionDelegate {
         // create a conf file for the new server
         WriteToLog.shared.message(theMessage: "Running: /usr/local/bin/jamf createConf -verifySSLCert \(createConfSwitches) -url \(newServer)")
 
-        if myExitCode(cmd: "/usr/local/bin/jamf", args: "createConf", "-verifySSLCert", "\(createConfSwitches)", "-url", "\(newServer)") == 0 {
+        if Command.shared.myExitCode(cmd: "/usr/local/bin/jamf", args: "createConf", "-verifySSLCert", "\(createConfSwitches)", "-url", "\(newServer)") == 0 {
             WriteToLog.shared.message(theMessage: "Created JAMF config file for \(newServer)")
         } else {
             WriteToLog.shared.message(theMessage: "There was a problem creating JAMF config file for \(newServer). Falling back to old settings and exiting.")
@@ -1432,7 +1432,7 @@ class ViewController: NSViewController, URLSessionDelegate {
         var enrolled = false
         var enrollCounter = 1
         if !enrolled && enrollCounter < 4 {
-            if myExitCode(cmd: "/usr/local/bin/jamf", args: "enroll", "-invitation", "\(newInvite)", "-noRecon", "-noPolicy", "-noManage") == 0 {
+            if Command.shared.myExitCode(cmd: "/usr/local/bin/jamf", args: "enroll", "-invitation", "\(newInvite)", "-noRecon", "-noPolicy", "-noManage") == 0 {
                 WriteToLog.shared.message(theMessage: "/usr/local/bin/jamf enroll -invitation xxxxxxxx -noRecon -noPolicy -noManage")
                 WriteToLog.shared.message(theMessage: "Enrolled to new Jamf Server: \(newServer)")
                 enrolled = true
@@ -1449,7 +1449,7 @@ class ViewController: NSViewController, URLSessionDelegate {
         }
 
         // verity connectivity to the new Jamf Pro server
-        if myExitCode(cmd: "/usr/local/bin/jamf", args: "checkjssconnection") == 0 {
+        if Command.shared.myExitCode(cmd: "/usr/local/bin/jamf", args: "checkjssconnection") == 0 {
             WriteToLog.shared.message(theMessage: "checkjssconnection for \(newServer) was successful")
         } else {
             WriteToLog.shared.message(theMessage: "There was a problem checking the Jamf Server Connection to \(newServer). Falling back to old settings and exiting!")
@@ -1463,7 +1463,7 @@ class ViewController: NSViewController, URLSessionDelegate {
             var counter = 0
             while mdmInstalled(cmd: "/bin/bash", args: "-c", "/usr/bin/profiles -C | grep com.apple.mdm | wc -l", message: "looking for Jamf School Profile") {
                 counter+=1
-                _ = myExitCode(cmd: "/bin/bash", args: "-c", "killall jamf;/usr/local/bin/jamf policy -trigger jamfSchoolUnenroll")
+                _ = Command.shared.myExitCode(cmd: "/bin/bash", args: "-c", "killall jamf;/usr/local/bin/jamf policy -trigger jamfSchoolUnenroll")
                 sleep(10)
                 if counter > 6 {
                     WriteToLog.shared.message(theMessage: "Failed to remove Jamf School MDM through remote command - exiting")
@@ -1479,7 +1479,7 @@ class ViewController: NSViewController, URLSessionDelegate {
         if !(( os.majorVersion > 10 ) || ( os.majorVersion == 10 && os.minorVersion > 15 )) {
             if skipMdmCheck == "no" && removeMDM {
                 // enable mdm
-                if myExitCode(cmd: "/usr/local/bin/jamf", args: "mdm") == 0 {
+                if Command.shared.myExitCode(cmd: "/usr/local/bin/jamf", args: "mdm") == 0 {
                     WriteToLog.shared.message(theMessage: "MDM Enrolled - getting MDM profiles from new JPS.")
                 } else {
                     WriteToLog.shared.message(theMessage: "There was a problem getting MDM profiles from new JPS.")
@@ -1489,7 +1489,7 @@ class ViewController: NSViewController, URLSessionDelegate {
                 WriteToLog.shared.message(theMessage: "Skipping MDM check.")
             }
             WriteToLog.shared.message(theMessage: "Calling jamf manage to update framework.")
-            if myExitCode(cmd: "/usr/local/bin/jamf", args: "manage") == 0 {
+            if Command.shared.myExitCode(cmd: "/usr/local/bin/jamf", args: "manage") == 0 {
                 WriteToLog.shared.message(theMessage: "Enrolled - received management framework from new JPS.")
                 completion("succeeded")
             } else {
@@ -1762,21 +1762,27 @@ class ViewController: NSViewController, URLSessionDelegate {
     }
 
     // function to return exit code of bash command - start
-    func myExitCode(cmd: String, args: String...) -> Int8 {
-        //var pipe_pkg = Pipe()
-        let task_pkg = Process()
-
-        task_pkg.launchPath = cmd
-        task_pkg.arguments = args
-        //task_pkg.standardOutput = pipe_pkg
-        //var test = task_pkg.standardOutput
-
-        task_pkg.launch()
-        task_pkg.waitUntilExit()
-        let result = task_pkg.terminationStatus
-
-        return(Int8(result))
-    }
+//    func myExitCode(cmd: String, args: String...) -> Int8 {
+//        var pipe_pkg = Pipe()
+//        let task_pkg = Process()
+//
+//        task_pkg.launchPath = cmd
+//        task_pkg.arguments = args
+//        task_pkg.standardOutput = pipe_pkg
+//        //var test = task_pkg.standardOutput
+//
+//        task_pkg.launch()
+//        
+//        let outdata = pipe_pkg.fileHandleForReading.readDataToEndOfFile()
+//        if var string = String(data: outdata, encoding: .utf8) {
+//            WriteToLog.shared.message(theMessage: "command result: \(string)")
+//        }
+//        
+//        task_pkg.waitUntilExit()
+//        let result = task_pkg.terminationStatus
+//
+//        return(Int8(result))
+//    }
     // function to return exit code of bash command - end
 
     // function to return value of bash command - start
@@ -1819,21 +1825,10 @@ class ViewController: NSViewController, URLSessionDelegate {
         security = security.replacingOccurrences(of: " Personal", with: "")
         WriteToLog.shared.message(theMessage: "[profileInstall] security: \(security)")
         
-        let _ = myExitCode(cmd: "/bin/bash", args: "-c", "/usr/sbin/networksetup -addpreferredwirelessnetworkatindex \(en) '\(ssid)' 0 \(security) '\(ssidKey)'")
-        let reply = myExitCode(cmd: "/bin/bash", args: "-c", "/usr/sbin/networksetup -setairportnetwork \(en) '\(ssid)' '\(ssidKey)'")
+        let _ = Command.shared.myExitCode(cmd: "/bin/bash", args: "-c", "/usr/sbin/networksetup -addpreferredwirelessnetworkatindex \(en) '\(ssid)' 0 \(security) '\(ssidKey)'")
+        let reply = Command.shared.myExitCode(cmd: "/bin/bash", args: "-c", "/usr/sbin/networksetup -setairportnetwork \(en) '\(ssid)' '\(ssidKey)'")
         WriteToLog.shared.message(theMessage: "[profileInstall] connection reply: \(reply)")
-        /*
-        if profileUuid != "" {
-            if myExitCode(cmd: "/usr/bin/profiles", args: "-I", "-F", configProfilePath) == 0 {
-                WriteToLog.shared.message(theMessage: "Installed config profile")
-//                toggleWiFi()
-                return true
-            } else {
-                WriteToLog.shared.message(theMessage: "There was a problem installing the config profile. Falling back to old settings and exiting!")
-                return false
-            }
-        }
-         */
+        
         return true
     }
 
@@ -1848,7 +1843,7 @@ class ViewController: NSViewController, URLSessionDelegate {
             // backup existing airport preferences plist - end
 
             // remove the manually added profile
-            if myExitCode(cmd: "/usr/bin/profiles", args: "-R", "-p", profileUuid) == 0 {
+            if Command.shared.myExitCode(cmd: "/usr/bin/profiles", args: "-R", "-p", profileUuid) == 0 {
                 WriteToLog.shared.message(theMessage: "Configuration Profile was removed.")
                 toggleWiFi()
                 sleep(2)
@@ -1863,7 +1858,7 @@ class ViewController: NSViewController, URLSessionDelegate {
                             let encrypt = stringFromPlist(plistURL: plistURL!, startString: "<key>EncryptionType</key><string>", endString: "</string><key>AutoJoin</key>")
                             let en = myExitValue(cmd: "/bin/bash", args: "-c", "/usr/sbin/networksetup -listallhardwareports | grep -A1 Wi-Fi | grep Device | awk '{ print $2 }'")[0]
 
-                            let _ = myExitCode(cmd: "/bin/bash", args: "-c", "/usr/sbin/networksetup -addpreferredwirelessnetworkatindex \(en) \"\(ssid)\" 0 \(encrypt) \"\(ssidPwd)\"")
+                            let _ = Command.shared.myExitCode(cmd: "/bin/bash", args: "-c", "/usr/sbin/networksetup -addpreferredwirelessnetworkatindex \(en) \"\(ssid)\" 0 \(encrypt) \"\(ssidPwd)\"")
                         } catch {
                             WriteToLog.shared.message(theMessage: "Problem extracting data from profile.")
                         }
@@ -1904,7 +1899,7 @@ class ViewController: NSViewController, URLSessionDelegate {
                 if os.majorVersion == 10 && os.minorVersion < 13 {
                     if removeAllProfiles == "false" {
                         WriteToLog.shared.message(theMessage: "Attempting to remove mdm")
-                        if myExitCode(cmd: "/usr/local/jamf/bin/jamf", args: "removemdmprofile") == 0 {
+                        if Command.shared.myExitCode(cmd: "/usr/local/jamf/bin/jamf", args: "removemdmprofile") == 0 {
                             WriteToLog.shared.message(theMessage: "Removed old MDM profile using the jamf binary")
                         } else {
                             WriteToLog.shared.message(theMessage: "There was a problem removing old MDM profile.")
@@ -1915,7 +1910,7 @@ class ViewController: NSViewController, URLSessionDelegate {
                         }
                     } else {
                         // macOS < 10.13 - remove all profiles
-                        if myExitCode(cmd: "/bin/rm", args: "-fr", "/private/var/db/ConfigurationProfiles") == 0 {
+                        if Command.shared.myExitCode(cmd: "/bin/rm", args: "-fr", "/private/var/db/ConfigurationProfiles") == 0 {
                             WriteToLog.shared.message(theMessage: "Removed all configuration profiles")
                         } else {
                             WriteToLog.shared.message(theMessage: "There was a problem removing all configuration profiles.")
@@ -1928,7 +1923,7 @@ class ViewController: NSViewController, URLSessionDelegate {
                     var counter = 0
                     // try to remove mdm with jamf command
                     if os.majorVersion < 11 {
-                        _ = myExitCode(cmd: "/usr/local/bin/jamf", args: "removemdmprofile")
+                        _ = Command.shared.myExitCode(cmd: "/usr/local/bin/jamf", args: "removemdmprofile")
                     }
                     if !mdmInstalled(cmd: "/bin/bash", args: "-c", "/usr/bin/profiles -C | grep 00000000-0000-0000-A000-4A414D460003 | wc -l", message: "looking for MDM Profile") {
                         counter+=1
@@ -1941,8 +1936,8 @@ class ViewController: NSViewController, URLSessionDelegate {
                             counter+=1
                             if (counter-1) % 20 == 0 {
                                 WriteToLog.shared.message(theMessage: "Attempt \(attempt) to remove MDM through remote command.")
-                                _ = myExitCode(cmd: "/bin/bash", args: "-c", "killall jamf")
-                                _ = myExitCode(cmd: "/bin/bash", args: "-c", "/usr/local/bin/jamf policy -trigger apiMDM_remove")
+                                _ = Command.shared.myExitCode(cmd: "/bin/bash", args: "-c", "killall jamf")
+                                _ = Command.shared.myExitCode(cmd: "/bin/bash", args: "-c", "/usr/local/bin/jamf policy -trigger apiMDM_remove")
                                 attempt+=1
                             }
 
@@ -1999,10 +1994,10 @@ class ViewController: NSViewController, URLSessionDelegate {
                 power = powerArray[0]
 
                 if power == "On" {
-                    if myExitCode(cmd: "/bin/bash", args: "-c", "/usr/sbin/networksetup -setairportpower \(interface) off") == 0 {
+                    if Command.shared.myExitCode(cmd: "/bin/bash", args: "-c", "/usr/sbin/networksetup -setairportpower \(interface) off") == 0 {
                         WriteToLog.shared.message(theMessage: "WiFi (\(interface)) has been turned off.")
                         usleep(100000)  // 0.1 seconds
-                        if myExitCode(cmd: "/bin/bash", args: "-c", "/usr/sbin/networksetup -setairportpower \(interface) on") == 0 {
+                        if Command.shared.myExitCode(cmd: "/bin/bash", args: "-c", "/usr/sbin/networksetup -setairportpower \(interface) on") == 0 {
                             WriteToLog.shared.message(theMessage: "WiFi (\(interface)) has been turned on.")
                         }
                     }
@@ -2054,7 +2049,7 @@ class ViewController: NSViewController, URLSessionDelegate {
                     WriteToLog.shared.message(theMessage: "There was a problem removing original ConfigurationProfiles")
                 }
             } else {
-                if myExitCode(cmd: "/usr/local/bin/jamf", args: "manage") == 0 {
+                if Command.shared.myExitCode(cmd: "/usr/local/bin/jamf", args: "manage") == 0 {
                     WriteToLog.shared.message(theMessage: "Restored the management framework/mdm from old JSS.")
                 } else {
                     WriteToLog.shared.message(theMessage: "There was a problem restoring the management framework/mdm from old JSS.")
@@ -2116,7 +2111,7 @@ class ViewController: NSViewController, URLSessionDelegate {
 
         if os.majorVersion < 11 {
             // re-enable mdm management from old server on the system - start
-            if myExitCode(cmd: "/usr/local/bin/jamf", args: "mdm") == 0 {
+            if Command.shared.myExitCode(cmd: "/usr/local/bin/jamf", args: "mdm") == 0 {
                 WriteToLog.shared.message(theMessage: "MDM Enrolled - getting MDM profiles from old JSS.")
             } else {
                 WriteToLog.shared.message(theMessage: "There was a problem getting MDM profiles from old JSS.")
@@ -2126,7 +2121,7 @@ class ViewController: NSViewController, URLSessionDelegate {
 
         // try to run recon and update migration state, if tracking
         if self.markAsMigrated {
-            if self.myExitCode(cmd: "/usr/local/jamf/bin/jamf", args: "recon", "-\(self.migratedAttribute)", "migration failed - \(self.getDateTime(x: 1))") == 0 {
+            if Command.shared.myExitCode(cmd: "/usr/local/jamf/bin/jamf", args: "recon", "-\(self.migratedAttribute)", "migration failed - \(self.getDateTime(x: 1))") == 0 {
                 WriteToLog.shared.message(theMessage: "Marked machine as not migrated. Updated \(self.migratedAttribute) attribute.")
             } else {
                 WriteToLog.shared.message(theMessage: "Unable to update attribute \(self.migratedAttribute) noting failed migration.")
@@ -2249,9 +2244,9 @@ class ViewController: NSViewController, URLSessionDelegate {
 //            let currentUser = NSUserName()
             // update inventory - start
             WriteToLog.shared.message(theMessage: "Launching Recon...")
-            if myExitCode(cmd: "/usr/local/bin/jamf", args: "recon", "-endUsername", "\(currentUser)") == 0 {
+            if Command.shared.myExitCode(cmd: "/usr/local/bin/jamf", args: "recon", "-endUsername", "\(currentUser)") == 0 {
                 WriteToLog.shared.message(theMessage: "Submitting full recon for user \(currentUser) to \(newJSSHostname):\(newJSSPort).")
-                _ = myExitCode(cmd: "/usr/local/bin/jamf", args: "manage")
+                _ = Command.shared.myExitCode(cmd: "/usr/local/bin/jamf", args: "manage")
                 sleep(10)
             } else {
                 WriteToLog.shared.message(theMessage: "There was a problem submitting full recon to \(newJSSHostname):\(newJSSPort).")
@@ -2261,7 +2256,7 @@ class ViewController: NSViewController, URLSessionDelegate {
                 if self.fm.fileExists(atPath: "/usr/local/bin/jamfAgent") {
                     try self.fm.removeItem(atPath: "/usr/local/bin/jamfAgent")
                 }
-                if self.myExitCode(cmd: "/bin/bash", args: "-c", "ln -s /usr/local/jamf/bin/jamfAgent /usr/local/bin/jamfAgent") == 0 {
+                if Command.shared.myExitCode(cmd: "/bin/bash", args: "-c", "ln -s /usr/local/jamf/bin/jamfAgent /usr/local/bin/jamfAgent") == 0 {
                     WriteToLog.shared.message(theMessage: "Re-created alias for jamfAgent binary in /usr/local/bin.")
                 } else {
                     WriteToLog.shared.message(theMessage: "Failed to re-created alias for jamfAgent binary in /usr/local/bin.")
@@ -2277,7 +2272,7 @@ class ViewController: NSViewController, URLSessionDelegate {
 
             if callEnrollment == "yes" {
                 // launch profiles renew -type enrollment to initiate ADE process
-                if myExitCode(cmd: "/usr/bin/profiles", args: "renew", "-type", "enrollment") == 0 {
+                if Command.shared.myExitCode(cmd: "/usr/bin/profiles", args: "renew", "-type", "enrollment") == 0 {
                     WriteToLog.shared.message(theMessage: "Successfully called profiles renew -type enrollment")
                 } else {
                     WriteToLog.shared.message(theMessage: "call to profiles renew -type enrollment failed")
@@ -2304,7 +2299,7 @@ class ViewController: NSViewController, URLSessionDelegate {
             } else {
                 if  postInstallPolicyId != "" {
                     WriteToLog.shared.message(theMessage: "Running policy id \(postInstallPolicyId)")
-                    if myExitCode(cmd: "/usr/local/bin/jamf", args: "policy", "-id", "\(postInstallPolicyId)") == 0 {
+                    if Command.shared.myExitCode(cmd: "/usr/local/bin/jamf", args: "policy", "-id", "\(postInstallPolicyId)") == 0 {
                         WriteToLog.shared.message(theMessage: "Successfully called policy id \(postInstallPolicyId)")
                     } else {
                         WriteToLog.shared.message(theMessage: "There was an error calling policy id \(postInstallPolicyId)")
@@ -2365,11 +2360,11 @@ class ViewController: NSViewController, URLSessionDelegate {
                 }
                 if os.majorVersion >= 11 {
                     //bootout system /Library/LaunchDaemons/com.jamf.ReEnroller.plist
-                    if myExitCode(cmd: "/bin/launchctl", args: "bootout", "system", "/tmp/com.jamf.ReEnroller.plist") != 0 {
+                    if Command.shared.myExitCode(cmd: "/bin/launchctl", args: "bootout", "system", "/tmp/com.jamf.ReEnroller.plist") != 0 {
                         WriteToLog.shared.message(theMessage: "There was a problem unloading the launchd.")
                     }
                 } else {
-                    if myExitCode(cmd: "/bin/launchctl", args: "unload", "/tmp/com.jamf.ReEnroller.plist") != 0 {
+                    if Command.shared.myExitCode(cmd: "/bin/launchctl", args: "unload", "/tmp/com.jamf.ReEnroller.plist") != 0 {
                         WriteToLog.shared.message(theMessage: "There was a problem unloading the launchd.")
                     }
                 }
@@ -2385,7 +2380,7 @@ class ViewController: NSViewController, URLSessionDelegate {
             WriteToLog.shared.message(theMessage: "Verifying enrollment...")
             for i in 1...4 {
                 // test for a policy on the new Jamf Pro server and that it ran successfully
-                let policyExitCode = self.myExitCode(cmd: "/usr/local/bin/jamf", args: "policy", "-trigger", "jpsmigrationcheck")
+                let policyExitCode = Command.shared.myExitCode(cmd: "/usr/local/bin/jamf", args: "policy", "-trigger", "jpsmigrationcheck")
                 var loopCount = 0
                 while loopCount < 30 && !self.fm.fileExists(atPath: self.verificationFile) {
                     sleep(1)
@@ -2630,7 +2625,7 @@ class ViewController: NSViewController, URLSessionDelegate {
             // look for an existing jamf plist file
             if fm.fileExists(atPath: jamfPlistPath) {
                 // need to convert jamf plist to xml (plutil -convert xml1 some.plist)
-                if myExitCode(cmd: "/usr/bin/plutil", args: "-convert", "xml1", jamfPlistPath) != 0 {
+                if Command.shared.myExitCode(cmd: "/usr/bin/plutil", args: "-convert", "xml1", jamfPlistPath) != 0 {
                     WriteToLog.shared.message(theMessage: "Unable to read current jamf configuration.  It is either corrupt or client is not enrolled.")
                     //exit(1)
                 } else {
@@ -2649,7 +2644,7 @@ class ViewController: NSViewController, URLSessionDelegate {
                     }
                     WriteToLog.shared.message(theMessage: "Found old Jamf Pro server: \(oldURL)")
                     // convert the jamf plist back to binary (plutil -convert binary1 some.plist)
-                    if myExitCode(cmd: "/usr/bin/plutil", args: "-convert", "binary1", jamfPlistPath) != 0 {
+                    if Command.shared.myExitCode(cmd: "/usr/bin/plutil", args: "-convert", "binary1", jamfPlistPath) != 0 {
                         WriteToLog.shared.message(theMessage: "There was an error converting the jamf.plist back to binary")
                     }
                 }

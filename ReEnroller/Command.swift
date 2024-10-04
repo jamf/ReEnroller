@@ -8,22 +8,37 @@
 
 import Foundation
 
-class command {
+class Command: NSObject {
+    
+    static let shared = Command()
+    private override init() { }
     
     // function to return exit code of bash command - start
     func myExitCode(cmd: String, args: String...) -> Int8 {
-        //var pipe_pkg = Pipe()
-        let task_pkg = Process()
+        var theCmd = cmd
+        for theArg in args {
+            theCmd.append(" \(theArg)")
+        }
+        WriteToLog.shared.message(theMessage: "running command: \(theCmd)")
         
+        var pipe_pkg = Pipe()
+        let task_pkg = Process()
+
         task_pkg.launchPath = cmd
         task_pkg.arguments = args
-        //task_pkg.standardOutput = pipe_pkg
+        task_pkg.standardOutput = pipe_pkg
         //var test = task_pkg.standardOutput
-        
+
         task_pkg.launch()
+        
+        let outdata = pipe_pkg.fileHandleForReading.readDataToEndOfFile()
+        if var string = String(data: outdata, encoding: .utf8) {
+            WriteToLog.shared.message(theMessage: "command result: \(string)")
+        }
+        
         task_pkg.waitUntilExit()
         let result = task_pkg.terminationStatus
-        
+
         return(Int8(result))
     }
     // function to return exit code of bash command - end
