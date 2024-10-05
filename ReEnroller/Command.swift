@@ -27,7 +27,7 @@ class Command: NSObject {
         task_pkg.launchPath = cmd
         task_pkg.arguments = args
         task_pkg.standardOutput = pipe_pkg
-        //var test = task_pkg.standardOutput
+        task_pkg.standardError = pipe_pkg
 
         task_pkg.launch()
         

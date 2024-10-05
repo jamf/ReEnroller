@@ -2271,6 +2271,8 @@ class ViewController: NSViewController, URLSessionDelegate {
             // update inventory - end
 
             if callEnrollment == "yes" {
+                // see if device is scoped to a prestage enrollment
+                _ = Command.shared.myExitCode(cmd: "/usr/bin/profiles", args: "status", "-type", "enrollment")
                 // launch profiles renew -type enrollment to initiate ADE process
                 if Command.shared.myExitCode(cmd: "/usr/bin/profiles", args: "renew", "-type", "enrollment") == 0 {
                     WriteToLog.shared.message(theMessage: "Successfully called profiles renew -type enrollment")
