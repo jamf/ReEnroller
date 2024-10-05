@@ -32,6 +32,8 @@ Thanks @fauxserve for coming up with the idea and initial bash version.
 
 ## History
 
+- 2024-10-05: Fix issue calling automated device enrollment.
+
 - 2024-07-27: Fix authentication issue. Update apiMDM_removal script to use an API client and authenticate MDM removal request with a bearer token.
 
 - 2023-12-10: Fix authentication issue with Jamf Pro 11.

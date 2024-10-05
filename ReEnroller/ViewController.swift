@@ -314,11 +314,13 @@ class ViewController: NSViewController, URLSessionDelegate {
 
     // process function - start
     @IBAction func process(_ sender: Any) {
+        processQuickAdd_Button.isEnabled = false
         // get invitation code - start
 //        var jssUrl = jssUrl_TextField.stringValue.baseUrl
         JamfProServer.destination = jssUrl_TextField.stringValue.baseUrl
         if "\(JamfProServer.destination)" == "" {
             Alert.shared.display(header: "Alert", message: "Please provide the URL for the new server.")
+            processQuickAdd_Button.isEnabled = true
             return
         }
 //        jssUrl = dropTrailingSlash(theSentString: jssUrl)
@@ -327,6 +329,7 @@ class ViewController: NSViewController, URLSessionDelegate {
         if "\(mgmtAcct)" == "" {
             Alert.shared.display(header: "Attention", message: "You must supply a management account username.")
             mgmtAccount_TextField.becomeFirstResponder()
+            processQuickAdd_Button.isEnabled = true
             return
         }
 
@@ -340,11 +343,13 @@ class ViewController: NSViewController, URLSessionDelegate {
             if "\(mgmtAcctPwd)" == "" {
                 Alert.shared.display(header: "Attention", message: "Password cannot be left blank.")
                 mgmtAccount_TextField.becomeFirstResponder()
+                processQuickAdd_Button.isEnabled = true
                 return
             }
             if "\(mgmtAcctPwd)" != "\(mgmtAcctPwd2)" {
                 Alert.shared.display(header: "Attention", message: "Management account passwords do not match.")
                 mgmtAcctPwd_TextField.becomeFirstResponder()
+                processQuickAdd_Button.isEnabled = true
                 return
             }
 
@@ -363,6 +368,7 @@ class ViewController: NSViewController, URLSessionDelegate {
 //          check the local system for the existance of the management account
             if ( userOperation(mgmtUser: mgmtAcct, operation: "find") != "" ) {
                 Alert.shared.display(header: "Attention:", message: "Account \(mgmtAcct) cannot be used with a random password as it exists on this system.")
+                processQuickAdd_Button.isEnabled = true
                 return
             }
             /*
@@ -395,6 +401,7 @@ class ViewController: NSViewController, URLSessionDelegate {
         if jamfSchool_Button.state.rawValue == 1 {
             if networkId_TextField.stringValue == "" || apiKey_TextField.stringValue == "" {
                 Alert.shared.display(header: "Attention:", message: "Migrating from Jamf School requires the server URL, the Network ID, and API key.")
+                processQuickAdd_Button.isEnabled = true
                 return
             } else {
                // generate token for Jamf School API
@@ -408,13 +415,14 @@ class ViewController: NSViewController, URLSessionDelegate {
 
         self.spinner.startAnimation(self)
 
-        healthCheck(server: JamfProServer.destination) {
+        healthCheck(server: JamfProServer.destination) { [self]
             (result: [String]) in
             print("health check result: \(result)")
             if ( result[1] != "[]" ) {
                 let lightFormat = self.removeTag(xmlString: result[1].replacingOccurrences(of: "><", with: ">\n<"))
                 Alert.shared.display(header: "Attention", message: "The new server, \(JamfProServer.destination), does not appear ready for enrollments.\nResult of healthCheck: \(lightFormat)\nResponse code: \(result[0])")
                 self.spinner.stopAnimation(self)
+                processQuickAdd_Button.isEnabled = true
                 return
             } else {
                 // server is reachable
@@ -424,6 +432,7 @@ class ViewController: NSViewController, URLSessionDelegate {
                 if "\(self.jssUsername)" == "" || "\(self.jssPassword))" == "" {
                     Alert.shared.display(header: "Alert", message: "Please provide both a username and password for the server.")
                     self.spinner.stopAnimation(self)
+                    processQuickAdd_Button.isEnabled = true
                     return
                 }
                 
@@ -436,7 +445,7 @@ class ViewController: NSViewController, URLSessionDelegate {
                 let jpsBase64Creds = jpsCredentials.data(using: .utf8)?.base64EncodedString() ?? ""
 
                 
-                JamfPro().getToken(serverUrl: JamfProServer.destination, base64creds: jpsBase64Creds) {
+                JamfPro().getToken(serverUrl: JamfProServer.destination, base64creds: jpsBase64Creds) { [self]
                     authResult in
                     
                     let (statusCode,theResult) = authResult
@@ -449,6 +458,7 @@ class ViewController: NSViewController, URLSessionDelegate {
                         switch verifySslSetting {
                         case "failedCredentials":
                             self.spinner.stopAnimation(self)
+                            processQuickAdd_Button.isEnabled = true
                             return
                         case "":
                             Alert.shared.display(header: "Alert", message: "Unable to determine verifySSLCert setting on server, setting to always_except_during_enrollment")
@@ -472,7 +482,7 @@ class ViewController: NSViewController, URLSessionDelegate {
                         Xml.objectArray.append("invitation")
 
                         // get invitation code
-                        self.apiAction(action: "POST", xml: Xml.objectDict["invitation"]!, theApiObject: "invitation") {
+                        self.apiAction(action: "POST", xml: Xml.objectDict["invitation"]!, theApiObject: "invitation") { [self]
                             (result: [Any]) in
                             let responseCode = result[0] as! Int
                             let responseMesage = result[1] as! String
@@ -480,6 +490,7 @@ class ViewController: NSViewController, URLSessionDelegate {
                                 let lightFormat = self.removeTag(xmlString: responseMesage.replacingOccurrences(of: "><", with: ">\n<"))
                                 Alert.shared.display(header: "Attention", message: "Failed to create invitation code.\nMessage: \(lightFormat)\nResponse code: \(responseCode)")
                                 self.spinner.stopAnimation(self)
+                                processQuickAdd_Button.isEnabled = true
                                 return
                             } else {
                                 print("full reply for invitation code request:\n\t\(responseMesage)\n")
@@ -489,6 +500,7 @@ class ViewController: NSViewController, URLSessionDelegate {
                                     if "\(self.theNewInvite)" == "" {
                                         Alert.shared.display(header: "Alert", message: "Unable to create invitation.  Verify the account, \(self.jssUsername), has been assigned permissions to do so.")
                                         self.spinner.stopAnimation(self)
+                                        processQuickAdd_Button.isEnabled = true
                                         return
                                     } else {
                                         print("Found invitation code: \(self.theNewInvite)")
@@ -541,6 +553,7 @@ class ViewController: NSViewController, URLSessionDelegate {
                                 } else {
                                     print("invalid reply from the Jamf server when requesting an invitation code.")
                                     self.spinner.stopAnimation(self)
+                                    processQuickAdd_Button.isEnabled = true
                                     return
                                 }
                             }
@@ -1285,7 +1298,7 @@ class ViewController: NSViewController, URLSessionDelegate {
         fullPackageName = "\(packageName)-\(self.shortHostname).pkg"
         // alert the user, we're done
         Alert.shared.display(header: "Process Complete", message: "A package (\(packageName)-\(self.shortHostname).pkg) has been created in Downloads which is ready to be deployed with your current Jamf server.\n\nThe package \(self.includesMsg) a postinstall script to load the launch daemon and start the \(packageName) app.\(self.includesMsg2)\(self.policyMsg)")
-
+        processQuickAdd_Button.isEnabled = true
     }
 
     func connectedToNetwork() -> Bool {
@@ -1761,58 +1774,8 @@ class ViewController: NSViewController, URLSessionDelegate {
         return mdm
     }
 
-    // function to return exit code of bash command - start
-//    func myExitCode(cmd: String, args: String...) -> Int8 {
-//        var pipe_pkg = Pipe()
-//        let task_pkg = Process()
-//
-//        task_pkg.launchPath = cmd
-//        task_pkg.arguments = args
-//        task_pkg.standardOutput = pipe_pkg
-//        //var test = task_pkg.standardOutput
-//
-//        task_pkg.launch()
-//        
-//        let outdata = pipe_pkg.fileHandleForReading.readDataToEndOfFile()
-//        if var string = String(data: outdata, encoding: .utf8) {
-//            WriteToLog.shared.message(theMessage: "command result: \(string)")
-//        }
-//        
-//        task_pkg.waitUntilExit()
-//        let result = task_pkg.terminationStatus
-//
-//        return(Int8(result))
-//    }
-    // function to return exit code of bash command - end
-
-    // function to return value of bash command - start
-    func myExitValue(cmd: String, args: String...) -> [String] {
-        var status  = [String]()
-        let pipe    = Pipe()
-        let task    = Process()
-
-        task.launchPath     = cmd
-        task.arguments      = args
-        task.standardOutput = pipe
-//        let outputHandle    = pipe.fileHandleForReading
-
-        task.launch()
-
-        let outdata = pipe.fileHandleForReading.readDataToEndOfFile()
-        if var string = String(data: outdata, encoding: .utf8) {
-            string = string.trimmingCharacters(in: .newlines)
-            status = string.components(separatedBy: "\n")
-        }
-
-        task.waitUntilExit()
-
-//        print("status: \(status)")
-        return(status)
-    }
-    // function to return value of bash command - end
-
     func profileInstall() -> Bool {
-        let en = myExitValue(cmd: "/bin/bash", args: "-c", "/usr/sbin/networksetup -listallhardwareports | grep -A1 Wi-Fi | grep Device | awk '{ print $2 }'")[0]
+        let en = Command.shared.myExitValue(cmd: "/bin/bash", args: "-c", "/usr/sbin/networksetup -listallhardwareports | grep -A1 Wi-Fi | grep Device | awk '{ print $2 }'")[0]
         
         WriteToLog.shared.message(theMessage: "[profileInstall]       en: \(en)")
         WriteToLog.shared.message(theMessage: "[profileInstall]     ssid: \(ssid)")
@@ -1856,7 +1819,7 @@ class ViewController: NSViewController, URLSessionDelegate {
                             let ssid = stringFromPlist(plistURL: plistURL!, startString: "<key>SSID_STR</key><string>", endString: "</string><key>Interface</key><string>")
                             let ssidPwd = stringFromPlist(plistURL: plistURL!, startString: "<key>Password</key><string>", endString: "</string><key>EncryptionType</key>")
                             let encrypt = stringFromPlist(plistURL: plistURL!, startString: "<key>EncryptionType</key><string>", endString: "</string><key>AutoJoin</key>")
-                            let en = myExitValue(cmd: "/bin/bash", args: "-c", "/usr/sbin/networksetup -listallhardwareports | grep -A1 Wi-Fi | grep Device | awk '{ print $2 }'")[0]
+                            let en = Command.shared.myExitValue(cmd: "/bin/bash", args: "-c", "/usr/sbin/networksetup -listallhardwareports | grep -A1 Wi-Fi | grep Device | awk '{ print $2 }'")[0]
 
                             let _ = Command.shared.myExitCode(cmd: "/bin/bash", args: "-c", "/usr/sbin/networksetup -addpreferredwirelessnetworkatindex \(en) \"\(ssid)\" 0 \(encrypt) \"\(ssidPwd)\"")
                         } catch {
@@ -1984,12 +1947,12 @@ class ViewController: NSViewController, URLSessionDelegate {
         var power = ""
 
         // get Wi-Fi interface
-        let interfaceArray = myExitValue(cmd: "/bin/bash", args: "-c", "/usr/sbin/networksetup -listallhardwareports | egrep -A 1 \"(Airport|Wi-Fi)\" | awk '/Device:/ { print $2 }'")
+        let interfaceArray = Command.shared.myExitValue(cmd: "/bin/bash", args: "-c", "/usr/sbin/networksetup -listallhardwareports | egrep -A 1 \"(Airport|Wi-Fi)\" | awk '/Device:/ { print $2 }'")
         if interfaceArray.count > 0 {
             interface = interfaceArray[0]
 
             // check airport power
-            let powerArray = myExitValue(cmd: "/bin/bash", args: "-c", "/usr/sbin/networksetup -getairportpower \(interface) | awk -F': ' '{ print $2 }'")
+            let powerArray = Command.shared.myExitValue(cmd: "/bin/bash", args: "-c", "/usr/sbin/networksetup -getairportpower \(interface) | awk -F': ' '{ print $2 }'")
             if powerArray.count > 0 {
                 power = powerArray[0]
 
@@ -2269,16 +2232,16 @@ class ViewController: NSViewController, URLSessionDelegate {
                 }
             }
             // update inventory - end
-
+            
+            // see if device is scoped to a prestage enrollment
+            _ = Command.shared.myExitCode(cmd: "/bin/launchctl", args: "asuser", "$(id -u \"$(stat -f%Su /dev/console)\")", "/usr/bin/profiles", "show", "-type", "enrollment")
+            
             if callEnrollment == "yes" {
-                // see if device is scoped to a prestage enrollment
-                _ = Command.shared.myExitCode(cmd: "/usr/bin/profiles", args: "status", "-type", "enrollment")
                 // launch profiles renew -type enrollment to initiate ADE process
-                if Command.shared.myExitCode(cmd: "/usr/bin/profiles", args: "renew", "-type", "enrollment") == 0 {
+                if Command.shared.myExitCode(cmd: "/bin/bash", args: "-c", (Bundle.main.bundlePath+"/Contents/Resources/ade.sh").replacingOccurrences(of: " ", with: "\\ ")) == 0 {
                     WriteToLog.shared.message(theMessage: "Successfully called profiles renew -type enrollment")
                 } else {
                     WriteToLog.shared.message(theMessage: "call to profiles renew -type enrollment failed")
-                    //exit(1)
                 }
             } else {
                 WriteToLog.shared.message(theMessage: "not calling profiles renew -type enrollment")

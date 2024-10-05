@@ -33,7 +33,9 @@ class Command: NSObject {
         
         let outdata = pipe_pkg.fileHandleForReading.readDataToEndOfFile()
         if var string = String(data: outdata, encoding: .utf8) {
-            WriteToLog.shared.message(theMessage: "command result: \(string)")
+            var currentEnrollment = betweenTags(xmlString: string, startTag: "ConfigurationURL = \"", endTag: "\";")
+            if currentEnrollment == "" { currentEnrollment = string }
+            WriteToLog.shared.message(theMessage: "command result: \(currentEnrollment)")
         }
         
         task_pkg.waitUntilExit()
@@ -69,4 +71,15 @@ class Command: NSObject {
     }
     // function to return value of bash command - end
     
+}
+
+func betweenTags(xmlString:String, startTag:String, endTag:String) -> String {
+    var rawValue = ""
+    if let start = xmlString.range(of: startTag),
+        let end  = xmlString.range(of: endTag, range: start.upperBound..<xmlString.endIndex) {
+        rawValue.append(String(xmlString[start.upperBound..<end.lowerBound]))
+    } else {
+//            WriteToLog.shared.message(stringOfText: "[ListPackages.betweenTags] Nothing found between \(startTag) and \(endTag).")
+    }
+    return rawValue
 }

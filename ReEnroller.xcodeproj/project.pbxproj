@@ -28,6 +28,7 @@
 		B5E2587325D725B100ABD528 /* com.jamf.ReEnroller.plist in Resources */ = {isa = PBXBuildFile; fileRef = B5E2587225D725B100ABD528 /* com.jamf.ReEnroller.plist */; };
 		B5E2587625D7273600ABD528 /* ReEnroller-component.plist in Resources */ = {isa = PBXBuildFile; fileRef = B5E2587525D7273600ABD528 /* ReEnroller-component.plist */; };
 		B5F6492127C96423007B7C26 /* JamfPro.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5F6492027C96423007B7C26 /* JamfPro.swift */; };
+		CE627F6F2CB1E16F00B03815 /* ade.sh in Resources */ = {isa = PBXBuildFile; fileRef = CE627F6E2CB1E16200B03815 /* ade.sh */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -56,6 +57,7 @@
 		B5E2587525D7273600ABD528 /* ReEnroller-component.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "ReEnroller-component.plist"; sourceTree = "<group>"; };
 		B5F6492027C96423007B7C26 /* JamfPro.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = JamfPro.swift; sourceTree = "<group>"; };
 		CE3FE44C293FE2E200D27323 /* Notes.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = Notes.md; sourceTree = "<group>"; };
+		CE627F6E2CB1E16200B03815 /* ade.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = ade.sh; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -91,6 +93,7 @@
 		B5480D5A25D6AE1700BFCC86 /* ReEnroller */ = {
 			isa = PBXGroup;
 			children = (
+				CE627F6E2CB1E16200B03815 /* ade.sh */,
 				B5480DAA25D6B8CA00BFCC86 /* ApiCall.swift */,
 				B535677425DB56110017769D /* Alert.swift */,
 				B5480D5B25D6AE1700BFCC86 /* AppDelegate.swift */,
@@ -201,6 +204,7 @@
 				B5E2587025D7252100ABD528 /* settings.plist in Resources */,
 				B5E2587325D725B100ABD528 /* com.jamf.ReEnroller.plist in Resources */,
 				B5E2587625D7273600ABD528 /* ReEnroller-component.plist in Resources */,
+				CE627F6F2CB1E16F00B03815 /* ade.sh in Resources */,
 				B5480D6325D6AE1A00BFCC86 /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
