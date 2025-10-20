@@ -56,7 +56,7 @@
 #   - updated 20190124: Provide additional feedback as it runs
 #   - updated 20200918: Updates due to changes in xpath for Big Sur
 #   - updated 20240726: Update to use token for authentication
-#
+#   - updated 20251020: Update for Jamf Pro 11.21 (removal of UnmanageDevice from Classic API)
 ####################################################################################################
 
 ## check run settings for arguments
