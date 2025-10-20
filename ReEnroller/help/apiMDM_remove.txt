@@ -141,8 +141,17 @@ else
     exit 1
 fi
 
+## get Jamf Pro version
+version=$(/usr/bin/curl -m 20 -s ${server}api/v1/jamf-pro-version -X POST -H "Authorization: Bearer $token" | awk -F"\"" '{ print $4 }')
+echo "Running Jamf Pro $version"
+jpMajVer=$(echo $version | awk -F. {'print $1'})
+jpMinVer=$(echo $version | awk -F. {'print $2'})
+
 ## send unmanage command to machine
-echo "unmanage machine: curl -m 20 -s ${server}JSSResource/computercommands/command/UnmanageDevice/id/${compId} -X POST -H \"Authorization: Bearer $(echo $token | head -n15)...\""
-/usr/bin/curl -m 20 -s ${server}JSSResource/computercommands/command/UnmanageDevice/id/${compId} -X POST -H "Authorization: Bearer $token"
-
-
+if [ $jpMajVer -gt 10 ] && [ $jpMinVer -gt 20 ]);then
+    echo "unmanage machine: curl -m 20 -s ${server}v1/computer-inventory/${compId}/remove-mdm-profile -X POST -H \"Authorization: Bearer $(echo $token | head -n15)...\""
+    /usr/bin/curl -m 20 -s ${server}v1/computer-inventory/${compId}/remove-mdm-profile -X POST -H "Authorization: Bearer $token"
+else
+    echo "unmanage machine: curl -m 20 -s ${server}JSSResource/computercommands/command/UnmanageDevice/id/${compId} -X POST -H \"Authorization: Bearer $(echo $token | head -n15)...\""
+    /usr/bin/curl -m 20 -s ${server}JSSResource/computercommands/command/UnmanageDevice/id/${compId} -X POST -H "Authorization: Bearer $token"
+fi

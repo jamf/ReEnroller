@@ -631,13 +631,7 @@ class ViewController: NSViewController, URLSessionDelegate {
         serverRequest.httpBody = Data(xml.utf8)
         let serverConf = URLSessionConfiguration.default
         
-        switch JamfProServer.authType {
-        case "Basic":
-            print("[apiAction] using basic auth")
-//            serverConf.httpAdditionalHeaders = ["Authorization" : "\(JamfProServer.authType) \(JamfProServer.authCreds)", "Content-Type" : "application/xml", "Accept" : "application/xml"]
-        default:
-            print("[apiAction] using token auth")
-        }
+        WriteToLog.shared.message(theMessage: "[apiAction] auth type: \(JamfProServer.authType) ")
         serverConf.httpAdditionalHeaders = ["Authorization" : "\(JamfProServer.authType) \(JamfProServer.authCreds)", "Content-Type" : "application/xml", "Accept" : "application/xml"]
 
         let session = Foundation.URLSession(configuration: serverConf, delegate: self, delegateQueue: OperationQueue.main)
@@ -649,19 +643,15 @@ class ViewController: NSViewController, URLSessionDelegate {
                     responseData = responseData.replacingOccurrences(of: "\n", with: " ")
                     print("[apiAction] response code: \(httpResponse.statusCode)")
                     print("[apiAction] response: \(responseData)")
-//                    completion([httpResponse.statusCode,"\(responseData)"])
                     returnValues = [httpResponse.statusCode,"\(responseData)"]
                 } else {
-                    print("[apiAction] No data was returned from \(action).")
-//                    completion([httpResponse.statusCode,""])
+                    WriteToLog.shared.message(theMessage: "[apiAction] No data was returned from \(action).")
                     returnValues = [httpResponse.statusCode,""]
                 }
 
             } else {
-//                completion([404,""])
                 returnValues = [404,""]
             }
-            // move completions here
             if theApiObject == Xml.objectArray.last {
                 completion(returnValues)
             } else {
