@@ -76,7 +76,10 @@ class ViewController: NSViewController, URLSessionDelegate {
     @IBOutlet weak var rndPwdLen_TextField: NSTextField?
 
     // For Jamf School
-    @IBOutlet weak var jamfSchoolBgnd_TextField: NSTextField!
+    
+    @IBOutlet weak var JamfSchool_Box: NSBox!
+    
+//    @IBOutlet weak var jamfSchoolBgnd_TextField: NSTextField!
     @IBOutlet weak var jamfSchoolHeader_Label: NSTextField!
     @IBOutlet weak var jamfSchoolUrl_Label: NSTextField!
     @IBOutlet weak var jamfSchoolUrl_TextField: NSTextField!
@@ -100,7 +103,7 @@ class ViewController: NSViewController, URLSessionDelegate {
     @IBOutlet weak var policyId_Textfield: NSTextField!
     @IBOutlet weak var deviceEnrollment_Button: NSButton!
     @IBOutlet weak var markAsMigrated_Button: NSButton!
-    @IBOutlet weak var migratedLabel_TextField: NSTextField!
+//    @IBOutlet weak var migratedLabel_TextField: NSTextField!
     @IBOutlet weak var migratedAttribute_Button: NSPopUpButton!
     @IBOutlet weak var removeMDM_Button: NSButton!
     @IBOutlet weak var removeMdmWhen_Button: NSPopUpButton!
@@ -228,26 +231,31 @@ class ViewController: NSViewController, URLSessionDelegate {
     @IBAction func jamfSchool_fn(_ sender: Any) {
         if self.jamfSchool_Button.state.rawValue == 1 {
 //            self.jamfSchoolBgnd_TextField.isHidden = false
-            self.jamfSchoolHeader_Label.isHidden   = false
-            self.jamfSchoolUrl_Label.isHidden      = false
-            self.jamfSchoolUrl_TextField.isHidden  = false
-            self.networkId_Label.isHidden          = false
-            self.networkId_TextField.isHidden      = false
-            self.apiKey_Label.isHidden             = false
-            self.apiKey_TextField.isHidden         = false
+            self.JamfSchool_Box.isHidden           = false
+//            self.jamfSchoolHeader_Label.isHidden   = false
+//            self.jamfSchoolUrl_Label.isHidden      = false
+//            self.jamfSchoolUrl_TextField.isHidden  = false
+//            self.networkId_Label.isHidden          = false
+//            self.networkId_TextField.isHidden      = false
+//            self.apiKey_Label.isHidden             = false
+//            self.apiKey_TextField.isHidden         = false
             newEnrollment_Button.state             = NSControl.StateValue(rawValue: 1)
             newEnrollment_Button.isEnabled         = false
         } else {
 //            self.jamfSchoolBgnd_TextField.isHidden = true
-            self.jamfSchoolHeader_Label.isHidden   = true
-            self.jamfSchoolUrl_Label.isHidden      = true
-            self.jamfSchoolUrl_TextField.isHidden  = true
-            self.networkId_Label.isHidden          = true
-            self.networkId_TextField.isHidden      = true
-            self.apiKey_Label.isHidden             = true
-            self.apiKey_TextField.isHidden         = true
-            newEnrollment_Button.state             = NSControl.StateValue(rawValue: 0)
-            newEnrollment_Button.isEnabled         = true
+            self.JamfSchool_Box.isHidden             = true
+//            self.jamfSchoolHeader_Label.isHidden     = true
+//            self.jamfSchoolUrl_Label.isHidden        = true
+//            self.jamfSchoolUrl_TextField.isHidden    = true
+            self.jamfSchoolUrl_TextField.stringValue = ""
+//            self.networkId_Label.isHidden            = true
+//            self.networkId_TextField.isHidden        = true
+            self.networkId_TextField.stringValue     = ""
+//            self.apiKey_Label.isHidden               = true
+//            self.apiKey_TextField.isHidden           = true
+            self.apiKey_TextField.stringValue        = ""
+            newEnrollment_Button.state               = NSControl.StateValue(rawValue: 0)
+            newEnrollment_Button.isEnabled           = true
         }
         newEnrollment_fn(self)
     }
@@ -276,10 +284,10 @@ class ViewController: NSViewController, URLSessionDelegate {
 
     @IBAction func markAsMigrated_fn(_ sender: Any) {
         if markAsMigrated_Button.state.rawValue == 1 {
-            migratedLabel_TextField.isHidden  = false
+//            migratedLabel_TextField.isHidden  = false
             migratedAttribute_Button.isHidden = false
         } else {
-            migratedLabel_TextField.isHidden  = true
+//            migratedLabel_TextField.isHidden  = true
             migratedAttribute_Button.isHidden = true
         }
     }
@@ -291,7 +299,7 @@ class ViewController: NSViewController, URLSessionDelegate {
 //            enableSites_Button.isEnabled       = false
             markAsMigrated_Button.isEnabled    = false
             markAsMigrated_Button.state        = NSControl.StateValue(rawValue: 0)
-            migratedLabel_TextField.isHidden   = true
+//            migratedLabel_TextField.isHidden   = true
             migratedAttribute_Button.isEnabled = false
             migratedAttribute_Button.isHidden  = true
             removeMDM_Button.isEnabled         = false
