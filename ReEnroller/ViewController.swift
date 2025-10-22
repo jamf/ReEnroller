@@ -227,7 +227,7 @@ class ViewController: NSViewController, URLSessionDelegate {
 
     @IBAction func jamfSchool_fn(_ sender: Any) {
         if self.jamfSchool_Button.state.rawValue == 1 {
-            self.jamfSchoolBgnd_TextField.isHidden = false
+//            self.jamfSchoolBgnd_TextField.isHidden = false
             self.jamfSchoolHeader_Label.isHidden   = false
             self.jamfSchoolUrl_Label.isHidden      = false
             self.jamfSchoolUrl_TextField.isHidden  = false
@@ -238,7 +238,7 @@ class ViewController: NSViewController, URLSessionDelegate {
             newEnrollment_Button.state             = NSControl.StateValue(rawValue: 1)
             newEnrollment_Button.isEnabled         = false
         } else {
-            self.jamfSchoolBgnd_TextField.isHidden = true
+//            self.jamfSchoolBgnd_TextField.isHidden = true
             self.jamfSchoolHeader_Label.isHidden   = true
             self.jamfSchoolUrl_Label.isHidden      = true
             self.jamfSchoolUrl_TextField.isHidden  = true
