@@ -50,14 +50,30 @@
 #
 # HISTORY
 #
-#    Version: 1.4
+#    Version: 1.5
 #
 #   - Created by Leslie Helou, Professional Services Engineer, JAMF Software on December 12, 2017
 #   - updated 20190124: Provide additional feedback as it runs
 #   - updated 20200918: Updates due to changes in xpath for Big Sur
 #   - updated 20240726: Update to use token for authentication
 #   - updated 20251020: Update for Jamf Pro 11.21 (removal of UnmanageDevice from Classic API)
+#
 ####################################################################################################
+
+
+invalidateToken() {
+    response=$(curl -w "%{http_code}" -H "Authorization: Bearer $token" "${server}api/v1/auth/invalidate-token" -X POST -s -o /dev/null)
+    if [[ $response == 204 ]]; then
+        echo "Token successfully invalidated"
+        exit 0
+    elif [[ $response == 401 ]]; then
+        echo "Token already invalid"
+        exit 0
+    else
+        echo "An unknown error occurred invalidating the token"
+        exit 1
+    fi
+}
 
 ## check run settings for arguments
 
@@ -142,16 +158,19 @@ else
 fi
 
 ## get Jamf Pro version
-version=$(/usr/bin/curl -m 20 -s ${server}api/v1/jamf-pro-version -X POST -H "Authorization: Bearer $token" | awk -F"\"" '{ print $4 }')
+version=$(/usr/bin/curl -m 20 -s ${server}api/v1/jamf-pro-version -X GET -H "Authorization: Bearer $token" | awk -F"\"" '{ print $4 }')
 echo "Running Jamf Pro $version"
 jpMajVer=$(echo $version | awk -F. {'print $1'})
 jpMinVer=$(echo $version | awk -F. {'print $2'})
 
 ## send unmanage command to machine
-if [ $jpMajVer -gt 10 ] && [ $jpMinVer -gt 20 ]);then
-    echo "unmanage machine: curl -m 20 -s ${server}v1/computer-inventory/${compId}/remove-mdm-profile -X POST -H \"Authorization: Bearer $(echo $token | head -n15)...\""
-    /usr/bin/curl -m 20 -s ${server}v1/computer-inventory/${compId}/remove-mdm-profile -X POST -H "Authorization: Bearer $token"
+if [ $jpMajVer -gt 10 ] && [ $jpMinVer -gt 20 ];then
+    echo "unmanage machine: curl -m 20 -s ${server}api/v1/computer-inventory/${compId}/remove-mdm-profile -X POST -H \"Authorization: Bearer $(echo $token | head -n15)...\""
+    /usr/bin/curl -m 20 -s ${server}api/v1/computer-inventory/${compId}/remove-mdm-profile -X POST -H "Authorization: Bearer $token"
 else
     echo "unmanage machine: curl -m 20 -s ${server}JSSResource/computercommands/command/UnmanageDevice/id/${compId} -X POST -H \"Authorization: Bearer $(echo $token | head -n15)...\""
     /usr/bin/curl -m 20 -s ${server}JSSResource/computercommands/command/UnmanageDevice/id/${compId} -X POST -H "Authorization: Bearer $token"
 fi
+
+echo
+invalidateToken

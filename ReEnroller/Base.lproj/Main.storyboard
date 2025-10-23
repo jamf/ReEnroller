@@ -500,7 +500,7 @@ DQ
                                     <action selector="process:" target="XfG-lQ-9wD" id="jhg-Ke-4ZH"/>
                                 </connections>
                             </button>
-                            <button toolTip="RTFM" horizontalHuggingPriority="750" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="wca-Nl-uAU">
+                            <button toolTip="Help" horizontalHuggingPriority="750" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="wca-Nl-uAU">
                                 <rect key="frame" x="484" y="27" width="24" height="24"/>
                                 <buttonCell key="cell" type="help" bezelStyle="helpButton" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="WSc-OK-ECq">
                                     <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
