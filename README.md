@@ -32,7 +32,7 @@ Thanks @fauxserve for coming up with the idea and initial bash version.
 
 ## History
 
-- 2025-10-23: Update MDM removal to align with API changes in Jamf Pro 11.21.
+- 2025-10-23: Update MDM removal to align with API changes in Jamf Pro 11.21. Invalidate bearer token generated during enrollment.
 
 - 2024-10-05: Fix issue calling automated device enrollment.
 
