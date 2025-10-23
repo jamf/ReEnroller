@@ -778,7 +778,7 @@ DQ
                                 <rect key="frame" x="62" y="170" width="136" height="12"/>
                                 <buttonCell key="cell" type="check" title="Remove MDM profile" bezelStyle="regularSquare" imagePosition="left" controlSize="small" state="on" inset="2" id="o2H-iS-6Wh">
                                     <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
-                                    <font key="font" metaFont="system" size="12"/>
+                                    <font key="font" metaFont="cellTitle"/>
                                 </buttonCell>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="12" id="Don-Dx-SLe"/>
