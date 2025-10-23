@@ -154,17 +154,17 @@ a:hover
 <ul style="margin-left:17px;line-height: 1.4;">
     <li>Enter the URL and Jamf administrator credentials, or an account with at least enrollment privileges, for the new Jamf server.</li>
     <li>The server must have a trusted certificate used to encrypt https traffic.</li>
+    <li>In the event network connectivity gets disrupted during the migration, connectivity is dependent on a configuration profile that gets removed, wifi imformation can be suplied to maintain a connection. Note, the connection only supports WPA.</li>
+    <li>Be sure you're familiar with the usage/configuration of a (local) management account. Reference: <a href="https://learn.jamf.com/en-US/bundle/jamf-pro-documentation-current/page/Management_Accounts.html" target="_blank">Local Management Accounts</a></li>
     <li>If you wish to retain the existing management account and the password enter those credentials.&nbsp; If you wish to change the management account and or password, or wish to use a random password a new management account must be entered.&nbsp; This must be an account not currently on the machine, it will be created during (re)enrollment.&nbsp;&nbsp; </li>
-    <li>If you choose to add a configuration profile containing a network payload either browse to the file or drag it in.&nbsp; A common profile may include a WiFi payload used to maintain network connectivity during the re-enrollment process. Note, 802.1x profiles are not supported.</li>
     <li>If you wish to generate a package for an initial enrollment check 'Use for new enrollment'.</li>
-    <li>For machines that were enrolled through DEP and have &lsquo;Allow MDM Profile Removal&rsquo; unchecked, you need to check the box &lsquo;Remove profiles marked in DEP as not to be removed&rsquo;.  Note, starting with High Sierra (10.13) this option no longer works if SIP is enabled.</li>
     <li>Select appropriate Site options.&nbsp; If the computer account already exists on the destination server with a Site assignemt, the Site may be preserved during re-enrollment.&nbsp; You're also able to select the Site to migrate the system into.</li>
     <li>To automatically create the policy used on the destination server to verity enrollment check the 'Create Migration Complete policy' box.</li>
     <li>If APNs is not being used on the destination server, or you wish to skip the APNs test for some other reason, check the box 'Skip MDM verification'.</li>
     <li>If you'd like to run a specific policy after migration has been verified and recon is complete select the option to do so.  Be sure to use the correct policy id from the policy on the destination server.</li>
     <li>If calling device enrollment be sure the devicd has been assigned to a prestage in the new environment.</li>
     <li>You can mark the machine as migrated by updating an attribute in the device record in the old server.</li>
-    <li>Select when to remove the MDM profile installed by the old Jamf Pro server, or leave it on the machine to be removed later.</li>
+    <li>Select when to remove the MDM profile installed by the source Jamf Pro server, or leave it on the machine to be removed later. If before, configure the apiMDM_remove script on the source (server you're migrating from) server. If after, configure the apiMDM_remove script on the destination (server you're migrating to) server. See the instructions below to ensure the script/policy is properly configured on the correct server.</li>
     <li>By default the package cleans up once migration is complete.&nbsp; If you'd like to keep things in place uncheck the box for removing the ReEnroller folder.</li>
     <li>If desired set the number of times the client will try the enrollment process in the event it fails for some reason.  Leaving the field blank will set the client to keep retrying until successful.</li>
     <li>Set an interval for the process to retry re-enrollment (5 minutes or greater) in the event it fails, or keep the default of 30 minutes.  You are able to separate the launch daemon/postinstall script from the re-enrollment application by checking the box, 'Create Separate Package'.  With the box checked 2 packages will be created, one with the launchdaemon and postinstall script, the other with the re-enrollment application and settings.  This allows one to stage the application then deploy the launch daemon at a later date, or create a custom launch daemon, say to repair enrollments that have failed over time.</li>
@@ -262,165 +262,183 @@ Starting with 10.13 Apple added /var/db/ConfigurationProfiles to SIP.  To ensure
     <pre><span style="font-family:'Courier New';">
         <hr>
         <code>
-#!/bin/bash
+            #!/bin/bash
 
-##########################################################################################
-##
-##Copyright (c) 2017 Jamf.  All rights reserved.
-##
-##      Redistribution and use in source and binary forms, with or without
-##      modification, are permitted provided that the following conditions are met:
-##              * Redistributions of source code must retain the above copyright
-##                notice, this list of conditions and the following disclaimer.
-##              * Redistributions in binary form must reproduce the above copyright
-##                notice, this list of conditions and the following disclaimer in the
-##                documentation and#or other materials provided with the distribution.
-##              * Neither the name of the Jamf nor the names of its contributors may be
-##                used to endorse or promote products derived from this software without
-##                specific prior written permission.
-##
-##      THIS SOFTWARE IS PROVIDED BY JAMF SOFTWARE, LLC "AS IS" AND ANY
-##      EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-##      WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-##      DISCLAIMED. IN NO EVENT SHALL JAMF SOFTWARE, LLC BE LIABLE FOR ANY
-##      DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
-##      (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-##      LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
-##      ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-##      (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-##      SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-##
-##########################################################################################
-#
-# SUPPORT FOR THIS PROGRAM
-#
-#       This program is distributed "as is" by JAMF Software, Professional Services Team. For more
-#       information or support for this script, please contact your JAMF Software Account Manager.
-#
-#####################################################################################################
-#
-# ABOUT THIS PROGRAM
-#
-# NAME - apiMDM_remove.sh
-#
-# DESCRIPTION - Script is used to remove MDM from macOS clients 10.13 (High Sierra) and later.
-#               Parameters passed to the script include a Jamf server username and password and
-#               optionally the Jamf server URL in the form: https://FQDN:port/.
-#
-#               The jamf user aaccount must have at least computer create and read (JSS Objects)
-#               along with Send Computer Unmanage Command (JSS Actions).
-#
-####################################################################################################
-#
-# HISTORY
-#
-#    Version: 1.4
-#
-#   - Created by Leslie Helou, Professional Services Engineer, JAMF Software on December 12, 2017
-#   - updated 20190124: Provide additional feedback as it runs
-#   - updated 20200918: Updates due to changes in xpath for Big Sur
-#   - updated 20240726: Update to use token for authentication
-#   - updated 20251020: Update for Jamf Pro 11.21 (removal of UnmanageDevice from Classic API)
-#
-####################################################################################################
+            ##########################################################################################
+            ##
+            ##Copyright (c) 2017 Jamf.  All rights reserved.
+            ##
+            ##      Redistribution and use in source and binary forms, with or without
+            ##      modification, are permitted provided that the following conditions are met:
+            ##              * Redistributions of source code must retain the above copyright
+            ##                notice, this list of conditions and the following disclaimer.
+            ##              * Redistributions in binary form must reproduce the above copyright
+            ##                notice, this list of conditions and the following disclaimer in the
+            ##                documentation and#or other materials provided with the distribution.
+            ##              * Neither the name of the Jamf nor the names of its contributors may be
+            ##                used to endorse or promote products derived from this software without
+            ##                specific prior written permission.
+            ##
+            ##      THIS SOFTWARE IS PROVIDED BY JAMF SOFTWARE, LLC "AS IS" AND ANY
+            ##      EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+            ##      WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+            ##      DISCLAIMED. IN NO EVENT SHALL JAMF SOFTWARE, LLC BE LIABLE FOR ANY
+            ##      DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+            ##      (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+            ##      LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+            ##      ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+            ##      (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+            ##      SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+            ##
+            ##########################################################################################
+            #
+            # SUPPORT FOR THIS PROGRAM
+            #
+            #       This program is distributed "as is" by JAMF Software, Professional Services Team. For more
+            #       information or support for this script, please contact your JAMF Software Account Manager.
+            #
+            #####################################################################################################
+            #
+            # ABOUT THIS PROGRAM
+            #
+            # NAME - apiMDM_remove.sh
+            #
+            # DESCRIPTION - Script is used to remove MDM from macOS clients 10.13 (High Sierra) and later.
+            #               Parameters passed to the script include a Jamf server username and password and
+            #               optionally the Jamf server URL in the form: https://FQDN:port/.
+            #
+            #               The jamf user aaccount must have at least computer create and read (JSS Objects)
+            #               along with Send Computer Unmanage Command (JSS Actions).
+            #
+            ####################################################################################################
+            #
+            # HISTORY
+            #
+            #    Version: 1.5
+            #
+            #   - Created by Leslie Helou, Professional Services Engineer, JAMF Software on December 12, 2017
+            #   - updated 20190124: Provide additional feedback as it runs
+            #   - updated 20200918: Updates due to changes in xpath for Big Sur
+            #   - updated 20240726: Update to use token for authentication
+            #   - updated 20251020: Update for Jamf Pro 11.21 (removal of UnmanageDevice from Classic API)
+            #
+            ####################################################################################################
 
-## check run settings for arguments
 
-## get macOS version
-macOS_Version=$(sw_vers -productVersion)
-majorVer=$( /bin/echo "$macOS_Version" | /usr/bin/awk -F. '{print $1}' )
-minorVer=$( /bin/echo "$macOS_Version" | /usr/bin/awk -F. '{print $2}' )
+            invalidateToken() {
+                response=$(curl -w "%{http_code}" -H "Authorization: Bearer $token" "${server}api/v1/auth/invalidate-token" -X POST -s -o /dev/null)
+                if [[ $response == 204 ]]; then
+                    echo "Token successfully invalidated"
+                    exit 0
+                elif [[ $response == 401 ]]; then
+                    echo "Token already invalid"
+                    exit 0
+                else
+                    echo "An unknown error occurred invalidating the token"
+                    exit 1
+                fi
+            }
 
-## account with computer create and read (JSS Objects), Send Computer Unmanage Command (JSS Actions)
-uname="$4"
-pwd="$5"
+            ## check run settings for arguments
 
-if [ "$uname" == "" ];then
-    echo "missing client ID - exiting."
-    exit 1
-fi
+            ## get macOS version
+            macOS_Version=$(sw_vers -productVersion)
+            majorVer=$( /bin/echo "$macOS_Version" | /usr/bin/awk -F. '{print $1}' )
+            minorVer=$( /bin/echo "$macOS_Version" | /usr/bin/awk -F. '{print $2}' )
 
-if [ "$pwd" == "" ];then
-    echo "missing client secret - exiting."
-    exit 1
-fi
+            ## account with computer create and read (JSS Objects), Send Computer Unmanage Command (JSS Actions)
+            uname="$4"
+            pwd="$5"
 
-if [ "$6" != "" ];then
-    server="$6"
-else
-    ## get current Jamf Pro server
-    server=$(/usr/bin/defaults read /Library/Preferences/com.jamfsoftware.jamf.plist jss_url)
-    echo "using server read from com.jamfsoftware.jamf.plist: ${server}"
-fi
+            if [ "$uname" == "" ];then
+                echo "missing client ID - exiting."
+                exit 1
+            fi
 
-if [ "$server" == "" ];then
-    echo "unable to determine current Jamf Pro server - exiting."
-    exit 1
-fi
+            if [ "$pwd" == "" ];then
+                echo "missing client secret - exiting."
+                exit 1
+            fi
 
-## ensure the server URL ends with a /
-strLen=$((${#server}-1))
-lastChar="${server:$strLen:1}"
-if [ ! "$lastChar" = "/" ];then
-    server="${server}/"
-fi
+            if [ "$6" != "" ];then
+                server="$6"
+            else
+                ## get current Jamf Pro server
+                server=$(/usr/bin/defaults read /Library/Preferences/com.jamfsoftware.jamf.plist jss_url)
+                echo "using server read from com.jamfsoftware.jamf.plist: ${server}"
+            fi
 
-## get unique identifier for machine
-udid=$(/usr/sbin/system_profiler SPHardwareDataType | awk '/UUID/ { print $3; }')
-if [ "$udid" == "" ];then
-    echo "unable to determine UUID of computer - exiting."
-    exit 1
-else
-    echo "computer UUID: $udid"
-fi
+            if [ "$server" == "" ];then
+                echo "unable to determine current Jamf Pro server - exiting."
+                exit 1
+            fi
 
-## get token
-tokenURL="${server}api/oauth/token"
+            ## ensure the server URL ends with a /
+            strLen=$((${#server}-1))
+            lastChar="${server:$strLen:1}"
+            if [ ! "$lastChar" = "/" ];then
+                server="${server}/"
+            fi
 
-clientString="grant_type=client_credentials&client_id=$uname&client_secret=$pwd"
+            ## get unique identifier for machine
+            udid=$(/usr/sbin/system_profiler SPHardwareDataType | awk '/UUID/ { print $3; }')
+            if [ "$udid" == "" ];then
+                echo "unable to determine UUID of computer - exiting."
+                exit 1
+            else
+                echo "computer UUID: $udid"
+            fi
 
-## echo "getToken: curl -m 20 -s $tokenURL -X POST -H \"Content-Type: application/x-www-form-urlencoded\" -d \"$clientString\""
+            ## get token
+            tokenURL="${server}api/oauth/token"
 
-response=$(curl -m 20 -s $tokenURL -X POST -H "Content-Type: application/x-www-form-urlencoded" -d "$clientString")
-## echo "response: $response"
-token=$(/usr/bin/osascript -l JavaScript << EoS
-    ObjC.unwrap($response.access_token)
-EoS
-)
-## echo "theToken: $token"
+            clientString="grant_type=client_credentials&client_id=$uname&client_secret=$pwd"
 
-## get computer ID from Jamf server
-echo "get computer ID: curl -m 20 -s ${server}JSSResource/computers/udid/$udid/subset/general -H \"Accept: application/xml\" -H \"Authorization: Bearer $(echo $token | head -n15)...\""
-compXml=$(/usr/bin/curl -m 20 -s ${server}JSSResource/computers/udid/$udid/subset/general -H "Accept: application/xml" -H "Authorization: Bearer $token")
-## echo "computer record: ${compXml}"
+            ## echo "getToken: curl -m 20 -s $tokenURL -X POST -H \"Content-Type: application/x-www-form-urlencoded\" -d \"$clientString\""
 
-if [[ $(echo "${compXml}" | grep "The server has not found anything matching the request URI") == "" ]];then
-    if [ $majorVer -gt 10 ] || ([ $majorVer eq 10 ] && [ $minorVer -gt 15 ]);then
-        compId=$(echo "${compXml}" | /usr/bin/xpath -q -e "//computer/general/id/text()")
-    else
-        compId=$(echo "${compXml}" | /usr/bin/xpath "//computer/general/id/text()")
-    fi
-    echo "computer ID: $compId"
-else
-    echo "computer was not found on $server - exiting."
-    exit 1
-fi
+            response=$(curl -m 20 -s $tokenURL -X POST -H "Content-Type: application/x-www-form-urlencoded" -d "$clientString")
+            ## echo "response: $response"
+            token=$(/usr/bin/osascript -l JavaScript << EoS
+                ObjC.unwrap($response.access_token)
+            EoS
+            )
+            ## echo "theToken: $token"
 
-## get Jamf Pro version
-version=$(/usr/bin/curl -m 20 -s ${server}api/v1/jamf-pro-version -X POST -H "Authorization: Bearer $token" | awk -F"\"" '{ print $4 }')
-echo "Running Jamf Pro $version"
-jpMajVer=$(echo $version | awk -F. {'print $1'})
-jpMinVer=$(echo $version | awk -F. {'print $2'})
+            ## get computer ID from Jamf server
+            echo "get computer ID: curl -m 20 -s ${server}JSSResource/computers/udid/$udid/subset/general -H \"Accept: application/xml\" -H \"Authorization: Bearer $(echo $token | head -n15)...\""
+            compXml=$(/usr/bin/curl -m 20 -s ${server}JSSResource/computers/udid/$udid/subset/general -H "Accept: application/xml" -H "Authorization: Bearer $token")
+            ## echo "computer record: ${compXml}"
 
-## send unmanage command to machine
-if [ $jpMajVer -gt 10 ] && [ $jpMinVer -gt 20 ]);then
-    echo "unmanage machine: curl -m 20 -s ${server}v1/computer-inventory/${compId}/remove-mdm-profile -X POST -H \"Authorization: Bearer $(echo $token | head -n15)...\""
-    /usr/bin/curl -m 20 -s ${server}v1/computer-inventory/${compId}/remove-mdm-profile -X POST -H "Authorization: Bearer $token"
-else
-    echo "unmanage machine: curl -m 20 -s ${server}JSSResource/computercommands/command/UnmanageDevice/id/${compId} -X POST -H \"Authorization: Bearer $(echo $token | head -n15)...\""
-    /usr/bin/curl -m 20 -s ${server}JSSResource/computercommands/command/UnmanageDevice/id/${compId} -X POST -H "Authorization: Bearer $token"
-fi
-</code>
+            if [[ $(echo "${compXml}" | grep "The server has not found anything matching the request URI") == "" ]];then
+                if [ $majorVer -gt 10 ] || ([ $majorVer eq 10 ] && [ $majorMinor -gt 15 ]);then
+                    compId=$(echo "${compXml}" | /usr/bin/xpath -q -e "//computer/general/id/text()")
+                else
+                    compId=$(echo "${compXml}" | /usr/bin/xpath "//computer/general/id/text()")
+                fi
+                echo "computer ID: $compId"
+            else
+                echo "computer was not found on $server - exiting."
+                exit 1
+            fi
+
+            ## get Jamf Pro version
+            version=$(/usr/bin/curl -m 20 -s ${server}api/v1/jamf-pro-version -X GET -H "Authorization: Bearer $token" | awk -F"\"" '{ print $4 }')
+            echo "Running Jamf Pro $version"
+            jpMajVer=$(echo $version | awk -F. {'print $1'})
+            jpMinVer=$(echo $version | awk -F. {'print $2'})
+
+            ## send unmanage command to machine
+            if [ $jpMajVer -gt 10 ] && [ $jpMinVer -gt 20 ];then
+                echo "unmanage machine: curl -m 20 -s ${server}api/v1/computer-inventory/${compId}/remove-mdm-profile -X POST -H \"Authorization: Bearer $(echo $token | head -n15)...\""
+                /usr/bin/curl -m 20 -s ${server}api/v1/computer-inventory/${compId}/remove-mdm-profile -X POST -H "Authorization: Bearer $token"
+            else
+                echo "unmanage machine: curl -m 20 -s ${server}JSSResource/computercommands/command/UnmanageDevice/id/${compId} -X POST -H \"Authorization: Bearer $(echo $token | head -n15)...\""
+                /usr/bin/curl -m 20 -s ${server}JSSResource/computercommands/command/UnmanageDevice/id/${compId} -X POST -H "Authorization: Bearer $token"
+            fi
+    
+            echo
+            invalidateToken
+            </code>
 
 <br><hr>
 <?php
