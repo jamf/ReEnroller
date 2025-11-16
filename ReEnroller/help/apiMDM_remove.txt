@@ -146,7 +146,7 @@ compXml=$(/usr/bin/curl -m 20 -s ${server}JSSResource/computers/udid/$udid/subse
 ## echo "computer record: ${compXml}"
 
 if [[ $(echo "${compXml}" | grep "The server has not found anything matching the request URI") == "" ]];then
-    if [ $majorVer -gt 10 ] || ([ $majorVer eq 10 ] && [ $majorMinor -gt 15 ]);then
+    if (( majorVer > 10 )) || (( majorVer == 10 && minorVer > 15 )); then
         compId=$(echo "${compXml}" | /usr/bin/xpath -q -e "//computer/general/id/text()")
     else
         compId=$(echo "${compXml}" | /usr/bin/xpath "//computer/general/id/text()")
