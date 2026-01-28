@@ -1970,6 +1970,12 @@ class ViewController: NSViewController, URLSessionDelegate {
     }
 
     func unverifiedFallback() {
+        TelemetryDeckConfig.parameters["migrated"] = "false"
+        WriteToLog.shared.message(theMessage: "[TelemetryDeck] - sending signal - params: \(TelemetryDeckConfig.parameters)")
+        Task {@MainActor in
+            TelemetryDeckSignal.shared.send("runComplete", parameters: TelemetryDeckConfig.parameters)
+        }
+
         // only roll back if there is something to roll back to
         // add back in when ready to to use app on machines not currrently enrolled
         WriteToLog.shared.message(theMessage: "Alert - There was a problem with enrolling your Mac to the new Jamf Server URL at \(newJSSHostname):\(newJSSPort). We are rolling you back to the old Jamf Server URL at \(oldURL)")
@@ -2149,6 +2155,11 @@ class ViewController: NSViewController, URLSessionDelegate {
     }
 
     func verifiedCleanup(type: String) {
+        TelemetryDeckConfig.parameters["migrated"] = "true"
+        WriteToLog.shared.message(theMessage: "[TelemetryDeck] - sending signal - params: \(TelemetryDeckConfig.parameters)")
+        Task {@MainActor in
+            TelemetryDeckSignal.shared.send("runComplete", parameters: TelemetryDeckConfig.parameters)
+        }
         WriteToLog.shared.message(theMessage: "Starting cleanup...")
         if type == "full" {
             do {

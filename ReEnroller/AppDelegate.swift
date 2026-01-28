@@ -40,11 +40,15 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     func applicationDidFinishLaunching(_ aNotification: Notification) {
         // Insert code here to initialize your application
+        configureTelemetryDeck()
     }
 
     func applicationWillFinishLaunching(_ notification: Notification) {
         param.runAsDaemon = true
+        
+        
         if !FileManager.default.fileExists(atPath: param.settingsFile) {
+            TelemetryDeckConfig.parameters["mode"] = "configure"
             NSApp.setActivationPolicy(.regular)
             let storyboard = NSStoryboard(name: "Main", bundle: nil)
             let mainWindowController = storyboard.instantiateController(withIdentifier: "Main") as! NSWindowController
@@ -52,8 +56,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
             NSApplication.shared.setActivationPolicy(NSApplication.ActivationPolicy.regular)
             mainWindowController.showWindow(self)
-//            NSApplication.shared.activate(ignoringOtherApps: true)
         } else {
+            TelemetryDeckConfig.parameters["mode"] = "migrate"
             ViewController().startToMigrate()
         }
     }
