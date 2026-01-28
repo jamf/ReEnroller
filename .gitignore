@@ -1,2 +1,7 @@
 .DS_Store
 **/.DS_Store
+*.xcuserstate
+*.xcbkptlist
+Notes
+TelemetryDeckConfig.swift
+
