@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="24128" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
+<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="24506" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
     <dependencies>
         <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="24128"/>
-        <plugIn identifier="com.apple.WebKit2IBPlugin" version="24128"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="24506"/>
+        <plugIn identifier="com.apple.WebKit2IBPlugin" version="24506"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
@@ -466,26 +466,35 @@
                                     <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
                             </textField>
-                            <button verticalHuggingPriority="750" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Eql-sc-zIu">
-                                <rect key="frame" x="413" y="622" width="132" height="28"/>
+                            <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Eql-sc-zIu">
+                                <rect key="frame" x="408" y="622" width="132" height="28"/>
                                 <buttonCell key="cell" type="check" bezelStyle="regularSquare" imagePosition="left" controlSize="small" inset="2" id="nuJ-ao-b2N">
                                     <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                     <string key="title">Create the account 
 if it does not exist</string>
                                     <font key="font" metaFont="label" size="11"/>
                                 </buttonCell>
+                                <constraints>
+                                    <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="132" id="1Jr-GN-vSE"/>
+                                    <constraint firstAttribute="width" constant="132" id="ZBP-vh-Zgz"/>
+                                </constraints>
                             </button>
-                            <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="3LF-it-shw">
-                                <rect key="frame" x="413" y="600" width="108" height="14"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                            <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="3LF-it-shw">
+                                <rect key="frame" x="408" y="600" width="108" height="14"/>
                                 <buttonCell key="cell" type="check" title="Hide the account" bezelStyle="regularSquare" imagePosition="left" controlSize="small" inset="2" id="iMT-XF-UYF">
                                     <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                     <font key="font" metaFont="label" size="11"/>
                                 </buttonCell>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="108" id="hGP-F3-wdM"/>
+                                </constraints>
                             </button>
-                            <progressIndicator wantsLayer="YES" horizontalHuggingPriority="750" verticalHuggingPriority="750" fixedFrame="YES" maxValue="100" displayedWhenStopped="NO" bezeled="NO" indeterminate="YES" style="spinning" translatesAutoresizingMaskIntoConstraints="NO" id="179-7F-ykc">
+                            <progressIndicator wantsLayer="YES" horizontalHuggingPriority="750" verticalHuggingPriority="750" maxValue="100" displayedWhenStopped="NO" bezeled="NO" indeterminate="YES" style="spinning" translatesAutoresizingMaskIntoConstraints="NO" id="179-7F-ykc">
                                 <rect key="frame" x="452" y="691" width="44" height="32"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="44" id="AdM-NI-HUf"/>
+                                    <constraint firstAttribute="height" constant="32" id="SBz-ZK-yoq"/>
+                                </constraints>
                             </progressIndicator>
                             <button toolTip="Build Package" verticalHuggingPriority="750" verticalCompressionResistancePriority="749" translatesAutoresizingMaskIntoConstraints="NO" id="hMj-z6-APi">
                                 <rect key="frame" x="520" y="25" width="64" height="28"/>
@@ -523,14 +532,17 @@ DQ
                                 </textFieldCell>
                             </textField>
                             <button translatesAutoresizingMaskIntoConstraints="NO" id="TYg-rK-MtJ">
-                                <rect key="frame" x="62" y="126" width="236" height="12"/>
-                                <buttonCell key="cell" type="check" title="Remove ReEnroller folder after migration" bezelStyle="regularSquare" imagePosition="left" controlSize="small" state="on" inset="2" id="X5y-3G-t9I">
+                                <rect key="frame" x="62" y="126" width="123" height="12"/>
+                                <buttonCell key="cell" type="check" title="Opt out of analytics" bezelStyle="regularSquare" imagePosition="left" controlSize="small" inset="2" id="X5y-3G-t9I">
                                     <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                     <font key="font" size="12" name="HelveticaNeue"/>
                                 </buttonCell>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="12" id="AnV-uZ-ZmI"/>
                                 </constraints>
+                                <connections>
+                                    <action selector="optOut_action:" target="XfG-lQ-9wD" id="QT0-aS-f5R"/>
+                                </connections>
                             </button>
                             <button translatesAutoresizingMaskIntoConstraints="NO" id="uDr-Xe-sA9">
                                 <rect key="frame" x="62" y="258" width="334" height="12"/>
@@ -749,7 +761,7 @@ DQ
                                 </connections>
                             </button>
                             <popUpButton hidden="YES" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="hlx-w1-qbP" userLabel="Attribute">
-                                <rect key="frame" x="263" y="144" width="96" height="20"/>
+                                <rect key="frame" x="263" y="144" width="98" height="20"/>
                                 <popUpButtonCell key="cell" type="push" title="Asset Tag" bezelStyle="rounded" alignment="left" controlSize="small" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" imageScaling="proportionallyUpOrDown" inset="2" selectedItem="rVl-zF-fMS" id="zll-mo-eXa" userLabel="Room">
                                     <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
                                     <font key="font" metaFont="label" size="11"/>
@@ -788,7 +800,7 @@ DQ
                                 </connections>
                             </button>
                             <popUpButton verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="n0M-kN-jDR" userLabel="removeMDM">
-                                <rect key="frame" x="202" y="166" width="72" height="20"/>
+                                <rect key="frame" x="202" y="166" width="74" height="20"/>
                                 <popUpButtonCell key="cell" type="push" title="Before" bezelStyle="rounded" alignment="left" controlSize="small" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" selectedItem="PAF-dp-bs0" id="pWf-uQ-acM">
                                     <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
                                     <font key="font" metaFont="smallSystem"/>
@@ -853,7 +865,7 @@ DQ
                                 </textFieldCell>
                             </textField>
                             <popUpButton verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="TvO-Mp-3p9">
-                                <rect key="frame" x="264" y="403" width="171" height="24"/>
+                                <rect key="frame" x="264" y="403" width="173" height="24"/>
                                 <popUpButtonCell key="cell" type="push" title="None" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" selectedItem="KqM-ah-6f3" id="eUS-KM-RhZ">
                                     <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
                                     <font key="font" metaFont="message"/>
@@ -989,6 +1001,7 @@ DQ
                             <constraint firstItem="d65-p5-1BY" firstAttribute="trailing" secondItem="6sF-BZ-C5w" secondAttribute="trailing" id="1zz-I0-sxI"/>
                             <constraint firstItem="hMj-z6-APi" firstAttribute="centerY" secondItem="8Wb-nM-RnW" secondAttribute="centerY" id="26U-gm-p7j"/>
                             <constraint firstItem="hhu-Mz-Vy4" firstAttribute="trailing" secondItem="Z0Y-0c-bHE" secondAttribute="trailing" id="2W5-jv-OkN"/>
+                            <constraint firstItem="179-7F-ykc" firstAttribute="centerX" secondItem="Eql-sc-zIu" secondAttribute="centerX" id="3V6-Q0-YiT"/>
                             <constraint firstItem="TvO-Mp-3p9" firstAttribute="centerY" secondItem="6uC-KR-6eG" secondAttribute="centerY" id="5JC-Jt-3rF"/>
                             <constraint firstItem="ksy-wD-XfU" firstAttribute="top" secondItem="m2S-Jp-Qdl" secondAttribute="top" constant="22" id="6By-wW-EvB"/>
                             <constraint firstItem="DvA-gu-991" firstAttribute="leading" secondItem="0Ba-Q5-0U3" secondAttribute="leading" id="88D-sJ-AnY"/>
@@ -1007,9 +1020,11 @@ DQ
                             <constraint firstItem="6uC-KR-6eG" firstAttribute="trailing" secondItem="vMn-gM-pEZ" secondAttribute="trailing" id="Eqj-ao-9xa"/>
                             <constraint firstItem="rli-u2-V4b" firstAttribute="leading" secondItem="3hY-6f-3v7" secondAttribute="trailing" constant="4" id="FHg-NF-ar3"/>
                             <constraint firstItem="Ijm-aZ-UA0" firstAttribute="leading" secondItem="0Ba-Q5-0U3" secondAttribute="leading" id="FOE-kX-bGB"/>
+                            <constraint firstItem="3LF-it-shw" firstAttribute="leading" secondItem="Eql-sc-zIu" secondAttribute="leading" id="FsT-2N-Vln"/>
                             <constraint firstItem="hhu-Mz-Vy4" firstAttribute="top" secondItem="Z0Y-0c-bHE" secondAttribute="bottom" constant="8" id="GLa-oV-zEP"/>
                             <constraint firstItem="d65-p5-1BY" firstAttribute="centerY" secondItem="KmQ-hu-Kuy" secondAttribute="centerY" id="GkU-wX-CuX"/>
                             <constraint firstItem="Z0Y-0c-bHE" firstAttribute="leading" secondItem="zIv-4F-4uc" secondAttribute="trailing" constant="4" id="GtU-ss-hPH"/>
+                            <constraint firstItem="179-7F-ykc" firstAttribute="top" secondItem="XV5-Ht-fLl" secondAttribute="bottom" constant="23" id="HK5-sg-2Jf"/>
                             <constraint firstItem="3hY-6f-3v7" firstAttribute="top" secondItem="ySm-ue-XU1" secondAttribute="bottom" constant="10" id="Hd5-6j-e1p"/>
                             <constraint firstItem="vMn-gM-pEZ" firstAttribute="trailing" secondItem="Ghp-8K-5sJ" secondAttribute="trailing" id="Hsx-re-mMP"/>
                             <constraint firstItem="Hby-7o-AO7" firstAttribute="leading" secondItem="gEr-Am-Pfv" secondAttribute="leading" id="IF7-Tw-lIk"/>
@@ -1019,6 +1034,7 @@ DQ
                             <constraint firstItem="hPG-hC-Hk7" firstAttribute="top" secondItem="l1R-5j-nWb" secondAttribute="bottom" constant="18" id="LKw-hB-Kct"/>
                             <constraint firstItem="8Wb-nM-RnW" firstAttribute="top" secondItem="hhu-Mz-Vy4" secondAttribute="bottom" constant="12" id="LLp-nc-aLM"/>
                             <constraint firstItem="6sF-BZ-C5w" firstAttribute="leading" secondItem="a8R-tD-Ecl" secondAttribute="leading" id="MDp-sL-ONL"/>
+                            <constraint firstItem="179-7F-ykc" firstAttribute="leading" secondItem="Udu-Yr-EcR" secondAttribute="trailing" constant="66" id="NpZ-Ax-bZr"/>
                             <constraint firstItem="Udu-Yr-EcR" firstAttribute="leading" secondItem="XV5-Ht-fLl" secondAttribute="leading" id="OWr-Bz-NCy"/>
                             <constraint firstItem="hlx-w1-qbP" firstAttribute="centerY" secondItem="JpP-v5-6mb" secondAttribute="centerY" id="Oag-F6-Nsu"/>
                             <constraint firstItem="hPG-hC-Hk7" firstAttribute="centerY" secondItem="Ghp-8K-5sJ" secondAttribute="centerY" id="Ofd-Gy-v5r"/>
@@ -1047,6 +1063,7 @@ DQ
                             <constraint firstItem="vBb-mh-eE0" firstAttribute="top" secondItem="uDr-Xe-sA9" secondAttribute="bottom" constant="10" id="bYi-bL-1rA"/>
                             <constraint firstItem="zIv-4F-4uc" firstAttribute="leading" secondItem="TYg-rK-MtJ" secondAttribute="leading" id="bcK-yx-M5j"/>
                             <constraint firstItem="ksy-wD-XfU" firstAttribute="leading" secondItem="m2S-Jp-Qdl" secondAttribute="leading" constant="29" id="bey-K7-DkK"/>
+                            <constraint firstItem="3LF-it-shw" firstAttribute="top" secondItem="Eql-sc-zIu" secondAttribute="bottom" constant="8" id="dOs-zW-63Z"/>
                             <constraint firstItem="hPG-hC-Hk7" firstAttribute="centerY" secondItem="gEr-Am-Pfv" secondAttribute="centerY" constant="1" id="dcw-Gc-Ua3"/>
                             <constraint firstItem="8qO-6q-QJ3" firstAttribute="leading" secondItem="rli-u2-V4b" secondAttribute="trailing" constant="4" id="e7n-1j-9lJ"/>
                             <constraint firstItem="uDr-Xe-sA9" firstAttribute="leading" secondItem="0Ba-Q5-0U3" secondAttribute="leading" id="ego-Ag-Ya2"/>
@@ -1116,13 +1133,13 @@ DQ
                         <outlet property="networkId_Label" destination="I7E-Rk-AjZ" id="7A8-9o-OkJ"/>
                         <outlet property="networkId_TextField" destination="4d7-bk-L0L" id="Jwh-Yu-gdA"/>
                         <outlet property="newEnrollment_Button" destination="DvA-gu-991" id="WdK-qr-Snk"/>
+                        <outlet property="optOut_Button" destination="TYg-rK-MtJ" id="vk9-yM-x46"/>
                         <outlet property="policyId_Textfield" destination="rli-u2-V4b" id="hz0-9A-Ih6"/>
                         <outlet property="processQuickAdd_Button" destination="hMj-z6-APi" id="3Di-2i-KqX"/>
                         <outlet property="randomPassword_button" destination="pvq-bO-mOR" id="gVE-cL-9Xs"/>
                         <outlet property="removeMDM_Button" destination="Ijm-aZ-UA0" id="Ilf-Bx-lQ9"/>
                         <outlet property="removeMdmWhen_Button" destination="n0M-kN-jDR" id="phy-kZ-lNC"/>
                         <outlet property="removeProfile_Button" destination="Hby-7o-AO7" id="2BK-Dp-6yO"/>
-                        <outlet property="removeReEnroller_Button" destination="TYg-rK-MtJ" id="vk9-yM-x46"/>
                         <outlet property="retainSite_Button" destination="KBE-8a-tXl" id="xxR-0n-Dgi"/>
                         <outlet property="retry_TextField" destination="hhu-Mz-Vy4" id="0aS-7w-fOF"/>
                         <outlet property="rndPwdLen_TextField" destination="ucw-p1-5dN" id="eFE-Ne-pCR"/>

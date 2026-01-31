@@ -46,15 +46,6 @@ import WebKit
 
 class ViewController: NSViewController, URLSessionDelegate {
 
-//    @IBOutlet weak var ReEnroller_window: NSWindow!
-
-//    @IBOutlet weak var help_Window: NSWindow!
-//    @IBOutlet weak var help_WebView: WKWebView!
-//    @IBOutlet weak var reconMode_TabView: NSTabView!
-
-   // @IBOutlet weak var reEnroll_button: NSButton!
-   // @IBOutlet weak var enroll_button: NSButton!
-    
     @IBOutlet weak var ssid_TextField: NSTextField!
     @IBOutlet weak var ssidKey_TextField: NSSecureTextField!
     @IBOutlet weak var security_Button: NSPopUpButton!
@@ -76,10 +67,8 @@ class ViewController: NSViewController, URLSessionDelegate {
     @IBOutlet weak var rndPwdLen_TextField: NSTextField?
 
     // For Jamf School
-    
     @IBOutlet weak var JamfSchool_Box: NSBox!
     
-//    @IBOutlet weak var jamfSchoolBgnd_TextField: NSTextField!
     @IBOutlet weak var jamfSchoolHeader_Label: NSTextField!
     @IBOutlet weak var jamfSchoolUrl_Label: NSTextField!
     @IBOutlet weak var jamfSchoolUrl_TextField: NSTextField!
@@ -103,11 +92,17 @@ class ViewController: NSViewController, URLSessionDelegate {
     @IBOutlet weak var policyId_Textfield: NSTextField!
     @IBOutlet weak var deviceEnrollment_Button: NSButton!
     @IBOutlet weak var markAsMigrated_Button: NSButton!
-//    @IBOutlet weak var migratedLabel_TextField: NSTextField!
+
     @IBOutlet weak var migratedAttribute_Button: NSPopUpButton!
     @IBOutlet weak var removeMDM_Button: NSButton!
     @IBOutlet weak var removeMdmWhen_Button: NSPopUpButton!
-    @IBOutlet weak var removeReEnroller_Button: NSButton!
+    
+    @IBOutlet weak var optOut_Button: NSButton!
+    @IBAction func optOut_action(_ sender: NSButton) {
+        UserDefaults.standard.set(sender.state == .on, forKey: "optOut")
+        TelemetryDeckConfig.optOut = (sender.state == .on)
+    }
+    
     @IBOutlet weak var maxRetries_Textfield: NSTextField!
     @IBOutlet weak var retry_TextField: NSTextField!
     @IBOutlet weak var separatePackage_button: NSButton!
@@ -191,7 +186,7 @@ class ViewController: NSViewController, URLSessionDelegate {
 
     var newJssMgmtUrl       = ""
     var theNewInvite        = ""
-    var removeReEnroller    = "yes"         // by default delete the ReEnroller folder after enrollment
+    var removeReEnroller    = true         // by default delete the ReEnroller folder after enrollment
     var callEnrollment      = "no"          // defaults to not calling automated device enrollment, unless we're Big Sur or above
     
     var retainSite          = "true"        // by default retain site when re-enrolling
@@ -364,12 +359,7 @@ class ViewController: NSViewController, URLSessionDelegate {
             // fix special characters in management account password
             let mgmtAcctPwdEncode = xmlEncode(rawString: mgmtAcctPwd)
             mgmtAcctPwdXml = "<ssh_password>\(mgmtAcctPwdEncode)</ssh_password>"
-//            mgmtAcctPwdXml = "<ssh_password>\(mgmtAcctPwd)</ssh_password>"
-
-            // can't use this to (re)set management account password, receive the following
-//            Executing Policy Change Password
-//            Error: The Managed Account Password could not be changed.
-            // acctMaintPwdXml = "<account_maintenance><management_account><action>specified</action><managed_password>\(mgmtAcctPwd)</managed_password></management_account></account_maintenance>"
+            
         } else {
             // random password
             // like to get rid of this - find way to change password when client and JPS differ
@@ -379,35 +369,14 @@ class ViewController: NSViewController, URLSessionDelegate {
                 processQuickAdd_Button.isEnabled = true
                 return
             }
-            /*
-            // verify random password lenght is an integer - start
-            let pattern = "(^[0-9]*$)"
-            let regex1 = try! NSRegularExpression(pattern: pattern, options: [])
-            let matches = regex1.matches(in: (rndPwdLen_TextField?.stringValue)!, options: [], range: NSRange(location: 0, length: (rndPwdLen_TextField?.stringValue.count)!))
-            if matches.count != 0 {
-                //                print("valid")
-                mgmtAcctPwdLen = Int((rndPwdLen_TextField?.stringValue)!)!
-//                print("pwd len: \(mgmtAcctPwdLen)")
-                if (mgmtAcctPwdLen) > 255 || (mgmtAcctPwdLen) < 8 {
-                    Alert.shared.display(header: "Attention:", message: "Verify an random password length is between 8 and 255.")
-                    return
-                }
-            } else {
-                Alert.shared.display(header: "Attention:", message: "Verify an interger value was entered for the random password length.")
-                return
-            }
-            // verify random password lenght is an integer - end
-            // create a random password
-            mgmtAcctPwdXml = myExitValue(cmd: "/bin/bash", args: "-c", "/usr/bin/uuidgen")[0]
-             acctMaintPwdXml = "<account_maintenance><management_account><action>random</action><managed_password_length>\(mgmtAcctPwdLen)</managed_password_length></management_account></account_maintenance>"
-            */
+            
             mgmtAcctPwdXml = ""
             
         }
 
         // Jamf School check - start
         if jamfSchool_Button.state.rawValue == 1 {
-            if networkId_TextField.stringValue == "" || apiKey_TextField.stringValue == "" {
+            if networkId_TextField.stringValue.isEmpty || apiKey_TextField.stringValue.isEmpty {
                 Alert.shared.display(header: "Attention:", message: "Migrating from Jamf School requires the server URL, the Network ID, and API key.")
                 processQuickAdd_Button.isEnabled = true
                 return
@@ -1114,13 +1083,12 @@ class ViewController: NSViewController, URLSessionDelegate {
         }
         // configure device enrollment call - end
 
-        // configure ReEnroller folder removal - start
-        if self.removeReEnroller_Button.state.rawValue == 0 {
-            self.plistData["removeReEnroller"] = "no" as AnyObject
+        // configure analytics optOut
+        if self.optOut_Button.state == .off {
+            self.plistData["optOut"] = false as AnyObject
         } else {
-            self.plistData["removeReEnroller"] = "yes" as AnyObject
+            self.plistData["optOut"] = true as AnyObject
         }
-        // configure ReEnroller folder removal - end
 
         // Jamf School migration check - start
         if self.jamfSchool_Button.state.rawValue == 0 {
@@ -2286,7 +2254,7 @@ class ViewController: NSViewController, URLSessionDelegate {
             // run policy if marked to do so - end
 
             // Remove ..JAMF/ReEnroller folder - start
-            if removeReEnroller == "yes" {
+            if removeReEnroller {
                 do {
                     try fm.removeItem(atPath: "/Library/Application Support/JAMF/ReEnroller")
                     WriteToLog.shared.message(theMessage: "Removed ReEnroller folder.")
@@ -2552,9 +2520,9 @@ class ViewController: NSViewController, URLSessionDelegate {
             if plistData["callEnrollment"] != nil {
                 callEnrollment = plistData["callEnrollment"]! as! String
             }
-            if plistData["removeReEnroller"] != nil {
-                removeReEnroller = plistData["removeReEnroller"]! as! String
-            }
+//            if plistData["removeReEnroller"] != nil {
+                removeReEnroller = true /*plistData["removeReEnroller"]! as! String*/
+//            }
             if plistData["createConfSwitches"] != nil {
                 createConfSwitches = plistData["createConfSwitches"]! as! String
             }
@@ -2567,13 +2535,11 @@ class ViewController: NSViewController, URLSessionDelegate {
             if plistData["postInstallPolicyId"] != nil {
                 postInstallPolicyId = plistData["postInstallPolicyId"]! as! String
             }
-            if plistData["httpProtocol"] != nil {
-                httpProtocol = self.plistData["httpProtocol"] as! String
-            } else {
-                httpProtocol = "https"
-            }
 
-//                jamfSchoolMigration = (plistData["jamfSchool"] ?? "" as AnyObject) as! String
+            httpProtocol = self.plistData["httpProtocol"] as? String ?? "https"
+            
+            TelemetryDeckConfig.optOut = plistData["optOut"] as? Bool ?? false
+
             jamfSchoolMigration = plistData["jamfSchool"]! as? Int ?? 0
 
             markAsMigrated    = plistData["markAsMigrated"] as? Bool ?? false
@@ -2644,17 +2610,22 @@ class ViewController: NSViewController, URLSessionDelegate {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        
+        TelemetryDeckConfig.optOut = plistData["optOutdaf"] as? Bool ?? false
+        print("optOutdaf: \(TelemetryDeckConfig.optOut)")
 
         jssUrl_TextField.stringValue      = userDefaults.string(forKey: "jamfProUrl") ?? ""
         jssUsername_TextField.stringValue = userDefaults.string(forKey: "jamfProUser") ?? ""
         migratedAttribute_Button.selectItem(withTitle: "Room")
+        optOut_Button.state = UserDefaults.standard.bool(forKey: "optOut") ? .on : .off
 
         WriteToLog.shared.message(theMessage: "Configuration not found, launching GUI.")
         param.runAsDaemon = false
         
         retry_TextField.stringValue = "30"
         newEnrollment_Button.state = convertToNSControlStateValue(0)
-        removeReEnroller_Button.state = convertToNSControlStateValue(1)
+
         rndPwdLen_TextField?.isEnabled = false
         rndPwdLen_TextField?.stringValue = "8"
         if (( os.majorVersion > 10 ) || ( os.majorVersion == 10 && os.minorVersion > 15 )) {
