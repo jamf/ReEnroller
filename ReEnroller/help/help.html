@@ -165,7 +165,7 @@ a:hover
     <li>If calling device enrollment be sure the devicd has been assigned to a prestage in the new environment.</li>
     <li>You can mark the machine as migrated by updating an attribute in the device record in the old server.</li>
     <li>Select when to remove the MDM profile installed by the source Jamf Pro server, or leave it on the machine to be removed later. If before, configure the apiMDM_remove script on the source (server you're migrating from) server. If after, configure the apiMDM_remove script on the destination (server you're migrating to) server. See the instructions below to ensure the script/policy is properly configured on the correct server.</li>
-    <li>By default the package cleans up once migration is complete.&nbsp; If you'd like to keep things in place uncheck the box for removing the ReEnroller folder.</li>
+    <li>Select opt out if you do not want anonymous data sent to <a href="telemetrydeck.com" target="_blank">TelemetryDeck</a></li>
     <li>If desired set the number of times the client will try the enrollment process in the event it fails for some reason.  Leaving the field blank will set the client to keep retrying until successful.</li>
     <li>Set an interval for the process to retry re-enrollment (5 minutes or greater) in the event it fails, or keep the default of 30 minutes.  You are able to separate the launch daemon/postinstall script from the re-enrollment application by checking the box, 'Create Separate Package'.  With the box checked 2 packages will be created, one with the launchdaemon and postinstall script, the other with the re-enrollment application and settings.  This allows one to stage the application then deploy the launch daemon at a later date, or create a custom launch daemon, say to repair enrollments that have failed over time.</li>
     </ul>
@@ -254,7 +254,7 @@ As the ReEnroller package is built the following will be created on the destinat
 Note, these objects are not updated when new packages are built and must be deleted from Jamf Pro if say you change the API key.
 <div><hr></div>    
     
-<strong>High Sierra (10.13) and later:</strong>
+<strong>HMDM Profile removal:</strong>
 <div id="main_body" style="position:relative;">
 <div style="font-family:Arial;font-size:13px;line-height:15px;color:#000000;">
 Starting with 10.13 Apple added /var/db/ConfigurationProfiles to SIP.  To ensure the MDM payload is removed additional setup is required, creating a script and policy for MDM removal.
@@ -447,18 +447,22 @@ Starting with 10.13 Apple added /var/db/ConfigurationProfiles to SIP.  To ensure
     echo getcwd();
 ?>
 </span></pre></div>
-    Create a policy to deploy the script on the source server (server you are migrating from).  <b>The policy must have a custom trigger of apiMDM_remove</b>.  Also set the policy to Ongoing.
+    On the source server, create an API client with the following privileges:
+    <li>Create Computers</li>
+    <li>Read Computers</li>
+    <li>Send Computer Unmanage Command</li><br>
+
+    If remove MDM profile is set to before, add the script and create a policy on the source server, otherwise add the script and create the policy on the destination server. <b>The policy must have a custom trigger of apiMDM_remove</b>. The policy can be scoped to All Computers with an Execution Frequency set to Ongoing.
+
 <div id="jpsImage2">
 <img src="images/mdmRemove_general.png" alt=""></div>
-    The script requires 2 parameters, a Jamf Pro API client and secret. If the MDM profile is to be removed prior to (before) enrolling in the new serve, add the script/policy to the Jamf Pro server that the machine is being unenrolled.<p>
-
-    The account must have at least Computers Create and Read (Jamf Pro Server Objects) along with Send Computer Unmanage Command (Jamf Pro Server Actions). The account (API client) is always set up on the Jamf Pro server that the machine is being unenrolled.<p>
+    The script requires 2 parameters, a Jamf Pro API client and secret.<p>
     
-    A third parameter may be also be provided, the current Jamf server the client has received it's MDM profile from.  If the parameter is not provided the server will be read from com.jamfsoftware.jamf.plist.  <strong>If the MDM profile is removed after enrollment in the new server the Jamf URL parameter must be provided, the URL being the server the client was migrated from.  The script/policy must also be set up on the destination server.</strong>
+    A third parameter may be also be provided, the current Jamf server the client has received it's MDM profile from.  If the parameter is not provided the server will be read from com.jamfsoftware.jamf.plist.  <strong>If remove MDM profile is set to After the Jamf URL parameter must be provided, the URL being the server the client was migrated from.</strong>
 <div id="jpsImage2">
 <img src="images/mdmRemove_script.png" alt=""></div>
 </div>
-    The script could also be added to the policy that deploys the reEnrollment package, if you'd like the profile removed before the new enrollment. Be mindful that once the MDM profile is removed all other profiles will be removed, potentially impacting the user experience. 
+    The script could also be added to the policy that deploys the reEnrollment package, if you'd like the profile removed before the new enrollment. Be mindful that once the MDM profile is removed all other profiles will be removed, potentially impacting the user experience or dropping the network connection. 
 <div><hr></div>
 </div>
 </body>
