@@ -1,265 +1,278 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
 <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ReEnroller Help</title>
-<meta name="generator" content="lnh">
 <style>
-body
-{
+body {
    background-color: #D6DBDB;
    color: #000000;
-   font-family: Arial;
+   font-family: Arial, sans-serif;
    font-weight: normal;
-   font-size: 13px;
-   line-height: 1.1875;
+   font-size: 16px;
+   line-height: 1.5;
    margin: 0;
    padding: 0;
 }
-a
-{
+
+a {
    color: #0000FF;
    text-decoration: underline;
 }
-a:visited
-{
+
+a:visited {
    color: #800080;
 }
-a:active
-{
+
+a:active {
    color: #FF0000;
 }
-a:hover
-{
+
+a:hover {
    color: #0000FF;
    text-decoration: underline;
 }
-#wb_Heading1
-{
+
+.page-heading {
    background-color: #FFFFFF;
    background-image: none;
-   border: 0px #000000 solid;
-   padding: 0px 0px 0px 0px;
+   border: 0;
+   padding: 0;
+   text-align: center;
 }
-#Heading1
-{
+
+.page-heading h1 {
    color: #000000;
-   font-family: Arial;
+   font-family: Arial, sans-serif;
    font-weight: normal;
-   font-size: 32px;
+   font-size: 36px;
    margin: 0;
    text-align: center;
 }
-#wb_Text1
-{
+
+.content-section {
    background-color: transparent;
    background-image: none;
-   border: 0px #C0C0C0 solid;
+   border: 0;
    padding: 0;
    margin: 0;
    text-align: left;
 }
-#main_body div
-{
-    text-align: left;
-    padding: 10px 20px 10px 20px;
-}
-#wb_Text1 div
-{
+
+.content-section div {
    text-align: left;
 }
-#wb_Text2
-{
-   background-color: transparent;
-   background-image: none;
-   border: 0px #C0C0C0 solid;
-   padding: 0;
-   margin: 0;
+
+.main-body {
+   position: relative;
+}
+
+.main-body > div {
    text-align: left;
+   padding: 10px 20px;
 }
-#wb_Text2 div
-{
-   text-align: left;
+
+.image-container-large img {
+   border: 0;
+   padding: 10px 0 10px 50px;
+   margin: auto;
+   width: 490px;
 }
-#appImage img
-{
-    border: 0px #000000 solid;
-    padding: 10px 0px 10px 50px;
-    margin: auto;
-    width:490px;
-    position: relative
+
+.image-container-medium img {
+   border: 0;
+   padding: 10px 0 10px 50px;
+   margin: auto;
+   width: 400px;
 }
-#appImage2 img
-{
-    border: 0px #000000 solid;
-    padding: 10px 0px 10px 50px;
-    margin: auto;
-    width:400px;
-    position: relative
+
+.image-container-small img {
+   border: 0;
+   padding: 10px 0 10px 50px;
+   margin: auto;
+   width: 220px;
 }
-#appImage3 img
-{
-    border: 0px #000000 solid;
-    padding: 10px 0px 10px 50px;
-    margin: auto;
-    width:220px;
-    position: relative
+
+.image-container-jps img {
+   border: 0;
+   padding: 10px 0 10px 50px;
+   margin: auto;
+   width: 494px;
 }
-#jpsImage img
-{
-    border: 0px #000000 solid;
-    padding: 10px 0px 10px 50px;
-    margin: auto;
-    width:494px;
-    position: relative
+
+.image-container-jps-wide img {
+   border: 0;
+   padding: 10px 0 10px 50px;
+   margin: auto;
+   width: 640px;
 }
-#jpsImage2 img
-{
-    border: 0px #000000 solid;
-    padding: 10px 0px 10px 50px;
-    margin: auto;
-    width:640px;
-    position: relative
+
+.code-block {
+   font-family: 'Courier New', monospace;
 }
-#wb_Text3
-{
-   background-color: transparent;
-   background-image: none;
-   border: 0px #C0C0C0 solid;
-   padding: 0;
-   margin: 0;
-   text-align: left;
-}
-#wb_Text3 div
-{
-   text-align: left;
-}
-#Image3
-{
-   border: 0px #000000 solid;
-   padding: 0px 0px 0px 0px;
-   left: 0;
-   top: 0;
-   width: 100%;
-   height: 100%;
+
+ul {
+   margin-left: 17px;
+   line-height: 1.4;
 }
 </style>
 </head>
 <body>
-<div id="Heading1" style="position:relative;text-align: center;">
-<h1 id="Heading1">ReEnroller</h1></div>
-<div id="main_body" style="position:relative;">
-<div style="font-family:Arial;font-size:13px;line-height:15px;color:#000000;">
-    <div>Use the ReEnroller app to generate a custom Quickadd package for your clients to (re)enroll the Mac.  Packages can be created to help migrate from one server to another or perform an initial enrollment.  The process, if successful, will enroll the machine into the new Jamf Pro server so that policies can be run.  Note, a valid (trusted) certificate used to encrypt traffic to the destination Jamf Pro server is requird.  To enable MDM functionality additional steps are required.</div>
-    <div><strong>Important:</strong> If deploying the package to macOS 13+ be sure to deploy the ReEnrollerNotification.mobileconf before deploying the package to suppress unwanted notifications.</div>
-<ul style="margin-left:17px;line-height: 1.4;">
+<div class="page-heading">
+<h1>ReEnroller</h1>
+</div>
+
+<div class="main-body">
+<div>
+    <div>Use the ReEnroller app to generate a custom Quickadd package for your clients to (re)enroll the Mac. Packages can be created to help migrate from one server to another or perform an initial enrollment.</div><br>
+    
+    <div><strong>Important:</strong>
+        The process, if successful, only installes the jamf binary as part of the enrollment, allowing for policies to run and inventory to be collected. To get the MDM profile installed the machine must either be part of a PreStage Enrollment or the user must complete a user initiated enrollment.<br><br>
+        
+        Lastly, the re-enrollment package adds a launch daemon which by default displays a message in notification center.<br>
+
+        <div class="image-container-small">
+            <img src="images/AppBackgroundActivity.png" alt="Background activity notification">
+        </div>
+
+        To suppress this notification deploy the <code>ReEnrollerNotification.mobileconfig</code> configuration profile to the macOS systems.<br><br>
+
+    </div>
+    Begin by setting a configuration to be used during the enrollment process:
+<ul>
     <li>Enter the URL and Jamf administrator credentials, or an account with at least enrollment privileges, for the new Jamf server.</li>
-    <li>The server must have a trusted certificate used to encrypt https traffic.</li>
-    <li>In the event network connectivity gets disrupted during the migration, connectivity is dependent on a configuration profile that gets removed, wifi imformation can be suplied to maintain a connection. Note, the connection only supports WPA.</li>
+    <li>The server must have a publicaly trusted certificate used to encrypt https traffic.</li>
+    <li>In the event network connectivity gets disrupted during the migration, connectivity is dependent on a configuration profile that gets removed, wifi information can be supplied to maintain a connection. Note, the connection only supports WPA.</li>
     <li>Be sure you're familiar with the usage/configuration of a (local) management account. Reference: <a href="https://learn.jamf.com/en-US/bundle/jamf-pro-documentation-current/page/Management_Accounts.html" target="_blank">Local Management Accounts</a></li>
-    <li>If you wish to retain the existing management account and the password enter those credentials.&nbsp; If you wish to change the management account and or password, or wish to use a random password a new management account must be entered.&nbsp; This must be an account not currently on the machine, it will be created during (re)enrollment.&nbsp;&nbsp; </li>
+    <li>If you wish to retain the existing management account and the password enter those credentials. If you wish to change the management account and or password, or wish to use a random password a new management account must be entered. This must be an account not currently on the machine, it will be created during (re)enrollment.</li>
     <li>If you wish to generate a package for an initial enrollment check 'Use for new enrollment'.</li>
-    <li>Select appropriate Site options.&nbsp; If the computer account already exists on the destination server with a Site assignemt, the Site may be preserved during re-enrollment.&nbsp; You're also able to select the Site to migrate the system into.</li>
-    <li>To automatically create the policy used on the destination server to verity enrollment check the 'Create Migration Complete policy' box.</li>
+    <li>Select appropriate Site options. If the computer account already exists on the destination server with a Site assignment, the Site may be preserved during re-enrollment. You're also able to select the Site to migrate the system into.</li>
+    <li>To automatically create the policy used on the destination server to verify enrollment check the 'Create Migration Complete policy' box.</li>
     <li>If APNs is not being used on the destination server, or you wish to skip the APNs test for some other reason, check the box 'Skip MDM verification'.</li>
-    <li>If you'd like to run a specific policy after migration has been verified and recon is complete select the option to do so.  Be sure to use the correct policy id from the policy on the destination server.</li>
-    <li>If calling device enrollment be sure the devicd has been assigned to a prestage in the new environment.</li>
+    <li>If you'd like to run a specific policy after migration has been verified and recon is complete select the option to do so. Be sure to use the correct policy id from the policy on the destination server.</li>
+    <li>If calling device enrollment be sure the device has been assigned to a prestage in the new environment.</li>
     <li>You can mark the machine as migrated by updating an attribute in the device record in the old server.</li>
     <li>Select when to remove the MDM profile installed by the source Jamf Pro server, or leave it on the machine to be removed later. If before, configure the apiMDM_remove script on the source (server you're migrating from) server. If after, configure the apiMDM_remove script on the destination (server you're migrating to) server. See the instructions below to ensure the script/policy is properly configured on the correct server.</li>
-    <li>Select opt out if you do not want anonymous data sent to <a href="telemetrydeck.com" target="_blank">TelemetryDeck</a></li>
-    <li>If desired set the number of times the client will try the enrollment process in the event it fails for some reason.  Leaving the field blank will set the client to keep retrying until successful.</li>
-    <li>Set an interval for the process to retry re-enrollment (5 minutes or greater) in the event it fails, or keep the default of 30 minutes.  You are able to separate the launch daemon/postinstall script from the re-enrollment application by checking the box, 'Create Separate Package'.  With the box checked 2 packages will be created, one with the launchdaemon and postinstall script, the other with the re-enrollment application and settings.  This allows one to stage the application then deploy the launch daemon at a later date, or create a custom launch daemon, say to repair enrollments that have failed over time.</li>
-    </ul>
+    <li>Select opt out if you do not want anonymous data sent to <a href="https://telemetrydeck.com" target="_blank">TelemetryDeck</a></li>
+    <li>If desired set the number of times the client will try the enrollment process in the event it fails for some reason. Leaving the field blank will set the client to keep retrying until successful.</li>
+    <li>Set an interval for the process to retry re-enrollment (5 minutes or greater) in the event it fails, or keep the default of 30 minutes. You are able to separate the launch daemon/postinstall script from the re-enrollment application by checking the box, 'Create Separate Package'. With the box checked 2 packages will be created, one with the launchdaemon and postinstall script, the other with the re-enrollment application and settings. This allows one to stage the application then deploy the launch daemon at a later date, or create a custom launch daemon, say to repair enrollments that have failed over time.</li>
+</ul>
+
 <div>Once everything is configured click Build.</div>
-</div></div>
-<div id="appImage">
-<img src="images/ReEnroller.png" alt=""></div>
-    <div id="main_body" style="position:relative;">
-        <div style="font-family:Arial;font-size:13px;line-height:15px;color:#000000;">
-            <div>To help track migrated machines, click 'Mark machine as migrated' and select the attribute to update.  If using Phone, Position, or Room, disable 'Collect user and location information from LDAP' from Computer Management --> Inventory Collection. Any existing data will be overwriten.</div>
-        </div>
-    </div>
-<div id="appImage2">
-    <img src="images/attribute.png" alt="">
 </div>
-    <div id="main_body" style="position:relative;">
-        <div style="font-family:Arial;font-size:13px;line-height:15px;color:#000000;">
-            <div>Control if/when the MDM profile is removed, either before or after enrollment in the new Jamf Server.  In addition you can leave the MDM profile in place and develop a workflow outside ReEnroller to remove it.</div>
-        </div>
-    </div>
-<div id="appImage3">
-    <img src="images/removeMDM.png" alt="">
 </div>
-<div id="main_body" style="position:relative;">
-<div style="font-family:Arial;font-size:13px;line-height:15px;color:#000000;">
-<div>After the process is complete you&rsquo;ll find a package, (Re)Enroller-&lt;hostname&gt;.pkg, saved to Downloads.&nbsp; If creating a second package, (Re)EnrollerDaemon-&lt;hostname&gt;.pkg, will also appear on Downloads.  Each package is ready to be deployed with a policy on the Jamf Server.</div>
-</div></div>
-<div id="main_body" style="position:relative;">
-    <div style="font-family:Arial;font-size:13px;line-height:15px;color:#000000;">
+
+<div class="image-container-large">
+<img src="images/ReEnroller.png" alt="ReEnroller application main interface">
+</div>
+
+<div class="main-body">
+    <div >
+        <div>To help track migrated machines, click 'Mark machine as migrated' and select the attribute to update. If using Phone, Position, or Room, disable 'Collect user and location information from LDAP' from Computer Management → Inventory Collection. Any existing data will be overwritten.</div>
+    </div>
+</div>
+
+<div class="image-container-medium">
+    <img src="images/attribute.png" alt="Attribute selection interface">
+</div>
+
+<div class="main-body">
+    <div >
+        <div>Control if/when the MDM profile is removed, either before or after enrollment in the new Jamf Server. In addition you can leave the MDM profile in place and develop a workflow outside ReEnroller to remove it.</div>
+    </div>
+</div>
+
+<div class="image-container-small">
+    <img src="images/removeMDM.png" alt="MDM removal options">
+</div>
+
+<div class="main-body">
+<div >
+<div>After the process is complete you'll find a package, (Re)Enroller-&lt;hostname&gt;.pkg, saved to Downloads. If creating a second package, (Re)EnrollerDaemon-&lt;hostname&gt;.pkg, will also appear on Downloads. Each package is ready to be deployed with a policy on the Jamf Server.</div>
+</div>
+</div>
+
+<div class="main-body">
+    <div >
 <div>Once a package is built, and profiles are in place, it can be uploaded to the source Jamf Pro server for deployment.</div>
     </div>
-<div id="main_body" style="position:relative;">
-    <div style="font-family:Arial;font-size:13px;line-height:15px;color:#000000;">
-    As the re-enrollment process kicks off the client will attempt to download, and use, the jamf binary from the new Jamf server.  If the download fails it will rely on the existing jamf binary.  Existing configurations will be backed up to /Library/Application Support/JAMF/ReEnroller/backup.  Upon successful re-enrollment the backups will be deleted, if the re-enrollment fails the backups will be restored.
+
+<div class="main-body">
+    <div >
+    As the re-enrollment process kicks off the client will attempt to download, and use, the jamf binary from the new Jamf server. If the download fails it will rely on the existing jamf binary. Existing configurations will be backed up to /Library/Application Support/JAMF/ReEnroller/backup. Upon successful re-enrollment the backups will be deleted, if the re-enrollment fails the backups will be restored.
 <div><hr></div>
-To verify the machine successfully migrated a 'Migration Complete' policy must exist on the new server, scoped to all managed clients.&nbsp; As mentioned earlier this policy may be created automatically.&nbsp; If you wish to create it manually it must, at a minimum, contain a Files and Processes payload.&nbsp; On the policy General tab configure a Custom Event (jpsmigrationcheck) and Execution Frequency (Ongoing) as illustrated below:
+To verify the machine successfully migrated a 'Migration Complete' policy must exist on the new server, scoped to all managed clients. As mentioned earlier this policy may be created automatically. If you wish to create it manually it must, at a minimum, contain a Files and Processes payload. On the policy General tab configure a Custom Event (jpsmigrationcheck) and Execution Frequency (Ongoing) as illustrated below:
 </div>
 </div>
-<div id="jpsImage">
-<img src="images/general.png" alt=""></div>
-<div id="main_body" style="position:relative;">
-<div style="font-family:Arial;font-size:13px;line-height:15px;color:#000000;">
-The Files and Processes payload must contain the following in the Execute Command section: <br><span style="font-family:'Courier New';">touch /Library/Application\ Support/JAMF/ReEnroller/Complete</span>
+
+<div class="image-container-jps">
+<img src="images/general.png" alt="Policy general settings">
+</div>
+
+<div class="main-body">
+<div >
+The Files and Processes payload must contain the following in the Execute Command section: <br><span class="code-block">touch /Library/Application\ Support/JAMF/ReEnroller/Complete</span>
 </div>
 </div>
-<div id="jpsImage">
-<img src="images/executeCommand.png" alt=""></div>
-<div id="main_body" style="position:relative;">
-<div style="font-family:Arial;font-size:13px;line-height:15px;color:#000000;">
+
+<div class="image-container-jps">
+<img src="images/executeCommand.png" alt="Execute command configuration">
+</div>
+
+<div class="main-body">
+<div >
 If utilizing a random password for the management account we also need a Management Account payload with (minimum) settings as shown:
 </div>
 </div>
-<div id="jpsImage">
-<img src="images/managementAccount.png" alt=""></div>
-<div id="main_body" style="position:relative;">
-<div style="font-family:Arial;font-size:13px;line-height:15px;color:#000000;"></div>
+
+<div class="image-container-jps">
+<img src="images/managementAccount.png" alt="Management account settings">
+</div>
+
+<div class="main-body">
+<div ></div>
 <div><hr></div>
     
 <div><strong>Jamf School Migrations</strong></div>
-<div id="jpsImage">
-<img src="images/reEnrollerJamfSchool.png" alt=""></div>    
-    
-    
-<div id="main_body" style="position:relative;">
-<div style="font-family:Arial;font-size:13px;line-height:15px;color:#000000;">
-Jamf School migrations require the following information from your Jamf School instance:
-<ul style="margin-left:17px;line-height: 1.4;">
-    <li>Jamf School URL</li>
-    <li>Network ID.  Found under Devices → Enroll Devices(s)</li>
-    <div id="jpsImage2">
-<img src="images/jamfSchoolNetworkId.png" alt=""></div>  
-    <li>An API key with Add permission.  Found under Organization → Settings → API</li>
-    <div id="jpsImage2">
-<img src="images/JamfSchoolApiKey.png" alt=""></div>  
-    </ul>
+<div class="image-container-jps">
+<img src="images/reEnrollerJamfSchool.png" alt="Jamf School migration interface">
 </div>
-</div> 
-<div id="main_body" style="position:relative;">
-<div style="font-family:Arial;font-size:13px;line-height:15px;color:#000000;">
-As the ReEnroller package is built the following will be created on the destination Jamf Server, if they don’t exist, to perform unenrollment from Jamf School.
-    <ul>
+    
+<div class="main-body">
+<div >
+Jamf School migrations require the following information from your Jamf School instance:
+<ul>
+    <li>Jamf School URL</li>
+    <li>Network ID. Found under Devices → Enroll Devices(s)</li>
+    <div class="image-container-jps-wide">
+<img src="images/jamfSchoolNetworkId.png" alt="Jamf School Network ID location">
+</div>
+    <li>An API key with Add permission. Found under Organization → Settings → API</li>
+    <div class="image-container-jps-wide">
+<img src="images/JamfSchoolApiKey.png" alt="Jamf School API key configuration">
+</div>
+</ul>
+</div>
+</div>
+
+<div class="main-body">
+<div >
+As the ReEnroller package is built the following will be created on the destination Jamf Server, if they don't exist, to perform unenrollment from Jamf School.
+<ul>
 <li>Category - Name: Jamf School Unenroll</li>
 <li>Script - Name: Jamf School Unenroll</li>
 <li>Policy - Name: Jamf School Unenroll</li>
-    </ul>
+</ul>
 Note, these objects are not updated when new packages are built and must be deleted from Jamf Pro if say you change the API key.
-<div><hr></div>    
+<div><hr></div>
     
 <strong>MDM Profile removal:</strong>
-<div id="main_body" style="position:relative;">
-<div style="font-family:Arial;font-size:13px;line-height:15px;color:#000000;">
-Starting with 10.13 Apple added /var/db/ConfigurationProfiles to SIP.  To ensure the MDM payload is removed additional setup is required, creating a script and policy for MDM removal.
+<div class="main-body">
+<div >
+Starting with 10.13 Apple added /var/db/ConfigurationProfiles to SIP. To ensure the MDM payload is removed additional setup is required, creating a script and policy for MDM removal.
     The following sample script can be used:
-    <pre><span style="font-family:'Courier New';">
+    <pre><span class="code-block">
         <hr>
         <code>
             #!/bin/bash
@@ -307,7 +320,7 @@ Starting with 10.13 Apple added /var/db/ConfigurationProfiles to SIP.  To ensure
             #               Parameters passed to the script include a Jamf server username and password and
             #               optionally the Jamf server URL in the form: https://FQDN:port/.
             #
-            #               The jamf user aaccount must have at least computer create and read (JSS Objects)
+            #               The jamf user account must have at least computer create and read (JSS Objects)
             #               along with Send Computer Unmanage Command (JSS Actions).
             #
             ####################################################################################################
@@ -440,30 +453,36 @@ Starting with 10.13 Apple added /var/db/ConfigurationProfiles to SIP.  To ensure
             invalidateToken
 
             </code>
-
+</span></pre>
 <br><hr>
-<?php
-    copy("./apiMDM_remove.txt","/tmp/apiMDM_remove.txt");
-    echo getcwd();
-?>
-</span></pre></div>
-    On the source server, create an API client with the following privileges:
+
+On the source server, create an API client with the following privileges:
+<ul>
     <li>Create Computers</li>
     <li>Read Computers</li>
-    <li>Send Computer Unmanage Command</li><br>
+    <li>Send Computer Unmanage Command</li>
+</ul>
 
-    If remove MDM profile is set to before, add the script and create a policy on the source server, otherwise add the script and create the policy on the destination server. <b>The policy must have a custom trigger of apiMDM_remove</b>. The policy can be scoped to All Computers with an Execution Frequency set to Ongoing.
+If remove MDM profile is set to before, add the script and create a policy on the source server, otherwise add the script and create the policy on the destination server. <strong>The policy must have a custom trigger of apiMDM_remove</strong>. The policy can be scoped to All Computers with an Execution Frequency set to Ongoing.
 
-<div id="jpsImage2">
-<img src="images/mdmRemove_general.png" alt=""></div>
-    The script requires 2 parameters, a Jamf Pro API client and secret.<p>
-    
-    A third parameter may be also be provided, the current Jamf server the client has received it's MDM profile from.  If the parameter is not provided the server will be read from com.jamfsoftware.jamf.plist.  <strong>If remove MDM profile is set to After the Jamf URL parameter must be provided, the URL being the server the client was migrated from.</strong>
-<div id="jpsImage2">
-<img src="images/mdmRemove_script.png" alt=""></div>
+<div class="image-container-jps-wide">
+<img src="images/mdmRemove_general.png" alt="MDM removal policy general settings">
 </div>
-    The script could also be added to the policy that deploys the reEnrollment package, if you'd like the profile removed before the new enrollment. Be mindful that once the MDM profile is removed all other profiles will be removed, potentially impacting the user experience or dropping the network connection. 
+
+The script requires 2 parameters, a Jamf Pro API client and secret.<p>
+    
+A third parameter may also be provided, the current Jamf server the client has received its MDM profile from. If the parameter is not provided the server will be read from com.jamfsoftware.jamf.plist. <strong>If remove MDM profile is set to After the Jamf URL parameter must be provided, the URL being the server the client was migrated from.</strong>
+
+<div class="image-container-jps-wide">
+<img src="images/mdmRemove_script.png" alt="MDM removal script parameters">
+</div>
+</div>
+
+The script could also be added to the policy that deploys the reEnrollment package, if you'd like the profile removed before the new enrollment. Be mindful that once the MDM profile is removed all other profiles will be removed, potentially impacting the user experience and/or dropping the network connection.<br><br>
+
 <div><hr></div>
+</div>
+</div>
 </div>
 </body>
 </html>
