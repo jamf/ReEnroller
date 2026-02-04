@@ -1265,6 +1265,11 @@ class ViewController: NSViewController, URLSessionDelegate {
         // alert the user, we're done
         Alert.shared.display(header: "Process Complete", message: "A package (\(packageName)-\(self.shortHostname).pkg) has been created in Downloads which is ready to be deployed with your current Jamf server.\n\nThe package \(self.includesMsg) a postinstall script to load the launch daemon and start the \(packageName) app.\(self.includesMsg2)\(self.policyMsg)")
         processQuickAdd_Button.isEnabled = true
+        
+        WriteToLog.shared.message(theMessage: "[TelemetryDeck] - sending signal - params: \(TelemetryDeckConfig.parameters)")
+        Task {@MainActor in
+            TelemetryDeckSignal.shared.send("runComplete", parameters: TelemetryDeckConfig.parameters)
+        }
     }
 
     func connectedToNetwork() -> Bool {
@@ -2613,7 +2618,6 @@ class ViewController: NSViewController, URLSessionDelegate {
         
         
         TelemetryDeckConfig.optOut = plistData["optOutdaf"] as? Bool ?? false
-        print("optOutdaf: \(TelemetryDeckConfig.optOut)")
 
         jssUrl_TextField.stringValue      = userDefaults.string(forKey: "jamfProUrl") ?? ""
         jssUsername_TextField.stringValue = userDefaults.string(forKey: "jamfProUser") ?? ""
