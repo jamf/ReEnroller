@@ -2216,7 +2216,7 @@ class ViewController: NSViewController, URLSessionDelegate {
             // update inventory - end
             
             // see if device is scoped to a prestage enrollment
-            _ = Command.shared.myExitCode(cmd: "/bin/launchctl", args: "asuser", "$(id -u \"$(stat -f%Su /dev/console)\")", "/usr/bin/profiles", "show", "-type", "enrollment")
+            _ = Command.shared.myExitCode(cmd: "/bin/bash", args: "-c", "/bin/launchctl asuser $(id -u \"$(stat -f%Su /dev/console)\") /usr/bin/profiles show -type enrollment")
             
             if callEnrollment == "yes" {
                 // launch profiles renew -type enrollment to initiate ADE process
