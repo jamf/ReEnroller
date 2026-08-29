@@ -165,8 +165,8 @@ jpMinVer=$(echo $version | awk -F. {'print $2'})
 
 ## send unmanage command to machine
 if [ $jpMajVer -gt 10 ] && [ $jpMinVer -gt 20 ];then
-    echo "unmanage machine: curl -m 20 -s ${server}api/v4/computer-inventory/${compId}/remove-mdm-profile -X POST -H \"Authorization: Bearer $(echo $token | head -n15)...\""
-    /usr/bin/curl -m 20 -s ${server}api/v4/computer-inventory/${compId}/remove-mdm-profile -X POST -H "Authorization: Bearer $token"
+    echo "unmanage machine: curl -m 20 -s ${server}api/v4/computers-inventory/${compId}/remove-mdm-profile -X POST -H \"Authorization: Bearer $(echo $token | head -n15)...\""
+    /usr/bin/curl -m 20 -s ${server}api/v4/computers-inventory/${compId}/remove-mdm-profile -X POST -H "Authorization: Bearer $token"
 else
     echo "unmanage machine: curl -m 20 -s ${server}JSSResource/computercommands/command/UnmanageDevice/id/${compId} -X POST -H \"Authorization: Bearer $(echo $token | head -n15)...\""
     /usr/bin/curl -m 20 -s ${server}JSSResource/computercommands/command/UnmanageDevice/id/${compId} -X POST -H "Authorization: Bearer $token"
