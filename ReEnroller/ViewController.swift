@@ -648,7 +648,7 @@ class ViewController: NSViewController, URLSessionDelegate {
         var binaryExists     = false
         var binaryDownloaded = false
 
-        if retryCount > maxRetries && maxRetries > -1 {
+        if retryCount >= maxRetries && maxRetries > -1 {
             // retry count has been met, stop retrying and remove the app
             WriteToLog.shared.message(theMessage: "Retry count: \(retryCount)")
             WriteToLog.shared.message(theMessage: "Maximum retries: \(maxRetries)")
