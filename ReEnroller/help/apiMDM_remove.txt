@@ -57,6 +57,7 @@
 #   - updated 20200918: Updates due to changes in xpath for Big Sur
 #   - updated 20240726: Update to use token for authentication
 #   - updated 20251020: Update for Jamf Pro 11.21 (removal of UnmanageDevice from Classic API)
+#   - updated 20260831: Update for Jamf Pro 11.31 (new remove-mdm-profile endpoint)
 #
 ####################################################################################################
 
