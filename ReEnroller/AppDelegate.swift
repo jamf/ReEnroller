@@ -2,8 +2,6 @@
 //  AppDelegate.swift
 //  ReEnroller
 //
-//  Created by Leslie Helou on 2/12/21.
-//
 
 import Cocoa
 

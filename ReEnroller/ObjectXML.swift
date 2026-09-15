@@ -2,8 +2,6 @@
 //  ObjectXML.swift
 //  ReEnroller
 //
-//  Created by Leslie Helou on 2/15/21
-//
 
 import Foundation
 

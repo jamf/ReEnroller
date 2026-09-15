@@ -2,8 +2,6 @@
 //  Globals.swift
 //  ReEnroller
 //
-//  Created by Leslie Helou on 2/14/21
-//
 
 import Foundation
 

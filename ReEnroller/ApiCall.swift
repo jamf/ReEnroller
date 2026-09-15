@@ -2,9 +2,6 @@
 //  ApiCall.swift
 //  ReEnroller
 //
-//  Created by Leslie N. Helou on 3/18/19.
-//  Copyright © 2019 jamf. All rights reserved.
-//
 
 import Cocoa
 import Foundation
