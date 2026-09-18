@@ -1,5 +1,7 @@
 # History
 
+- 2026-09-05: Better error handling, Address issues running profiles show command as the logged in user.
+
 - 2026-01-31: Minor code cleanup. Update help. Add telemetry deck integration.
 
 - 2025-11-15: Fix MDM removal script (issue #21) along with a typo for macOS minor version.

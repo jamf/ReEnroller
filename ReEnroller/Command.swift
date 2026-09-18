@@ -2,9 +2,6 @@
 //  command.swift
 //  ReEnroller
 //
-//  Created by Leslie Helou on 9/27/18.
-//  Copyright © 2018 Leslie Helou. All rights reserved.
-//
 
 import Foundation
 

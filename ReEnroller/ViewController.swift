@@ -2,36 +2,6 @@
 //  ViewController.swift
 //  ReEnroller
 //
-//  Created by Leslie Helou on 2/19/17
-//  Based on the bash ReEnroller script by Douglas Worley
-//
-//******************************************************************************************
-//
-//  Copyright (c) 2017 Jamf.  All rights reserved.
-//
-//      Redistribution and use in source and binary forms, with or without
-//      modification, are permitted provided that the following conditions are met:
-//              * Redistributions of source code must retain the above copyright
-//                notice, this list of conditions and the following disclaimer.
-//              * Redistributions in binary form must reproduce the above copyright
-//                notice, this list of conditions and the following disclaimer in the
-//                documentation and/or other materials provided with the distribution.
-//              * Neither the name of the Jamf nor the names of its contributors may be
-//                used to endorse or promote products derived from this software without
-//                specific prior written permission.
-//
-//      THIS SOFTWARE IS PROVIDED BY JAMF SOFTWARE, LLC "AS IS" AND ANY
-//      EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-//      WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-//      DISCLAIMED. IN NO EVENT SHALL JAMF SOFTWARE, LLC BE LIABLE FOR ANY
-//      DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
-//      (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-//      LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
-//      ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-//      (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-//      SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-//******************************************************************************************
 
 // PI-000524: prevents management account password from being reset if password on
 //            client doesn't match password on server.
@@ -648,7 +618,7 @@ class ViewController: NSViewController, URLSessionDelegate {
         var binaryExists     = false
         var binaryDownloaded = false
 
-        if retryCount > maxRetries && maxRetries > -1 {
+        if retryCount >= maxRetries && maxRetries > -1 {
             // retry count has been met, stop retrying and remove the app
             WriteToLog.shared.message(theMessage: "Retry count: \(retryCount)")
             WriteToLog.shared.message(theMessage: "Maximum retries: \(maxRetries)")
@@ -1265,6 +1235,11 @@ class ViewController: NSViewController, URLSessionDelegate {
         // alert the user, we're done
         Alert.shared.display(header: "Process Complete", message: "A package (\(packageName)-\(self.shortHostname).pkg) has been created in Downloads which is ready to be deployed with your current Jamf server.\n\nThe package \(self.includesMsg) a postinstall script to load the launch daemon and start the \(packageName) app.\(self.includesMsg2)\(self.policyMsg)")
         processQuickAdd_Button.isEnabled = true
+        
+        WriteToLog.shared.message(theMessage: "[TelemetryDeck] - sending signal - params: \(TelemetryDeckConfig.parameters)")
+        Task {@MainActor in
+            TelemetryDeckSignal.shared.send("runComplete", parameters: TelemetryDeckConfig.parameters)
+        }
     }
 
     func connectedToNetwork() -> Bool {
@@ -2211,7 +2186,7 @@ class ViewController: NSViewController, URLSessionDelegate {
             // update inventory - end
             
             // see if device is scoped to a prestage enrollment
-            _ = Command.shared.myExitCode(cmd: "/bin/launchctl", args: "asuser", "$(id -u \"$(stat -f%Su /dev/console)\")", "/usr/bin/profiles", "show", "-type", "enrollment")
+            _ = Command.shared.myExitCode(cmd: "/bin/bash", args: "-c", "/bin/launchctl asuser $(id -u \"$(stat -f%Su /dev/console)\") /usr/bin/profiles show -type enrollment")
             
             if callEnrollment == "yes" {
                 // launch profiles renew -type enrollment to initiate ADE process
@@ -2613,7 +2588,6 @@ class ViewController: NSViewController, URLSessionDelegate {
         
         
         TelemetryDeckConfig.optOut = plistData["optOutdaf"] as? Bool ?? false
-        print("optOutdaf: \(TelemetryDeckConfig.optOut)")
 
         jssUrl_TextField.stringValue      = userDefaults.string(forKey: "jamfProUrl") ?? ""
         jssUsername_TextField.stringValue = userDefaults.string(forKey: "jamfProUser") ?? ""
